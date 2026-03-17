@@ -10,7 +10,9 @@ import Combine
 
 struct LoginView: View {
     @EnvironmentObject var authVM: AuthViewModel
+    // 현재 선택된 이미지 인덱스
     @State private var selectedIndex: Int = 0
+    // ScrollViewReader에서 받은 proxy 저장 - 강제 이동에 사용
     @State private var scrollProxy: ScrollViewProxy? = nil
     
     // 자동 스크롤 타이머
@@ -21,9 +23,10 @@ struct LoginView: View {
     var body: some View {
         ZStack {
             Color.BackgroundBlack
-                .ignoresSafeArea()
+                .ignoresSafeArea(.all)
 
             VStack(alignment: .leading, spacing: 0) {
+                
                 // Header
                 HStack(spacing: 12) {
                     Image("Login_Logo")
@@ -84,6 +87,7 @@ struct LoginView: View {
                         .onAppear {
                             scrollProxy = proxy
                         }
+                        // 스크롤 위치를 읽어서 selectedIndex 자동 계산
                         .onScrollGeometryChange(for: Int.self) { geometry in
                             let offset = geometry.contentOffset.x
                             let itemWidth: CGFloat = 201 + 24
@@ -107,7 +111,14 @@ struct LoginView: View {
                 }
 
                 Spacer()
-                    .frame(height: 140)
+                    .frame(height: 90)
+                
+                AppleLoginButton(title: "Apple로 계속하기") {
+                    withAnimation {
+                        print("Apple로 계속하기 클릭")
+                    }
+                }
+                .padding(.bottom, 24)
 
                 // 하단 버튼
                 SnapyButton(title: "SNAPY로 계속하기") {
@@ -115,13 +126,14 @@ struct LoginView: View {
                         print("SNAPY로 계속하기 클릭")
                     }
                 }
-                .padding(.bottom, 40)
+                .padding(.bottom, 24)
             }
         }
         // 3초마다 다음 이미지로 자동 전환
         .onReceive(timer) { _ in
             withAnimation(.easeInOut(duration: 0.5)) {
                 selectedIndex = (selectedIndex + 1) % images.count
+                // 해당 카드가 화면 가운데에 오도록 강제 스크롤
                 scrollProxy?.scrollTo(selectedIndex, anchor: .center)
             }
         }
