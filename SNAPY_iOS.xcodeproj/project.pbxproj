@@ -29,6 +29,8 @@
 		BCD815B12F6934790028AE50 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD815B02F6934780028AE50 /* AppState.swift */; };
 		BCD8162B2F6936740028AE50 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD8162A2F6936700028AE50 /* User.swift */; };
 		BCD8162D2F6937940028AE50 /* SnapyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD8162C2F6937940028AE50 /* SnapyButton.swift */; };
+		BCD816BF2F69A8D30028AE50 /* AppleSignInButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD816BE2F69A8D30028AE50 /* AppleSignInButton.swift */; };
+		BCD816C12F69AA6B0028AE50 /* AppleLoginButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD816C02F69AA5D0028AE50 /* AppleLoginButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +72,8 @@
 		BCD815B02F6934780028AE50 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		BCD8162A2F6936700028AE50 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		BCD8162C2F6937940028AE50 /* SnapyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyButton.swift; sourceTree = "<group>"; };
+		BCD816BE2F69A8D30028AE50 /* AppleSignInButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInButton.swift; sourceTree = "<group>"; };
+		BCD816C02F69AA5D0028AE50 /* AppleLoginButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleLoginButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -314,6 +318,8 @@
 		BCD815A82F692FC60028AE50 /* Component */ = {
 			isa = PBXGroup;
 			children = (
+				BCD816C02F69AA5D0028AE50 /* AppleLoginButton.swift */,
+				BCD816BE2F69A8D30028AE50 /* AppleSignInButton.swift */,
 				BCD8162C2F6937940028AE50 /* SnapyButton.swift */,
 			);
 			path = Component;
@@ -472,6 +478,8 @@
 				BCD815A32F6929550028AE50 /* SplashView.swift in Sources */,
 				BC1DC2F12F68CF730016A4CD /* Color+Extensions.swift in Sources */,
 				BCD815AF2F69346D0028AE50 /* MainTabView.swift in Sources */,
+				BCD816BF2F69A8D30028AE50 /* AppleSignInButton.swift in Sources */,
+				BCD816C12F69AA6B0028AE50 /* AppleLoginButton.swift in Sources */,
 				BCD815AB2F69343D0028AE50 /* RootView.swift in Sources */,
 				BCD815B12F6934790028AE50 /* AppState.swift in Sources */,
 				BCD8159A2F69285F0028AE50 /* SNAPY_iOSApp.swift in Sources */,
