@@ -19,6 +19,12 @@
 		BCD8158D2F68DF9B0028AE50 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = BCD8158C2F68DF9B0028AE50 /* Moya */; };
 		BCD8158F2F68DF9B0028AE50 /* ReactiveMoya in Frameworks */ = {isa = PBXBuildFile; productRef = BCD8158E2F68DF9B0028AE50 /* ReactiveMoya */; };
 		BCD815912F68DF9B0028AE50 /* RxMoya in Frameworks */ = {isa = PBXBuildFile; productRef = BCD815902F68DF9B0028AE50 /* RxMoya */; };
+		BCD815982F69285F0028AE50 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BCD815942F69285F0028AE50 /* Assets.xcassets */; };
+		BCD815992F69285F0028AE50 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD815952F69285F0028AE50 /* ContentView.swift */; };
+		BCD8159A2F69285F0028AE50 /* SNAPY_iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD815962F69285F0028AE50 /* SNAPY_iOSApp.swift */; };
+		BCD815A32F6929550028AE50 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD815A22F69294B0028AE50 /* SplashView.swift */; };
+		BCD815A52F692FAB0028AE50 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD815A42F692FA80028AE50 /* LoginView.swift */; };
+		BCD815A72F692FB50028AE50 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD815A62F692FAE0028AE50 /* LoginViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,14 +56,16 @@
 		BC5AFEBE2F6866FF00273744 /* SNAPY_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SNAPY_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC5AFECB2F68670100273744 /* SNAPY_iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SNAPY_iOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC5AFED52F68670100273744 /* SNAPY_iOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SNAPY_iOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BCD815942F69285F0028AE50 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BCD815952F69285F0028AE50 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		BCD815962F69285F0028AE50 /* SNAPY_iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SNAPY_iOSApp.swift; sourceTree = "<group>"; };
+		BCD815A22F69294B0028AE50 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
+		BCD815A42F692FA80028AE50 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		BCD815A62F692FAE0028AE50 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		BCD815A92F6931040028AE50 /* SNAPY-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "SNAPY-iOS-Info.plist"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		BC1DC2C82F68CF490016A4CD /* SNAPY_iOS */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SNAPY_iOS;
-			sourceTree = "<group>";
-		};
 		BC5AFECE2F68670100273744 /* SNAPY_iOSTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = SNAPY_iOSTests;
@@ -189,11 +197,11 @@
 		BC5AFEB52F6866FF00273744 = {
 			isa = PBXGroup;
 			children = (
-				BC1DC2C82F68CF490016A4CD /* SNAPY_iOS */,
-				BC5AFECE2F68670100273744 /* SNAPY_iOSTests */,
-				BC5AFED82F68670100273744 /* SNAPY_iOSUITests */,
+				BCD815972F69285F0028AE50 /* SNAPY_iOS */,
 				BC5AFEBF2F6866FF00273744 /* Products */,
 				BC1DC2EC2F68CF730016A4CD /* Model */,
+				BC5AFECE2F68670100273744 /* SNAPY_iOSTests */,
+				BC5AFED82F68670100273744 /* SNAPY_iOSUITests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -205,6 +213,100 @@
 				BC5AFED52F68670100273744 /* SNAPY_iOSUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		BCD815922F69285F0028AE50 /* App */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		BCD815932F69285F0028AE50 /* Feature */ = {
+			isa = PBXGroup;
+			children = (
+				BCD815A12F6929330028AE50 /* Splash */,
+				BCD815A02F69291E0028AE50 /* Profile */,
+				BCD8159F2F6929040028AE50 /* Friend */,
+				BCD8159E2F6928F10028AE50 /* Camera */,
+				BCD8159D2F6928B40028AE50 /* Home */,
+				BCD8159C2F6928AC0028AE50 /* SignUp */,
+				BCD8159B2F69289D0028AE50 /* Login */,
+			);
+			path = Feature;
+			sourceTree = "<group>";
+		};
+		BCD815972F69285F0028AE50 /* SNAPY_iOS */ = {
+			isa = PBXGroup;
+			children = (
+				BCD815A92F6931040028AE50 /* SNAPY-iOS-Info.plist */,
+				BCD815922F69285F0028AE50 /* App */,
+				BCD815932F69285F0028AE50 /* Feature */,
+				BCD815942F69285F0028AE50 /* Assets.xcassets */,
+				BCD815952F69285F0028AE50 /* ContentView.swift */,
+				BCD815962F69285F0028AE50 /* SNAPY_iOSApp.swift */,
+			);
+			path = SNAPY_iOS;
+			sourceTree = "<group>";
+		};
+		BCD8159B2F69289D0028AE50 /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				BCD815A82F692FC60028AE50 /* Component */,
+				BCD815A62F692FAE0028AE50 /* LoginViewModel.swift */,
+				BCD815A42F692FA80028AE50 /* LoginView.swift */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		BCD8159C2F6928AC0028AE50 /* SignUp */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = SignUp;
+			sourceTree = "<group>";
+		};
+		BCD8159D2F6928B40028AE50 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		BCD8159E2F6928F10028AE50 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
+		BCD8159F2F6929040028AE50 /* Friend */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Friend;
+			sourceTree = "<group>";
+		};
+		BCD815A02F69291E0028AE50 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		BCD815A12F6929330028AE50 /* Splash */ = {
+			isa = PBXGroup;
+			children = (
+				BCD815A22F69294B0028AE50 /* SplashView.swift */,
+			);
+			path = Splash;
+			sourceTree = "<group>";
+		};
+		BCD815A82F692FC60028AE50 /* Component */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Component;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -221,9 +323,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				BC1DC2C82F68CF490016A4CD /* SNAPY_iOS */,
 			);
 			name = SNAPY_iOS;
 			packageProductDependencies = (
@@ -334,6 +433,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BCD815982F69285F0028AE50 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,9 +459,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				BC1DC2EE2F68CF730016A4CD /* TokenStorage.swift in Sources */,
+				BCD815A32F6929550028AE50 /* SplashView.swift in Sources */,
 				BC1DC2F12F68CF730016A4CD /* Color+Extensions.swift in Sources */,
+				BCD815992F69285F0028AE50 /* ContentView.swift in Sources */,
+				BCD8159A2F69285F0028AE50 /* SNAPY_iOSApp.swift in Sources */,
 				BC1DC2F22F68CF730016A4CD /* AuthAPI.swift in Sources */,
+				BCD815A52F692FAB0028AE50 /* LoginView.swift in Sources */,
 				BC1DC2F92F68CF730016A4CD /* UserDTO.swift in Sources */,
+				BCD815A72F692FB50028AE50 /* LoginViewModel.swift in Sources */,
 				BC1DC2FB2F68CF730016A4CD /* AuthService.swift in Sources */,
 				BC1DC2FC2F68CF730016A4CD /* Date+Extensions.swift in Sources */,
 				BC1DC2FE2F68CF730016A4CD /* ImagePicker.swift in Sources */,
@@ -530,12 +635,14 @@
 				DEVELOPMENT_TEAM = QLF22M2925;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "SNAPY-iOS-Info.plist";
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -563,12 +670,14 @@
 				DEVELOPMENT_TEAM = QLF22M2925;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "SNAPY-iOS-Info.plist";
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
