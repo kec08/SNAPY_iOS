@@ -20,14 +20,14 @@ struct SnapyTextField: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(label)
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(isFocused ? Color.mainYellow : .gray)
+                .foregroundColor(isFocused ? Color.mainYellow : .customGray300)
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
 
             ZStack(alignment: .leading) {
                 if text.isEmpty {
                     Text(placeholder)
                         .font(.system(size: 20))
-                        .foregroundColor(isFocused ? Color.textWhite : Color(white: 0.4))
+                        .foregroundColor(isFocused ? Color.textWhite : .customGray300)
                         .animation(.easeInOut(duration: 0.2), value: isFocused)
                 }
 
@@ -50,7 +50,7 @@ struct SnapyTextField: View {
 
             // 하단 라인
             Rectangle()
-                .fill(isFocused ? Color.mainYellow : (text.isEmpty ? Color(white: 0.3) : Color.white))
+                .fill(isFocused ? Color.mainYellow : (text.isEmpty ? Color.textWhite : Color.textWhite))
                 .frame(height: 3)
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
         }

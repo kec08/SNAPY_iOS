@@ -58,21 +58,23 @@ struct SnapyLoginView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 40)
 
-                Button {
-                    withAnimation {
-                        authVM.authFlow = .registerEmail
+                
+                HStack(spacing: 8){
+                    Text("아직 회원이 아니신가요?")
+                        .font(.system(size: 14, weight: .medium))
+                    Button {
+                        withAnimation {
+                            authVM.authFlow = .registerEmail
+                        }
+                    } label: {
+                            Text("회원가입")
+                                .foregroundColor(Color.mainYellow)
+                                .font(.system(size: 14, weight: .semibold))
                     }
-                } label: {
-                    HStack(spacing: 4) {
-                        Text("아직 회원이 아니신가요?")
-                            .foregroundColor(.gray)
-                        Text("회원가입")
-                            .foregroundColor(Color.customGray300)
-                    }
-                    .font(.system(size: 14))
                 }
-                .padding(.top, 20)
-                .padding(.horizontal, 24)
+                .padding(.top, 28)
+                .frame(maxWidth: .infinity)
+                
 
                 if let error = authVM.errorMessage {
                     Text(error)
