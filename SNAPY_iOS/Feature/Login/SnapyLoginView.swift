@@ -10,6 +10,7 @@ import SwiftUI
 struct SnapyLoginView: View {
     let title: String
     var onLoginTap: () -> Void
+    var onRegisterTap: () -> Void
     @EnvironmentObject var authVM: AuthViewModel
 
     var body: some View {
@@ -65,8 +66,8 @@ struct SnapyLoginView: View {
                         .font(.system(size: 14, weight: .medium))
                     Button {
                         withAnimation {
-                            authVM.authFlow = .registerEmail
-                        }
+                                onRegisterTap()
+                            }
                     } label: {
                             Text("회원가입")
                                 .foregroundColor(Color.mainYellow)
@@ -104,7 +105,7 @@ struct SnapyLoginView: View {
 
 struct SnapyLoginView_Preview: PreviewProvider {
     static var previews: some View {
-        SnapyLoginView(title: "SNAPY 로그인", onLoginTap: {})
+        SnapyLoginView(title: "SNAPY 로그인", onLoginTap: {}, onRegisterTap: {})
             .environmentObject(AuthViewModel())
     }
 }

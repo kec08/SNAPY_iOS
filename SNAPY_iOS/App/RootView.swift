@@ -11,6 +11,10 @@ enum AppScreen {
     case splash
     case login
     case snapyLogin
+    case registerEmail
+    case registerPassword
+    case registerPhone
+    case registerInfo
     case onboarding
     case main
 }
@@ -32,11 +36,52 @@ struct RootView: View {
                 .environmentObject(authVM)
 
             case .snapyLogin:
-                SnapyLoginView(title: "SNAPY 로그인", onLoginTap: {
-                    screen = .onboarding
-                })
+                SnapyLoginView(
+                    title: "SNAPY 로그인",
+                    onLoginTap: {
+                        screen = .onboarding
+                    },
+                    onRegisterTap: {
+                        screen = .registerEmail
+                    }
+                )
                 .environmentObject(authVM)
 
+            case .registerEmail:
+                EmailView(
+                    title: "이메일 입력",
+                    onSignNextTap: {
+                        screen = .registerPassword
+                    }
+                )
+                .environmentObject(authVM)
+                
+            case .registerPassword:
+                PasswordView(
+                    title: "전화번호 입력",
+                    onSignNextTap: {
+                        screen = .registerPhone
+                    }
+                )
+                .environmentObject(authVM)
+                
+            case .registerPhone:
+                PhoneView(
+                    onSignNextTap: {
+                        screen = .registerInfo
+                    }
+                )
+                .environmentObject(authVM)
+                
+            case .registerInfo:
+                InfoView(
+                    title: "이메일 입력",
+                    onSignNextTap: {
+                        screen = .snapyLogin
+                    }
+                )
+                .environmentObject(authVM)
+                
             case .onboarding:
                 OnboardingView(onStartTap: {
                     screen = .main
@@ -48,7 +93,7 @@ struct RootView: View {
         }
         .animation(.easeInOut(duration: 0.4), value: screen)
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 screen = .login
             }
         }

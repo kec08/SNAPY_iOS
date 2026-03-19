@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PasswordView: View {
     let title: String
-    var onLoginTap: () -> Void
+    var onSignNextTap: () -> Void
     @EnvironmentObject var authVM: AuthViewModel
 
     var body: some View {
@@ -68,7 +68,7 @@ struct PasswordView: View {
                     isEnabled: authVM.isPasswordValid
                 ) {
                     withAnimation {
-                        onLoginTap()
+                        onSignNextTap()
                     }
                 }
                 .padding(.bottom, 24)
@@ -82,7 +82,7 @@ struct PasswordView: View {
 
 struct PasswordView_Preview: PreviewProvider {
     static var previews: some View {
-        PasswordView(title: "확인", onLoginTap: {})
+        PasswordView(title: "확인", onSignNextTap: {})
             .environmentObject(AuthViewModel())
     }
 }
