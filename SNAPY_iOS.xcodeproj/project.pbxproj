@@ -18,6 +18,15 @@
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5842F6ABB5F00ED71E0 /* SnapyLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5832F6ABB5800ED71E0 /* SnapyLoginViewModel.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
+		BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */; };
+		BCCAD6092F6B060F00ED71E0 /* EmailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6082F6B060600ED71E0 /* EmailViewModel.swift */; };
+		BCCAD60C2F6B062F00ED71E0 /* PasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD60B2F6B061E00ED71E0 /* PasswordView.swift */; };
+		BCCAD60E2F6B063700ED71E0 /* PasswordViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD60D2F6B063200ED71E0 /* PasswordViewModel.swift */; };
+		BCCAD6112F6B071700ED71E0 /* PhoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6102F6B071300ED71E0 /* PhoneView.swift */; };
+		BCCAD6132F6B072000ED71E0 /* PhoneViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6122F6B071A00ED71E0 /* PhoneViewModel.swift */; };
+		BCCAD6742F6B9F7500ED71E0 /* registerCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6732F6B9F6F00ED71E0 /* registerCompleteView.swift */; };
+		BCCAD6782F6BA34400ED71E0 /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6772F6BA33C00ED71E0 /* InfoView.swift */; };
+		BCCAD67A2F6BA34E00ED71E0 /* InfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6792F6BA34B00ED71E0 /* InfoViewModel.swift */; };
 		BCD8158B2F68DF9B0028AE50 /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = BCD8158A2F68DF9B0028AE50 /* CombineMoya */; };
 		BCD8158D2F68DF9B0028AE50 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = BCD8158C2F68DF9B0028AE50 /* Moya */; };
 		BCD8158F2F68DF9B0028AE50 /* ReactiveMoya in Frameworks */ = {isa = PBXBuildFile; productRef = BCD8158E2F68DF9B0028AE50 /* ReactiveMoya */; };
@@ -34,8 +43,6 @@
 		BCD8162D2F6937940028AE50 /* SnapyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD8162C2F6937940028AE50 /* SnapyButton.swift */; };
 		BCD816BF2F69A8D30028AE50 /* AppleSignInButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD816BE2F69A8D30028AE50 /* AppleSignInButton.swift */; };
 		BCD816C12F69AA6B0028AE50 /* AppleLoginButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD816C02F69AA5D0028AE50 /* AppleLoginButton.swift */; };
-		BCD816C32F6A40D50028AE50 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD816C22F6A40CE0028AE50 /* SignUpView.swift */; };
-		BCD816C82F6A40FF0028AE50 /* SignUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD816C72F6A40F80028AE50 /* SignUpViewModel.swift */; };
 		BCD816CA2F6A41470028AE50 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD816C92F6A41440028AE50 /* HomeView.swift */; };
 		BCD816CC2F6A414D0028AE50 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD816CB2F6A414A0028AE50 /* HomeViewModel.swift */; };
 		BCD816D22F6A416F0028AE50 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD816D12F6A416A0028AE50 /* CameraView.swift */; };
@@ -82,6 +89,15 @@
 		BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginView.swift; sourceTree = "<group>"; };
 		BCCAD5832F6ABB5800ED71E0 /* SnapyLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginViewModel.swift; sourceTree = "<group>"; };
 		BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyTextField.swift; sourceTree = "<group>"; };
+		BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailView.swift; sourceTree = "<group>"; };
+		BCCAD6082F6B060600ED71E0 /* EmailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailViewModel.swift; sourceTree = "<group>"; };
+		BCCAD60B2F6B061E00ED71E0 /* PasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordView.swift; sourceTree = "<group>"; };
+		BCCAD60D2F6B063200ED71E0 /* PasswordViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordViewModel.swift; sourceTree = "<group>"; };
+		BCCAD6102F6B071300ED71E0 /* PhoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneView.swift; sourceTree = "<group>"; };
+		BCCAD6122F6B071A00ED71E0 /* PhoneViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneViewModel.swift; sourceTree = "<group>"; };
+		BCCAD6732F6B9F6F00ED71E0 /* registerCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = registerCompleteView.swift; sourceTree = "<group>"; };
+		BCCAD6772F6BA33C00ED71E0 /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
+		BCCAD6792F6BA34B00ED71E0 /* InfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoViewModel.swift; sourceTree = "<group>"; };
 		BCD815942F69285F0028AE50 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BCD815962F69285F0028AE50 /* SNAPY_iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SNAPY_iOSApp.swift; sourceTree = "<group>"; };
 		BCD815A22F69294B0028AE50 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
@@ -94,8 +110,6 @@
 		BCD8162C2F6937940028AE50 /* SnapyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyButton.swift; sourceTree = "<group>"; };
 		BCD816BE2F69A8D30028AE50 /* AppleSignInButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInButton.swift; sourceTree = "<group>"; };
 		BCD816C02F69AA5D0028AE50 /* AppleLoginButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleLoginButton.swift; sourceTree = "<group>"; };
-		BCD816C22F6A40CE0028AE50 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
-		BCD816C72F6A40F80028AE50 /* SignUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewModel.swift; sourceTree = "<group>"; };
 		BCD816C92F6A41440028AE50 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		BCD816CB2F6A414A0028AE50 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		BCD816D12F6A416A0028AE50 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
@@ -261,6 +275,50 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		BCCAD6052F6B05E100ED71E0 /* Email */ = {
+			isa = PBXGroup;
+			children = (
+				BCCAD6082F6B060600ED71E0 /* EmailViewModel.swift */,
+				BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */,
+			);
+			path = Email;
+			sourceTree = "<group>";
+		};
+		BCCAD60A2F6B061200ED71E0 /* Password */ = {
+			isa = PBXGroup;
+			children = (
+				BCCAD60D2F6B063200ED71E0 /* PasswordViewModel.swift */,
+				BCCAD60B2F6B061E00ED71E0 /* PasswordView.swift */,
+			);
+			path = Password;
+			sourceTree = "<group>";
+		};
+		BCCAD60F2F6B063D00ED71E0 /* Phone */ = {
+			isa = PBXGroup;
+			children = (
+				BCCAD6122F6B071A00ED71E0 /* PhoneViewModel.swift */,
+				BCCAD6102F6B071300ED71E0 /* PhoneView.swift */,
+			);
+			path = Phone;
+			sourceTree = "<group>";
+		};
+		BCCAD6142F6B072800ED71E0 /* Info */ = {
+			isa = PBXGroup;
+			children = (
+				BCCAD6792F6BA34B00ED71E0 /* InfoViewModel.swift */,
+				BCCAD6772F6BA33C00ED71E0 /* InfoView.swift */,
+			);
+			path = Info;
+			sourceTree = "<group>";
+		};
+		BCCAD6722F6B9F6000ED71E0 /* Complete */ = {
+			isa = PBXGroup;
+			children = (
+				BCCAD6732F6B9F6F00ED71E0 /* registerCompleteView.swift */,
+			);
+			path = Complete;
+			sourceTree = "<group>";
+		};
 		BCD815922F69285F0028AE50 /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -313,9 +371,12 @@
 		BCD8159C2F6928AC0028AE50 /* SignUp */ = {
 			isa = PBXGroup;
 			children = (
+				BCCAD6722F6B9F6000ED71E0 /* Complete */,
+				BCCAD6142F6B072800ED71E0 /* Info */,
+				BCCAD60F2F6B063D00ED71E0 /* Phone */,
+				BCCAD60A2F6B061200ED71E0 /* Password */,
+				BCCAD6052F6B05E100ED71E0 /* Email */,
 				BCD816C62F6A40F20028AE50 /* Component */,
-				BCD816C72F6A40F80028AE50 /* SignUpViewModel.swift */,
-				BCD816C22F6A40CE0028AE50 /* SignUpView.swift */,
 			);
 			path = SignUp;
 			sourceTree = "<group>";
@@ -593,9 +654,14 @@
 				BCD815A32F6929550028AE50 /* SplashView.swift in Sources */,
 				BCD816DC2F6A41A50028AE50 /* ProfileViewModel.swift in Sources */,
 				BC1DC2F12F68CF730016A4CD /* Color+Extensions.swift in Sources */,
+				BCCAD60C2F6B062F00ED71E0 /* PasswordView.swift in Sources */,
 				BCD815AF2F69346D0028AE50 /* MainTabView.swift in Sources */,
+				BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */,
+				BCCAD6112F6B071700ED71E0 /* PhoneView.swift in Sources */,
 				BCD816BF2F69A8D30028AE50 /* AppleSignInButton.swift in Sources */,
+				BCCAD6132F6B072000ED71E0 /* PhoneViewModel.swift in Sources */,
 				BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */,
+				BCCAD60E2F6B063700ED71E0 /* PasswordViewModel.swift in Sources */,
 				BCD816CC2F6A414D0028AE50 /* HomeViewModel.swift in Sources */,
 				BCD816D62F6A418A0028AE50 /* FriendView.swift in Sources */,
 				BCD816CA2F6A41470028AE50 /* HomeView.swift in Sources */,
@@ -615,13 +681,15 @@
 				BCD816E52F6A437D0028AE50 /* AlbumView.swift in Sources */,
 				BC1DC2F92F68CF730016A4CD /* UserDTO.swift in Sources */,
 				BCD8162D2F6937940028AE50 /* SnapyButton.swift in Sources */,
-				BCD816C82F6A40FF0028AE50 /* SignUpViewModel.swift in Sources */,
 				BCD815A72F692FB50028AE50 /* LoginViewModel.swift in Sources */,
+				BCCAD6092F6B060F00ED71E0 /* EmailViewModel.swift in Sources */,
 				BC1DC2FB2F68CF730016A4CD /* AuthService.swift in Sources */,
+				BCCAD6782F6BA34400ED71E0 /* InfoView.swift in Sources */,
+				BCCAD6742F6B9F7500ED71E0 /* registerCompleteView.swift in Sources */,
 				BCD8162B2F6936740028AE50 /* User.swift in Sources */,
-				BCD816C32F6A40D50028AE50 /* SignUpView.swift in Sources */,
 				BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */,
 				BC1DC2FC2F68CF730016A4CD /* Date+Extensions.swift in Sources */,
+				BCCAD67A2F6BA34E00ED71E0 /* InfoViewModel.swift in Sources */,
 				BC1DC2FE2F68CF730016A4CD /* ImagePicker.swift in Sources */,
 				BCD816D42F6A41810028AE50 /* CameraViewModel.swift in Sources */,
 				BC1DC2FF2F68CF730016A4CD /* AuthDTO.swift in Sources */,

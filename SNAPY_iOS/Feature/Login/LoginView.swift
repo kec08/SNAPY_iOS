@@ -17,7 +17,7 @@ struct LoginView: View {
     @State private var scrollProxy: ScrollViewProxy? = nil
     
     // 자동 스크롤 타이머
-    let timer = Timer.publish(every: 3, on: .main, in: .common).autoconnect()
+    let timer = Timer.publish(every: 2.5, on: .main, in: .common).autoconnect()
     
     let images = ["Login_img1", "Login_img2", "Login_img3", "Login_img4", "Login_img5"]
 
