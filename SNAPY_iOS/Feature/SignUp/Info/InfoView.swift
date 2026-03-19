@@ -9,7 +9,7 @@ import SwiftUI
 
 struct InfoView: View {
     let title: String
-    var onLoginTap: () -> Void
+    var onSignNextTap: () -> Void
     @EnvironmentObject var authVM: AuthViewModel
 
     var body: some View {
@@ -67,7 +67,7 @@ struct InfoView: View {
                                 !authVM.registerUsername.isEmpty
                 ) {
                     withAnimation {
-                        onLoginTap()
+                        onSignNextTap()
                     }
                 }
                 .padding(.bottom, 24)
@@ -81,7 +81,7 @@ struct InfoView: View {
 
 struct InfoView_Preview: PreviewProvider {
     static var previews: some View {
-        InfoView(title: "확인", onLoginTap: {})
+        InfoView(title: "확인", onSignNextTap: {})
             .environmentObject(AuthViewModel())
     }
 }

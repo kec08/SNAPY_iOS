@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EmailView: View {
     let title: String
-    var onLoginTap: () -> Void
+    var onSignNextTap: () -> Void
     @EnvironmentObject var authVM: AuthViewModel
 
     var body: some View {
@@ -60,7 +60,7 @@ struct EmailView: View {
                     isEnabled: authVM.isEmailValid
                 ) {
                     withAnimation {
-                        onLoginTap()
+                        onSignNextTap()
                     }
                 }
                 .padding(.bottom, 24)
@@ -74,7 +74,7 @@ struct EmailView: View {
 
 struct EmailView_Preview: PreviewProvider {
     static var previews: some View {
-        EmailView(title: "확인", onLoginTap: {})
+        EmailView(title: "확인", onSignNextTap: {})
             .environmentObject(AuthViewModel())
     }
 }
