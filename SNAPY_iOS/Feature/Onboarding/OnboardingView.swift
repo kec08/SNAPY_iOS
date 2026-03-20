@@ -46,14 +46,14 @@ struct OnboardingView: View {
                 .padding(.horizontal, 24)
                 
                 Spacer()
-                    .frame(height: 40)
+                    .frame(height: 50)
                 
                 Image("Onboarding_img")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 310, height: 420)
+                    .frame(width: 270, height: 410)
                     .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 30)
+                    .padding(.horizontal, 66)
                 
                 
                 Spacer()
