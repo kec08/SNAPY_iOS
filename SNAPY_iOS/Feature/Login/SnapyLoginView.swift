@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct SnapyLoginView: View {
-    let title: String
     var onLoginTap: () -> Void
     var onRegisterTap: () -> Void
     @EnvironmentObject var authVM: AuthViewModel
@@ -105,7 +104,7 @@ struct SnapyLoginView: View {
 
 struct SnapyLoginView_Preview: PreviewProvider {
     static var previews: some View {
-        SnapyLoginView(title: "SNAPY 로그인", onLoginTap: {}, onRegisterTap: {})
+        SnapyLoginView(onLoginTap: {}, onRegisterTap: {})
             .environmentObject(AuthViewModel())
     }
 }

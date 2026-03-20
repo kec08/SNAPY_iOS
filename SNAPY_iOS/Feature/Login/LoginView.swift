@@ -10,6 +10,7 @@ import Combine
 
 struct LoginView: View {
     var onSnapyTap: () -> Void
+    var onRegisterTap: () -> Void
     @EnvironmentObject var authVM: AuthViewModel
     // 현재 선택된 이미지 인덱스
     @State private var selectedIndex: Int = 0
@@ -110,9 +111,26 @@ struct LoginView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
-
+                
                 Spacer()
-                    .frame(height: 90)
+                    .frame(height: 60)
+                
+                HStack(spacing: 8){
+                    Text("아직 회원이 아니신가요?")
+                        .font(.system(size: 14, weight: .medium))
+                    Button {
+                        withAnimation {
+                                onRegisterTap()
+                            }
+                    } label: {
+                            Text("회원가입")
+                                .foregroundColor(Color.mainYellow)
+                                .font(.system(size: 14, weight: .semibold))
+                    }
+                }
+                .padding(.bottom, 32)
+                .frame(maxWidth: .infinity)
+                
                 
                 AppleLoginButton(title: "Apple로 계속하기") {
                     withAnimation {
@@ -143,7 +161,7 @@ struct LoginView: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView(onSnapyTap: {})
+        LoginView(onSnapyTap: {}, onRegisterTap: {})
             .environmentObject(AuthViewModel())
     }
 }

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PhoneView: View {
+    var onBack: () -> Void
     var onSignNextTap: () -> Void
     @EnvironmentObject var authVM: AuthViewModel
     let carriers = ["SKT", "KT", "LG U+", "알뜰폰"]
@@ -20,7 +21,7 @@ struct PhoneView: View {
 
                 SignUpHeader {
                     withAnimation {
-                        authVM.authFlow = .registerProfile
+                        authVM.authFlow = .registerPassword
                     }
                 }
 
@@ -134,7 +135,7 @@ struct PhoneView: View {
 
 struct PhoneView_Previews: PreviewProvider {
     static var previews: some View {
-        PhoneView(onSignNextTap: {})
+        PhoneView(onBack: {}, onSignNextTap: {})
             .environmentObject(AuthViewModel())
     }
 }

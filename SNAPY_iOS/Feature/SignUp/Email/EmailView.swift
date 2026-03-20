@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EmailView: View {
-    let title: String
+    var onBack: () -> Void
     var onSignNextTap: () -> Void
     @EnvironmentObject var authVM: AuthViewModel
 
@@ -20,7 +20,7 @@ struct EmailView: View {
                 
                 SignUpHeader {
                     withAnimation {
-                        authVM.authFlow = .registerPassword
+                        onBack()
                     }
                 }
                 
@@ -74,7 +74,7 @@ struct EmailView: View {
 
 struct EmailView_Preview: PreviewProvider {
     static var previews: some View {
-        EmailView(title: "확인", onSignNextTap: {})
+        EmailView(onBack: {}, onSignNextTap: {})
             .environmentObject(AuthViewModel())
     }
 }

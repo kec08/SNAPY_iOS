@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PasswordView: View {
-    let title: String
+    var onBack: () -> Void
     var onSignNextTap: () -> Void
     @EnvironmentObject var authVM: AuthViewModel
 
@@ -20,7 +20,7 @@ struct PasswordView: View {
                 
                 SignUpHeader {
                     withAnimation {
-                        authVM.authFlow = .registerPhone
+                        onBack()
                     }
                 }
                 
@@ -82,7 +82,7 @@ struct PasswordView: View {
 
 struct PasswordView_Preview: PreviewProvider {
     static var previews: some View {
-        PasswordView(title: "확인", onSignNextTap: {})
+        PasswordView(onBack: {}, onSignNextTap: {})
             .environmentObject(AuthViewModel())
     }
 }

@@ -30,14 +30,18 @@ struct RootView: View {
                 SplashView()
 
             case .login:
-                LoginView(onSnapyTap: {
-                    screen = .snapyLogin
-                })
-                .environmentObject(authVM)
+                LoginView(
+                    onSnapyTap: {
+                        screen = .snapyLogin
+                    },
+                    onRegisterTap: {
+                        screen = .registerEmail
+                    }
+                )
+            .environmentObject(authVM)
 
             case .snapyLogin:
                 SnapyLoginView(
-                    title: "SNAPY 로그인",
                     onLoginTap: {
                         screen = .onboarding
                     },
@@ -49,7 +53,9 @@ struct RootView: View {
 
             case .registerEmail:
                 EmailView(
-                    title: "이메일 입력",
+                    onBack: {
+                        screen = .login
+                    },
                     onSignNextTap: {
                         screen = .registerPassword
                     }
@@ -58,7 +64,9 @@ struct RootView: View {
                 
             case .registerPassword:
                 PasswordView(
-                    title: "전화번호 입력",
+                    onBack: {
+                        screen = .registerEmail
+                    },
                     onSignNextTap: {
                         screen = .registerPhone
                     }
@@ -67,6 +75,9 @@ struct RootView: View {
                 
             case .registerPhone:
                 PhoneView(
+                    onBack: {
+                        screen = .registerPassword
+                    },
                     onSignNextTap: {
                         screen = .registerInfo
                     }
@@ -75,7 +86,9 @@ struct RootView: View {
                 
             case .registerInfo:
                 InfoView(
-                    title: "이메일 입력",
+                    onBack: {
+                        screen = .registerPhone
+                    },
                     onSignNextTap: {
                         screen = .snapyLogin
                     }

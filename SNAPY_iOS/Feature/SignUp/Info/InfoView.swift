@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct InfoView: View {
-    let title: String
+    var onBack: () -> Void
     var onSignNextTap: () -> Void
     @EnvironmentObject var authVM: AuthViewModel
 
@@ -20,7 +20,7 @@ struct InfoView: View {
                 
                 SignUpHeader {
                     withAnimation {
-                        authVM.authFlow = .registerComplete
+                        onBack()
                     }
                 }
                 
@@ -81,7 +81,7 @@ struct InfoView: View {
 
 struct InfoView_Preview: PreviewProvider {
     static var previews: some View {
-        InfoView(title: "확인", onSignNextTap: {})
+        InfoView(onBack: {}, onSignNextTap: {})
             .environmentObject(AuthViewModel())
     }
 }
