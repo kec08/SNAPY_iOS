@@ -92,8 +92,9 @@ final class CameraViewModel: ObservableObject {
         if dualCamera.isMultiCamSupported && dualCamera.isRunning {
             dualCamera.capturePhotos { [weak self] backImage, frontImage in
                 DispatchQueue.main.async {
+                    // 촬영 실패 시 (연결 끊김 등) 무시
+                    guard backImage != nil || frontImage != nil else { return }
                     self?.capturedPhotos.append((front: frontImage, back: backImage))
-                    // 다음 렌더링 사이클에서 프리뷰 표시 (첫 촬영 시 이미지 반영 보장)
                     DispatchQueue.main.async {
                         self?.showPreview = true
                     }

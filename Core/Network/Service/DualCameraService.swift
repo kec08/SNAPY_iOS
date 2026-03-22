@@ -19,14 +19,11 @@ final class DualCameraService: NSObject, ObservableObject {
     private var multiCamSession: AVCaptureMultiCamSession?
     private var backCameraOutput = AVCapturePhotoOutput()
     private var frontCameraOutput = AVCapturePhotoOutput()
-    private var backVideoOutput = AVCaptureVideoDataOutput()
-    private var frontVideoOutput = AVCaptureVideoDataOutput()
 
     private var backConnection: AVCaptureConnection?
     private var frontConnection: AVCaptureConnection?
 
     private let sessionQueue = DispatchQueue(label: "com.snapy.camera.session")
-    private let videoOutputQueue = DispatchQueue(label: "com.snapy.camera.videoOutput")
 
     private var captureCompletion: ((UIImage?, UIImage?) -> Void)?
     private var capturedBackPhoto: UIImage?
@@ -66,29 +63,15 @@ final class DualCameraService: NSObject, ObservableObject {
             session.addInputWithNoConnections(backInput)
         }
 
-        // 후면 카메라
+        // 후면 카메라 - 사진 촬영
         if session.canAddOutput(backCameraOutput) {
             session.addOutputWithNoConnections(backCameraOutput)
 
-            // Input의 port를 직접 지정해서 Connection을 만듦 - 핵심 로직
             if let port = backInput.ports(for: .video, sourceDeviceType: backCamera.deviceType, sourceDevicePosition: .back).first {
                 let connection = AVCaptureConnection(inputPorts: [port], output: backCameraOutput)
                 if session.canAddConnection(connection) {
                     session.addConnection(connection)
                     backConnection = connection
-                }
-            }
-        }
-
-        // 후면 카메라 - 실시간 프리뷰
-        if session.canAddOutput(backVideoOutput) {
-            session.addOutputWithNoConnections(backVideoOutput)
-            backVideoOutput.setSampleBufferDelegate(self, queue: videoOutputQueue)
-
-            if let port = backInput.ports(for: .video, sourceDeviceType: backCamera.deviceType, sourceDevicePosition: .back).first {
-                let connection = AVCaptureConnection(inputPorts: [port], output: backVideoOutput)
-                if session.canAddConnection(connection) {
-                    session.addConnection(connection)
                 }
             }
         }
@@ -111,7 +94,6 @@ final class DualCameraService: NSObject, ObservableObject {
             if let port = frontInput.ports(for: .video, sourceDeviceType: frontCamera.deviceType, sourceDevicePosition: .front).first {
                 let connection = AVCaptureConnection(inputPorts: [port], output: frontCameraOutput)
                 connection.automaticallyAdjustsVideoMirroring = false
-                // 좌우반전 적용
                 connection.isVideoMirrored = true
                 if session.canAddConnection(connection) {
                     session.addConnection(connection)
@@ -120,56 +102,40 @@ final class DualCameraService: NSObject, ObservableObject {
             }
         }
 
-        // 전면 카메라 - 실시간 프리뷰
-        if session.canAddOutput(frontVideoOutput) {
-            session.addOutputWithNoConnections(frontVideoOutput)
-            frontVideoOutput.setSampleBufferDelegate(self, queue: videoOutputQueue)
+        // Preview layer 생성 및 연결 - 세션 큐에서 연결 추가 (중요!)
+        let backLayer = AVCaptureVideoPreviewLayer(sessionWithNoConnection: session)
+        backLayer.videoGravity = .resizeAspectFill
+        if let port = backInput.ports(for: .video, sourceDeviceType: backCamera.deviceType, sourceDevicePosition: .back).first {
+            let layerConnection = AVCaptureConnection(inputPort: port, videoPreviewLayer: backLayer)
+            if session.canAddConnection(layerConnection) {
+                session.addConnection(layerConnection)
+            }
+        }
 
-            if let port = frontInput.ports(for: .video, sourceDeviceType: frontCamera.deviceType, sourceDevicePosition: .front).first {
-                let connection = AVCaptureConnection(inputPorts: [port], output: frontVideoOutput)
-                connection.automaticallyAdjustsVideoMirroring = false
-                connection.isVideoMirrored = true
-                if session.canAddConnection(connection) {
-                    session.addConnection(connection)
-                }
+        let frontLayer = AVCaptureVideoPreviewLayer(sessionWithNoConnection: session)
+        frontLayer.videoGravity = .resizeAspectFill
+        if let port = frontInput.ports(for: .video, sourceDeviceType: frontCamera.deviceType, sourceDevicePosition: .front).first {
+            let layerConnection = AVCaptureConnection(inputPort: port, videoPreviewLayer: frontLayer)
+            layerConnection.automaticallyAdjustsVideoMirroring = false
+            layerConnection.isVideoMirrored = true
+            if session.canAddConnection(layerConnection) {
+                session.addConnection(layerConnection)
             }
         }
 
         session.commitConfiguration()
         self.multiCamSession = session
 
-        // Create preview layers
+        print("MultiCam hardwareCost: \(session.hardwareCost)")
+
+        // @Published 프로퍼티만 메인 스레드에서 업데이트
         DispatchQueue.main.async { [weak self] in
-            guard let self = self, let session = self.multiCamSession else { return }
-
-            let backLayer = AVCaptureVideoPreviewLayer(sessionWithNoConnection: session)
-            backLayer.videoGravity = .resizeAspectFill
-            if let port = backInput.ports(for: .video, sourceDeviceType: backCamera.deviceType, sourceDevicePosition: .back).first {
-                let layerConnection = AVCaptureConnection(inputPort: port, videoPreviewLayer: backLayer)
-                if session.canAddConnection(layerConnection) {
-                    session.addConnection(layerConnection)
-                }
-            }
-            // 화면에 보이는 레이어
-            self.backPreviewLayer = backLayer
-
-            let frontLayer = AVCaptureVideoPreviewLayer(sessionWithNoConnection: session)
-            frontLayer.videoGravity = .resizeAspectFill
-            if let port = frontInput.ports(for: .video, sourceDeviceType: frontCamera.deviceType, sourceDevicePosition: .front).first {
-                let layerConnection = AVCaptureConnection(inputPort: port, videoPreviewLayer: frontLayer)
-                layerConnection.automaticallyAdjustsVideoMirroring = false
-                layerConnection.isVideoMirrored = true
-                if session.canAddConnection(layerConnection) {
-                    session.addConnection(layerConnection)
-                }
-            }
-            //화면에 보여주는 레이어 - 좌우반전 적용
-            self.frontPreviewLayer = frontLayer
+            self?.backPreviewLayer = backLayer
+            self?.frontPreviewLayer = frontLayer
         }
     }
 
     private func configureSingleCameraSession() {
-        // Fallback for devices without multi-cam support (like simulator)
         DispatchQueue.main.async {
             self.isRunning = false
         }
@@ -184,6 +150,7 @@ final class DualCameraService: NSObject, ObservableObject {
             }
         }
     }
+
     // 카메라 세션 중지
     func stopSession() {
         sessionQueue.async { [weak self] in
@@ -194,24 +161,34 @@ final class DualCameraService: NSObject, ObservableObject {
         }
     }
 
-    
     func capturePhotos(completion: @escaping (UIImage?, UIImage?) -> Void) {
-        captureCompletion = completion
-        capturedBackPhoto = nil
-        capturedFrontPhoto = nil
-        // 후면 1장 + 전면 1장 촬영
-        pendingCaptures = 2
+        // 세션 큐에서 촬영 - 연결 상태와 캡처가 같은 큐에서 실행되어 동기화 보장
+        sessionQueue.async { [weak self] in
+            guard let self = self,
+                  let session = self.multiCamSession, session.isRunning,
+                  let backConn = self.backConnection, backConn.isActive, backConn.isEnabled,
+                  let frontConn = self.frontConnection, frontConn.isActive, frontConn.isEnabled else {
+                print("Camera not ready for capture")
+                DispatchQueue.main.async {
+                    completion(nil, nil)
+                }
+                return
+            }
 
-        backCameraOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
-        frontCameraOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+            self.captureCompletion = completion
+            self.capturedBackPhoto = nil
+            self.capturedFrontPhoto = nil
+            self.pendingCaptures = 2
+
+            self.backCameraOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+            self.frontCameraOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+        }
     }
 }
 
 // MARK: - AVCapturePhotoCaptureDelegate
 extension DualCameraService: AVCapturePhotoCaptureDelegate {
-    // 촬영 완료시 delegate 호출
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        // pendingCaptures가 0이 되면 completion으로 두 이미지를 함께 반환
         guard let imageData = photo.fileDataRepresentation(),
               let image = UIImage(data: imageData) else {
             pendingCaptures -= 1
@@ -219,7 +196,7 @@ extension DualCameraService: AVCapturePhotoCaptureDelegate {
             return
         }
 
-        if output == backCameraOutput {
+        if output == backCameraOutput { 
             capturedBackPhoto = image
         } else if output == frontCameraOutput {
             capturedFrontPhoto = image
@@ -239,12 +216,5 @@ extension DualCameraService: AVCapturePhotoCaptureDelegate {
             self.captureCompletion?(self.capturedBackPhoto, self.capturedFrontPhoto)
             self.captureCompletion = nil
         }
-    }
-}
-
-// MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
-extension DualCameraService: AVCaptureVideoDataOutputSampleBufferDelegate {
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        // Used for live preview updates if needed
     }
 }

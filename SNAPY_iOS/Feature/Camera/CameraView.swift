@@ -16,14 +16,17 @@ struct CameraView: View {
         ZStack {
             Color.black.ignoresSafeArea()
 
+            // 카메라 뷰를 항상 유지하여 세션 연결이 끊기지 않도록 함
+            cameraContentView
+                .opacity(cameraVM.showPreview || cameraVM.showPostConfirm ? 0 : 1)
+                .allowsHitTesting(!cameraVM.showPreview && !cameraVM.showPostConfirm)
+
             if cameraVM.showPostConfirm {
                 PostConfirmView()
                     .environmentObject(cameraVM)
             } else if cameraVM.showPreview {
                 PhotoPreviewView()
                     .environmentObject(cameraVM)
-            } else {
-                cameraContentView
             }
         }
         .onAppear {

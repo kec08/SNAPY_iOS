@@ -68,28 +68,14 @@ struct PostConfirmView: View {
                     .padding(.bottom, 16)
             }
 
-            // 다시, 게시 버튼 영억
-            HStack {
-                Button {
-                    cameraVM.resetCamera()
-                } label: {
-                    Text("처음부터")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                }
-                .disabled(cameraVM.isUploading)
-
-                Spacer()
-
-                Button {
-                    Task { await cameraVM.uploadPhotos() }
-                } label: {
-                    Text("게시하기")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-                .disabled(cameraVM.isUploading)
+            Button {
+                Task { await cameraVM.uploadPhotos() }
+            } label: {
+                Text("게시하기")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
             }
+            .disabled(cameraVM.isUploading)
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
         }
