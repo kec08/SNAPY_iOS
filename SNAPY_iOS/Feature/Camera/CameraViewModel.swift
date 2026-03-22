@@ -26,6 +26,8 @@ final class CameraViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var latestBackImage: UIImage?
     @Published var latestFrontImage: UIImage?
+    @Published var backPreviewLayer: AVCaptureVideoPreviewLayer?
+    @Published var frontPreviewLayer: AVCaptureVideoPreviewLayer?
 
     let dualCamera = DualCameraService()
     let maxPhotos = 5
@@ -48,6 +50,14 @@ final class CameraViewModel: ObservableObject {
         dualCamera.$frontCameraImage
             .receive(on: DispatchQueue.main)
             .assign(to: &$latestFrontImage)
+
+        dualCamera.$backPreviewLayer
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$backPreviewLayer)
+
+        dualCamera.$frontPreviewLayer
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$frontPreviewLayer)
     }
     // 카메라 권한 체크
     func checkCameraPermission() {
@@ -83,7 +93,10 @@ final class CameraViewModel: ObservableObject {
             dualCamera.capturePhotos { [weak self] backImage, frontImage in
                 DispatchQueue.main.async {
                     self?.capturedPhotos.append((front: frontImage, back: backImage))
-                    self?.showPreview = true
+                    // 다음 렌더링 사이클에서 프리뷰 표시 (첫 촬영 시 이미지 반영 보장)
+                    DispatchQueue.main.async {
+                        self?.showPreview = true
+                    }
                 }
             }
         } else {
@@ -91,7 +104,9 @@ final class CameraViewModel: ObservableObject {
             let placeholderBack = createPlaceholderImage(text: "후면 \(capturedPhotos.count + 1)", color: .darkGray)
             let placeholderFront = createPlaceholderImage(text: "전면 \(capturedPhotos.count + 1)", color: .gray)
             capturedPhotos.append((front: placeholderFront, back: placeholderBack))
-            showPreview = true
+            DispatchQueue.main.async { [weak self] in
+                self?.showPreview = true
+            }
         }
     }
 

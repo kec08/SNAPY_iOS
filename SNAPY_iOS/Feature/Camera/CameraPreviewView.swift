@@ -6,24 +6,39 @@ struct CameraPreviewView: UIViewRepresentable {
     // UIKit 카메라 레이어를 SwiftUI로 브릿징
     let previewLayer: AVCaptureVideoPreviewLayer?
 
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView()
+    func makeUIView(context: Context) -> PreviewUIView {
+        let view = PreviewUIView()
         view.backgroundColor = .black
+        if let previewLayer = previewLayer {
+            view.previewLayer = previewLayer
+            previewLayer.videoGravity = .resizeAspectFill
+            view.layer.addSublayer(previewLayer)
+        }
         return view
     }
 
-    // 기존 프리뷰 레이어 제거 → 새 레이어 추가 → frame 맞춤
-    func updateUIView(_ uiView: UIView, context: Context) {
-        // Remove old layers
-        uiView.layer.sublayers?.filter { $0 is AVCaptureVideoPreviewLayer }.forEach { $0.removeFromSuperlayer() }
-
-        guard let previewLayer = previewLayer else { return }
-        previewLayer.frame = uiView.bounds
-        uiView.layer.addSublayer(previewLayer)
-
-        // Update frame when layout changes
-        DispatchQueue.main.async {
-            previewLayer.frame = uiView.bounds
+    func updateUIView(_ uiView: PreviewUIView, context: Context) {
+        // 기존 프리뷰 레이어가 다르면 교체
+        if uiView.previewLayer !== previewLayer {
+            uiView.previewLayer?.removeFromSuperlayer()
+            uiView.previewLayer = previewLayer
+            if let previewLayer = previewLayer {
+                previewLayer.videoGravity = .resizeAspectFill
+                uiView.layer.addSublayer(previewLayer)
+            }
         }
+        // frame 업데이트
+        previewLayer?.frame = uiView.bounds
+    }
+}
+
+// layoutSubviews에서 frame을 자동 갱신하는 커스텀 UIView
+class PreviewUIView: UIView {
+    var previewLayer: AVCaptureVideoPreviewLayer?
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        // 레이아웃이 변경될 때마다 프리뷰 레이어 크기를 맞춤
+        previewLayer?.frame = bounds
     }
 }

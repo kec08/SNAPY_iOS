@@ -24,6 +24,7 @@ struct PhoneView: View {
                         authVM.authFlow = .registerPassword
                     }
                 }
+                .padding(.top, 20)
 
                 Text("휴대폰 번호를 입력 해주세요")
                     .font(.system(size: 20, weight: .bold))

@@ -23,6 +23,7 @@ struct EmailView: View {
                         onBack()
                     }
                 }
+                .padding(.top, 20)
                 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("이메을을 입력해주세요")

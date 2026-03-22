@@ -26,7 +26,7 @@ struct registerCompleteView: View {
                     
                     Spacer()
                 }
-                .padding(.top, 4)
+                .padding(.top, 20)
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
                 

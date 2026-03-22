@@ -23,6 +23,7 @@ struct PasswordView: View {
                         onBack()
                     }
                 }
+                .padding(.top, 20)
                 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("비밀번호를 입력해주세요")

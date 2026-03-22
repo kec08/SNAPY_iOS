@@ -46,7 +46,7 @@ struct CameraView: View {
             // 멀티캠 화면
             ZStack {
                 // 메인 카메라
-                if let backLayer = cameraVM.dualCamera.backPreviewLayer {
+                if let backLayer = cameraVM.backPreviewLayer {
                     // 후면 카메라
                     CameraPreviewView(previewLayer: backLayer)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -69,7 +69,7 @@ struct CameraView: View {
                 VStack {
                     HStack {
                         ZStack {
-                            if let frontLayer = cameraVM.dualCamera.frontPreviewLayer {
+                            if let frontLayer = cameraVM.frontPreviewLayer {
                                 // 전면 카메라
                                 CameraPreviewView(previewLayer: frontLayer)
                                     .frame(width: 120, height: 160)
