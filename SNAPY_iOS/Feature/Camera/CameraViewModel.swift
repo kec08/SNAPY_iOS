@@ -5,9 +5,8 @@
 //  Created by 김은찬 on 3/18/26.
 //
 
-// showPreview = false, showPostConfirm = false  →  CameraView (촬영 화면)
-// showPreview = true,  showPostConfirm = false  →  PhotoPreviewView (미리보기)
-// showPreview = false, showPostConfirm = true   →  PostConfirmView (게시 확인)
+// showPreview = false  →  CameraView (촬영 화면)
+// showPreview = true   →  PhotoPreviewView (미리보기: 다시찍기 / 저장하기)
 
 import Foundation
 import SwiftUI
@@ -21,7 +20,6 @@ final class CameraViewModel: ObservableObject {
     @Published var currentPhotoIndex = 0
     @Published var isCameraReady = false
     @Published var showPreview = false
-    @Published var showPostConfirm = false
     @Published var isUploading = false
     @Published var errorMessage: String?
     @Published var latestBackImage: UIImage?
@@ -30,7 +28,7 @@ final class CameraViewModel: ObservableObject {
     @Published var frontPreviewLayer: AVCaptureVideoPreviewLayer?
 
     let dualCamera = DualCameraService()
-    let maxPhotos = 5
+    let maxPhotos = 1
     private var cancellables = Set<AnyCancellable>()
 
     var photoCountText: String {
@@ -122,31 +120,19 @@ final class CameraViewModel: ObservableObject {
         showPreview = false
     }
 
-    func proceedToPost() {
-        showPreview = false
-        showPostConfirm = true
+    @Published var shouldDismiss = false
+
+    func savePhoto() {
+        // TODO: 로컬 저장 또는 서버 업로드 로직 추가
         dualCamera.stopSession()
-    }
-
-    @Published var uploadComplete = false
-
-    func uploadPhotos() async {
-        isUploading = true
-
-        // PhotoStore에 사진 저장
-        // PhotoStore.shared.savePhotos(capturedPhotos)
-        // 서버에 업로드 하기 위해 0.5초 대기
-        try? await Task.sleep(nanoseconds: 500_000_000)
-        isUploading = false
-        uploadComplete = true
+        shouldDismiss = true
     }
 
     func resetCamera() {
         capturedPhotos = []
         currentPhotoIndex = 0
         showPreview = false
-        showPostConfirm = false
-        uploadComplete = false
+        shouldDismiss = false
         latestBackImage = nil
         latestFrontImage = nil
         setupCamera()

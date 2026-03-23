@@ -18,13 +18,10 @@ struct CameraView: View {
 
             // 카메라 뷰를 항상 유지하여 세션 연결이 끊기지 않도록 함
             cameraContentView
-                .opacity(cameraVM.showPreview || cameraVM.showPostConfirm ? 0 : 1)
-                .allowsHitTesting(!cameraVM.showPreview && !cameraVM.showPostConfirm)
+                .opacity(cameraVM.showPreview ? 0 : 1)
+                .allowsHitTesting(!cameraVM.showPreview)
 
-            if cameraVM.showPostConfirm {
-                PostConfirmView()
-                    .environmentObject(cameraVM)
-            } else if cameraVM.showPreview {
+            if cameraVM.showPreview {
                 PhotoPreviewView()
                     .environmentObject(cameraVM)
             }
@@ -123,7 +120,7 @@ struct CameraView: View {
                             .frame(width: 60, height: 60)
                     }
                 }
-                .disabled(cameraVM.capturedPhotos.count >= cameraVM.maxPhotos)
+//                .disabled(cameraVM.capturedPhotos.count >= cameraVM.maxPhotos)
 
                 HStack {
                     Spacer()

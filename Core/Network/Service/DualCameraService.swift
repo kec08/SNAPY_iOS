@@ -180,8 +180,11 @@ final class DualCameraService: NSObject, ObservableObject {
             self.capturedFrontPhoto = nil
             self.pendingCaptures = 2
 
-            self.backCameraOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
-            self.frontCameraOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+            // MainActor에서 delegate 전달 - ObservableObject의 @MainActor 요구사항
+            DispatchQueue.main.async {
+                self.backCameraOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+                self.frontCameraOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+            }
         }
     }
 }

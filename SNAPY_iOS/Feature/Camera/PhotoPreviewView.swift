@@ -16,21 +16,21 @@ struct PhotoPreviewView: View {
 
             Spacer()
 
-            // Photo preview with dual images
+            // 듀얼캠
             ZStack {
-                // Back camera image (main)
+                // 후면 카메라
                 if let backImage = lastPhoto?.back {
                     Image(uiImage: backImage)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(maxWidth: .infinity)
+                        .frame(width: 350, height: 500)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 } else {
                     RoundedRectangle(cornerRadius: 16)
                         .fill(Color(white: 0.15))
                 }
 
-                // Front camera image (small overlay)
+                // 전면 카메라
                 VStack {
                     HStack {
                         if let frontImage = lastPhoto?.front {
@@ -56,7 +56,7 @@ struct PhotoPreviewView: View {
 
             Spacer()
 
-            // Action buttons
+            // 다시 찍기 버튼
             HStack {
                 Button {
                     cameraVM.retakePhoto()
@@ -69,13 +69,9 @@ struct PhotoPreviewView: View {
                 Spacer()
 
                 Button {
-                    if cameraVM.capturedPhotos.count >= cameraVM.maxPhotos {
-                        cameraVM.proceedToPost()
-                    } else {
-                        cameraVM.confirmPhoto()
-                    }
+                    cameraVM.savePhoto()
                 } label: {
-                    Text("다음으로")
+                    Text("저장하기")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white)
                 }

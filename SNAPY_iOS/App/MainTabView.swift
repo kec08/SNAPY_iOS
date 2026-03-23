@@ -61,9 +61,16 @@ struct MainTabView: View {
                 selectedTab = 0
             }
         }
-        .sheet(isPresented: $showCamera) {
+        .sheet(isPresented: $showCamera, onDismiss: {
+            cameraVM.resetCamera()
+        }) {
             CameraView()
                 .environmentObject(cameraVM)
+        }
+        .onChange(of: cameraVM.shouldDismiss) {
+            if cameraVM.shouldDismiss {
+                showCamera = false
+            }
         }
     }
 }
