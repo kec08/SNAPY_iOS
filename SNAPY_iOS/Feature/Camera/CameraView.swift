@@ -36,10 +36,26 @@ struct CameraView: View {
 
     private var cameraContentView: some View {
         VStack(spacing: 0) {
-            Text("추억이 남을 사진을 찍어보세요!")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.white)
-                .padding(.top, 50)
+            ZStack {
+                Text("추억이 남을 사진을 찍어보세요!")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                
+                HStack {
+                    Button {
+                        cameraVM.shouldDismiss = true
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 22, weight: .medium))
+                            .foregroundColor(.textWhite)
+                    }
+                    .buttonStyle(.glass)
+                    
+                    Spacer()
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 30)
 
             Spacer()
 
@@ -101,11 +117,11 @@ struct CameraView: View {
             .aspectRatio(3/4, contentMode: .fit)
             .padding(.horizontal, 16)
 
-            // Photo count
-            Text(cameraVM.photoCountText)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.white)
+            Text(cameraVM.currentTimeText)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(.customGray300)
                 .padding(.top, 30)
+                .padding(.bottom, 10)
             
             ZStack {
                 Button {

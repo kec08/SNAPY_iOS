@@ -9,7 +9,7 @@ struct PhotoPreviewView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("사진 촬영 완료! 계속 하시겠습니까?")
+            Text(cameraVM.capturedTimeText)
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.white)
                 .padding(.top, 50)

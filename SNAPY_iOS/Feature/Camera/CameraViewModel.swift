@@ -17,6 +17,7 @@ import Photos
 @MainActor
 final class CameraViewModel: ObservableObject {
     @Published var capturedPhotos: [(front: UIImage?, back: UIImage?)] = []
+    @Published var capturedAt: Date?
     @Published var currentPhotoIndex = 0
     @Published var isCameraReady = false
     @Published var showPreview = false
@@ -31,13 +32,17 @@ final class CameraViewModel: ObservableObject {
     let maxPhotos = 1
     private var cancellables = Set<AnyCancellable>()
 
-    var photoCountText: String {
-        "\(capturedPhotos.count)/\(maxPhotos)"
+    /// 카메라 촬영 버튼 영역: "저녁 · 2026.03.23 00:11"
+    var currentTimeText: String {
+        let now = Date()
+        return "\(now.timeSlotName) · \(now.shortTimestamp)"
     }
 
-//    var currentTimeSlotText: String {
-//        Date().currentTimeSlot.displayName
-//    }
+    /// 미리보기 화면: "저녁 · 2026년 3월 23일 오전 12시 11분"
+    var capturedTimeText: String {
+        guard let date = capturedAt else { return "" }
+        return "\(date.timeSlotName) · \(date.fullTimestamp)"
+    }
 
     init() {
         // Observe camera images
@@ -92,6 +97,7 @@ final class CameraViewModel: ObservableObject {
                 DispatchQueue.main.async {
                     // 촬영 실패 시 (연결 끊김 등) 무시
                     guard backImage != nil || frontImage != nil else { return }
+                    self?.capturedAt = Date()
                     self?.capturedPhotos.append((front: frontImage, back: backImage))
                     DispatchQueue.main.async {
                         self?.showPreview = true
@@ -102,6 +108,7 @@ final class CameraViewModel: ObservableObject {
             // Simulator fallback - use placeholder images
             let placeholderBack = createPlaceholderImage(text: "후면 \(capturedPhotos.count + 1)", color: .darkGray)
             let placeholderFront = createPlaceholderImage(text: "전면 \(capturedPhotos.count + 1)", color: .gray)
+            capturedAt = Date()
             capturedPhotos.append((front: placeholderFront, back: placeholderBack))
             DispatchQueue.main.async { [weak self] in
                 self?.showPreview = true
@@ -130,6 +137,7 @@ final class CameraViewModel: ObservableObject {
 
     func resetCamera() {
         capturedPhotos = []
+        capturedAt = nil
         currentPhotoIndex = 0
         showPreview = false
         shouldDismiss = false
