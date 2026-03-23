@@ -10,11 +10,12 @@ struct PhotoPreviewView: View {
     var body: some View {
         VStack(spacing: 0) {
             Text("사진 촬영 완료! 계속 하시겠습니까?")
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.white)
-                .padding(.top, 20)
+                .padding(.top, 50)
 
             Spacer()
+                .frame(height: 30)
 
             // 듀얼캠
             ZStack {
@@ -23,7 +24,7 @@ struct PhotoPreviewView: View {
                     Image(uiImage: backImage)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 350, height: 500)
+                        .frame(width: 360, height: 480)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 } else {
                     RoundedRectangle(cornerRadius: 16)
@@ -37,13 +38,13 @@ struct PhotoPreviewView: View {
                             Image(uiImage: frontImage)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 130)
+                                .frame(width: 120, height: 160)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .shadow(color: .black.opacity(0.5), radius: 5)
+                                .shadow(color: .backgroundBlack.opacity(0.5), radius: 5)
                         } else {
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color(white: 0.25))
-                                .frame(width: 100, height: 130)
+                                .frame(width: 110, height: 140)
                         }
                         Spacer()
                     }
