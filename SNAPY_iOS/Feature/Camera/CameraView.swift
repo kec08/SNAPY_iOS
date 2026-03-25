@@ -10,6 +10,7 @@ import SwiftUI
 import AVFoundation
 
 struct CameraView: View {
+    @EnvironmentObject var cameraVM: CameraViewModel
     @ViewBuilder
     private func cameraPlaceholder(text: String, isMain: Bool) -> some View {
         RoundedRectangle(cornerRadius: isMain ? 16 : 10)
@@ -25,7 +26,6 @@ struct CameraView: View {
                 }
             )
     }
-    @EnvironmentObject var cameraVM: CameraViewModel
 
     var body: some View {
         ZStack {

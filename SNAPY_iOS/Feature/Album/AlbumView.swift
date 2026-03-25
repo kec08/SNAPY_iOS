@@ -9,7 +9,17 @@ import SwiftUI
 
 struct AlbumView: View {
     var body: some View {
-        Text("Album")
+        VStack {
+            AlbumHeader(
+                goToPreviousDay: {}, goToNextDay: {}
+            )
+            
+            AlbumStrick(streakCount: 3)
+            
+            Spacer()
+            Text("Album")
+            Spacer()
+        }
     }
 }
 
