@@ -10,7 +10,7 @@ import SwiftUI
 struct PhoneView: View {
     var onBack: () -> Void
     var onSignNextTap: () -> Void
-    @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var signUpVM: SiginUpViewModel
     let carriers = ["SKT", "KT", "LG U+", "알뜰폰"]
 
     var body: some View {
@@ -21,7 +21,7 @@ struct PhoneView: View {
 
                 SignUpHeader {
                     withAnimation {
-                        authVM.authFlow = .registerPassword
+                        onBack()
                     }
                 }
                 .padding(.top, 20)
@@ -42,14 +42,14 @@ struct PhoneView: View {
                         Menu {
                             ForEach(carriers, id: \.self) { carrier in
                                 Button(carrier) {
-                                    authVM.registerCarrier = carrier
+                                    signUpVM.registerCarrier = carrier
                                 }
                             }
                         } label: {
                             HStack {
-                                Text(authVM.registerCarrier.isEmpty ? "통신사 선택" : authVM.registerCarrier)
+                                Text(signUpVM.registerCarrier.isEmpty ? "통신사 선택" : signUpVM.registerCarrier)
                                     .foregroundColor(
-                                        authVM.registerCarrier.isEmpty
+                                        signUpVM.registerCarrier.isEmpty
                                         ? .customGray300
                                         : .textWhite
                                     )
@@ -76,7 +76,7 @@ struct PhoneView: View {
 
                         HStack(spacing: 12) {
 
-                            TextField("010-0000-0000", text: $authVM.registerPhone)
+                            TextField("010-0000-0000", text: $signUpVM.registerPhone)
                                 .foregroundColor(.textWhite)
                                 .font(.system(size: 18))
                                 .keyboardType(.phonePad)
@@ -105,7 +105,7 @@ struct PhoneView: View {
                     SnapyTextField(
                         label: "인증번호",
                         placeholder: "인증번호를 입력해주세요",
-                        text: $authVM.verificationCode,
+                        text: $signUpVM.verificationCode,
                         keyboardType: .numberPad
                     )
                 }
@@ -116,7 +116,7 @@ struct PhoneView: View {
 
                 SignUpButton(
                     title: "확인",
-                    isEnabled: authVM.isPhoneValid
+                    isEnabled: signUpVM.isPhoneValid
                 ) {
                     withAnimation {
                         onSignNextTap()
@@ -137,6 +137,6 @@ struct PhoneView: View {
 struct PhoneView_Previews: PreviewProvider {
     static var previews: some View {
         PhoneView(onBack: {}, onSignNextTap: {})
-            .environmentObject(AuthViewModel())
+            .environmentObject(SiginUpViewModel())
     }
 }

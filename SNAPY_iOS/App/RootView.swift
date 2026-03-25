@@ -22,6 +22,7 @@ enum AppScreen {
 
 struct RootView: View {
     @StateObject private var authVM = AuthViewModel()
+    @StateObject private var signUpVM = SiginUpViewModel()
     @State private var screen: AppScreen = .splash
 
     var body: some View {
@@ -61,8 +62,8 @@ struct RootView: View {
                         screen = .registerPassword
                     }
                 )
-                .environmentObject(authVM)
-                
+                .environmentObject(signUpVM)
+
             case .registerPassword:
                 PasswordView(
                     onBack: {
@@ -72,8 +73,8 @@ struct RootView: View {
                         screen = .registerPhone
                     }
                 )
-                .environmentObject(authVM)
-                
+                .environmentObject(signUpVM)
+
             case .registerPhone:
                 PhoneView(
                     onBack: {
@@ -83,8 +84,8 @@ struct RootView: View {
                         screen = .registerInfo
                     }
                 )
-                .environmentObject(authVM)
-                
+                .environmentObject(signUpVM)
+
             case .registerInfo:
                 InfoView(
                     onBack: {
@@ -94,15 +95,16 @@ struct RootView: View {
                         screen = .registerComplete
                     }
                 )
-                .environmentObject(authVM)
-                
+                .environmentObject(signUpVM)
+
             case .registerComplete:
                 registerCompleteView(
                     onDoneTap: {
+                        signUpVM.clearFields()
                         screen = .snapyLogin
                     }
                 )
-                .environmentObject(authVM)
+                .environmentObject(signUpVM)
                 
             case .onboarding:
                 OnboardingView(onStartTap: {

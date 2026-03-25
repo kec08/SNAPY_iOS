@@ -10,11 +10,12 @@ import Foundation
 struct User: Codable, Identifiable {
     let id: Int
     let email: String
+    let handle: String
     let username: String
-    let name: String
+    let password: String
     let profileImageUrl: String?
     let backgroundImageUrl: String?
-    let phoneNumber: String?
+    let phone: String?
     let postCount: Int?
     let friendCount: Int?
     let streakCount: Int?

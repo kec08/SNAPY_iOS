@@ -10,7 +10,7 @@ import SwiftUI
 struct PasswordView: View {
     var onBack: () -> Void
     var onSignNextTap: () -> Void
-    @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var signUpVM: SiginUpViewModel
 
     var body: some View {
         ZStack {
@@ -38,14 +38,14 @@ struct PasswordView: View {
                     SnapyTextField(
                         label: "비밀번호",
                         placeholder: "비밀번호를 입력해주세요",
-                        text: $authVM.registerPassword,
+                        text: $signUpVM.registerPassword,
                         isSecure: true
                     )
                     
                     SnapyTextField(
                         label: "비밀번호 확인",
                         placeholder: "비밀번호를 다시 입력해주세요",
-                        text: $authVM.registerPasswordConfirm,
+                        text: $signUpVM.registerPasswordConfirm,
                         isSecure: true
                     )
                 }
@@ -53,7 +53,7 @@ struct PasswordView: View {
                 .padding(.top, 40)
                 
 
-                if let error = authVM.errorMessage {
+                if let error = signUpVM.errorMessage {
                     Text(error)
                         .font(.system(size: 14))
                         .foregroundColor(.red)
@@ -66,7 +66,7 @@ struct PasswordView: View {
                 // 로그인 버튼
                 SignUpButton(
                     title: "확인",
-                    isEnabled: authVM.isPasswordValid
+                    isEnabled: signUpVM.isPasswordValid
                 ) {
                     withAnimation {
                         onSignNextTap()
@@ -84,6 +84,6 @@ struct PasswordView: View {
 struct PasswordView_Preview: PreviewProvider {
     static var previews: some View {
         PasswordView(onBack: {}, onSignNextTap: {})
-            .environmentObject(AuthViewModel())
+            .environmentObject(SiginUpViewModel())
     }
 }

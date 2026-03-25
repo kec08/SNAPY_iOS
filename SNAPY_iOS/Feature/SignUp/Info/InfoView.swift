@@ -10,7 +10,7 @@ import SwiftUI
 struct InfoView: View {
     var onBack: () -> Void
     var onSignNextTap: () -> Void
-    @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var signUpVM: SiginUpViewModel
 
     var body: some View {
         ZStack {
@@ -38,20 +38,20 @@ struct InfoView: View {
                     SnapyTextField(
                         label: "사용자 ID",
                         placeholder: "ID를 입력해주세요",
-                        text: $authVM.registerUserID
+                        text: $signUpVM.registerUserID
                     )
                     
                     SnapyTextField(
                         label: "이름",
                         placeholder: "이름을 입력해주세요",
-                        text: $authVM.registerUsername
+                        text: $signUpVM.registerUsername
                     )
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 40)
                 
 
-                if let error = authVM.errorMessage {
+                if let error = signUpVM.errorMessage {
                     Text(error)
                         .font(.system(size: 14))
                         .foregroundColor(.red)
@@ -64,8 +64,8 @@ struct InfoView: View {
                 // 로그인 버튼
                 SignUpButton(
                     title: "확인",
-                    isEnabled: !authVM.registerUserID.isEmpty &&
-                                !authVM.registerUsername.isEmpty
+                    isEnabled: !signUpVM.registerUserID.isEmpty &&
+                                !signUpVM.registerUsername.isEmpty
                 ) {
                     withAnimation {
                         onSignNextTap()
@@ -83,6 +83,6 @@ struct InfoView: View {
 struct InfoView_Preview: PreviewProvider {
     static var previews: some View {
         InfoView(onBack: {}, onSignNextTap: {})
-            .environmentObject(AuthViewModel())
+            .environmentObject(SiginUpViewModel())
     }
 }

@@ -10,7 +10,7 @@ import SwiftUI
 struct EmailView: View {
     var onBack: () -> Void
     var onSignNextTap: () -> Void
-    @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var signUpVM: SiginUpViewModel
 
     var body: some View {
         ZStack {
@@ -38,7 +38,7 @@ struct EmailView: View {
                     SnapyTextField(
                         label: "이메일",
                         placeholder: "이메일을 입력해주세요",
-                        text: $authVM.registerEmail,
+                        text: $signUpVM.registerEmail,
                         keyboardType: .emailAddress
                     )
                 }
@@ -46,7 +46,7 @@ struct EmailView: View {
                 .padding(.top, 40)
                 
 
-                if let error = authVM.errorMessage {
+                if let error = signUpVM.errorMessage {
                     Text(error)
                         .font(.system(size: 14))
                         .foregroundColor(.red)
@@ -58,7 +58,7 @@ struct EmailView: View {
 
                 SignUpButton(
                     title: "확인",
-                    isEnabled: authVM.isEmailValid
+                    isEnabled: signUpVM.isEmailValid
                 ) {
                     withAnimation {
                         onSignNextTap()
@@ -76,6 +76,6 @@ struct EmailView: View {
 struct EmailView_Preview: PreviewProvider {
     static var previews: some View {
         EmailView(onBack: {}, onSignNextTap: {})
-            .environmentObject(AuthViewModel())
+            .environmentObject(SiginUpViewModel())
     }
 }

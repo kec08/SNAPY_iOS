@@ -28,18 +28,7 @@ final class AuthViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    // Registration fields
-    @Published var registerEmail = ""
-    @Published var registerPassword = ""
-    @Published var registerPasswordConfirm = ""
-    @Published var registerCarrier = "SKT"
-    @Published var registerPhone = ""
-    @Published var registerUserID = ""
-    @Published var registerUsername = ""
-    @Published var registerName = ""
-    @Published var verificationCode = ""
-
-    // Login fields
+    // 로그인 입력 필드
     @Published var loginEmail = ""
     @Published var loginPassword = ""
 
@@ -47,33 +36,13 @@ final class AuthViewModel: ObservableObject {
 
 //    private let authService = AuthService.shared
 
-    var isEmailValid: Bool {
-        registerEmail.contains("@") && registerEmail.contains(".") && registerEmail.count > 5
-    }
-
-    var isPasswordValid: Bool {
-        registerPassword.count >= 8 && registerPassword == registerPasswordConfirm
-    }
-
-    var isPhoneValid: Bool {
-        return !registerCarrier.isEmpty
-        && registerPhone.count >= 10
-        && verificationCode.count >= 4
-    }
-
-    var isProfileValid: Bool {
-        !registerUsername.isEmpty && !registerName.isEmpty
-    }
-
     var isLoginValid: Bool {
         !loginEmail.isEmpty && !loginPassword.isEmpty
     }
-    
-    
 
     @MainActor
     func checkAuthStatus() {
-        // Mock: always go to onboarding since no real auth
+        // 임시: 인증 없이 온보딩으로 이동
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             self.authFlow = .onboarding
         }
@@ -86,18 +55,19 @@ final class AuthViewModel: ObservableObject {
             errorMessage = nil
         }
 
-        // Mock: simulate short delay then login
+        // 임시: 짧은 지연 후 로그인 처리
         try? await Task.sleep(nanoseconds: 500_000_000)
 
         await MainActor.run {
             let mockUser = User(
                 id: 1,
                 email: loginEmail,
-                username: "silver_c.ld",
-                name: "김은찬",
+                handle: "silver_c.ld",
+                username: "김은찬",
+                password: "",
                 profileImageUrl: nil,
                 backgroundImageUrl: nil,
-                phoneNumber: nil,
+                phone: nil,
                 postCount: 5,
                 friendCount: 13,
                 streakCount: 2
@@ -105,34 +75,6 @@ final class AuthViewModel: ObservableObject {
             currentUser = mockUser
             isLoggedIn = true
             authFlow = .main
-            isLoading = false
-        }
-    }
-
-    func register() async {
-        await MainActor.run {
-            isLoading = true
-            errorMessage = nil
-        }
-
-        // Mock: simulate short delay then complete registration
-        try? await Task.sleep(nanoseconds: 500_000_000)
-
-        await MainActor.run {
-            let mockUser = User(
-                id: 1,
-                email: registerEmail,
-                username: registerUsername.isEmpty ? "silver_c.ld" : registerUsername,
-                name: registerName.isEmpty ? "김은찬" : registerName,
-                profileImageUrl: nil,
-                backgroundImageUrl: nil,
-                phoneNumber: registerPhone,
-                postCount: 0,
-                friendCount: 0,
-                streakCount: 0
-            )
-            currentUser = mockUser
-            authFlow = .registerComplete
             isLoading = false
         }
     }
@@ -147,19 +89,8 @@ final class AuthViewModel: ObservableObject {
         await MainActor.run {
             isLoggedIn = false
             authFlow = .loginSelection
-            clearFields()
+            loginEmail = ""
+            loginPassword = ""
         }
-    }
-
-    private func clearFields() {
-        loginEmail = ""
-        loginPassword = ""
-        registerEmail = ""
-        registerPassword = ""
-        registerPasswordConfirm = ""
-        registerPhone = ""
-        registerUserID = ""
-        registerUsername = ""
-        registerName = ""
     }
 }

@@ -14,7 +14,7 @@ struct AlbumView: View {
                 goToPreviousDay: {}, goToNextDay: {}
             )
             
-            AlbumStrick(streakCount: 3)
+            AlbumStrick(streakCount: 5)
             
             Spacer()
             Text("Album")
