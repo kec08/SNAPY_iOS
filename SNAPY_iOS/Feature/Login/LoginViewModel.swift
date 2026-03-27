@@ -34,7 +34,7 @@ final class AuthViewModel: ObservableObject {
 
     @Published var currentUser: User?
 
-//    private let authService = AuthService.shared
+    private let authService = AuthService.shared
 
     var isLoginValid: Bool {
         !loginEmail.isEmpty && !loginPassword.isEmpty
@@ -42,9 +42,14 @@ final class AuthViewModel: ObservableObject {
 
     @MainActor
     func checkAuthStatus() {
-        // 임시: 인증 없이 온보딩으로 이동
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.authFlow = .onboarding
+        // 저장된 토큰이 유효하면 바로 메인으로
+        if TokenStorage.isAccessTokenValid() {
+            isLoggedIn = true
+            authFlow = .main
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                self.authFlow = .onboarding
+            }
         }
     }
 
@@ -55,27 +60,26 @@ final class AuthViewModel: ObservableObject {
             errorMessage = nil
         }
 
-        // 임시: 짧은 지연 후 로그인 처리
-        try? await Task.sleep(nanoseconds: 500_000_000)
-
-        await MainActor.run {
-            let mockUser = User(
-                id: 1,
+        do {
+            let response = try await authService.login(
                 email: loginEmail,
-                handle: "silver_c.ld",
-                username: "김은찬",
-                password: "",
-                profileImageUrl: nil,
-                backgroundImageUrl: nil,
-                phone: nil,
-                postCount: 5,
-                friendCount: 13,
-                streakCount: 2
+                password: loginPassword
             )
-            currentUser = mockUser
-            isLoggedIn = true
-            authFlow = .main
-            isLoading = false
+
+            await MainActor.run {
+                if response.success {
+                    isLoggedIn = true
+                    authFlow = .main
+                } else {
+                    errorMessage = response.message
+                }
+                isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                isLoading = false
+            }
         }
     }
 
@@ -86,11 +90,18 @@ final class AuthViewModel: ObservableObject {
     }
 
     func logout() async {
+        do {
+            try await authService.logout()
+        } catch {
+            print("로그아웃 에러: \(error)")
+        }
+
         await MainActor.run {
             isLoggedIn = false
             authFlow = .loginSelection
             loginEmail = ""
             loginPassword = ""
+            currentUser = nil
         }
     }
 }

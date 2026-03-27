@@ -1,129 +1,131 @@
-////  AuthService.swift
-////  Eodigo
-////
-////  Created by 김은찬 on 12/03/25.
-////
 //
-//import Foundation
-//import Moya
+//  AuthService.swift
+//  SNAPY_iOS
 //
-//enum AuthError: Error {
-//    case noRefreshToken
-//}
+//  Created by 김은찬 on 12/03/25.
 //
-//final class AuthService {
-//    static let shared = AuthService()
-//    private let provider = MoyaProvider<AuthAPI>()
-//    
-//    private init() {}
-//    
-//    // 로그인
-//    func login(email: String, password: String) async throws -> LoginResponse {
-//        let result = await provider.requestAsync(.login(email: email, password: password))
-//        switch result {
-//        case .success(let response):
-//            let decoded = try JSONDecoder().decode(LoginResponse.self, from: response.data)
-//            
-//            // 토큰 저장
-//            TokenStorage.accessToken = decoded.accessToken
-//            TokenStorage.refreshToken = decoded.refreshToken
-//            
-//            return decoded
-//
-//        case .failure(let error):
-//            throw error
-//        }
-//    }
-//    
-//    // 회원가입
-//    func signup(
-//        firstName: String,
-//        lastName: String,
-//        email: String,
-//        password: String
-//    ) async throws -> SignUpResponse {
-//        let result = await provider.requestAsync(
-//            .signup(email: email, password: password, firstName: firstName, lastName: lastName)
-//        )
-//        switch result {
-//        case .success(let response):
-//            let decoded = try JSONDecoder().decode(SignUpResponse.self, from: response.data)
-//            return decoded
-//        case .failure(let error):
-//            throw error
-//        }
-//    }
-//
-//    // 토큰 재발급
-//    func refreshTokens() async throws -> LoginResponse {
-//        // 로컬 refreshToken 체크
-//        guard let refresh = TokenStorage.refreshToken, !refresh.isEmpty else {
-//            throw AuthError.noRefreshToken
-//        }
-//
-//        // refresh 토큰을 넣어서 api 호출
-//        let result = await provider.requestAsync(.refresh(refreshToken: refresh))
-//        
-//        switch result {
-//        case .success(let response):
-//            let decoded = try JSONDecoder().decode(LoginResponse.self, from: response.data)
-//            
-//            // 새 토큰 저장
-//            TokenStorage.accessToken = decoded.accessToken
-//            TokenStorage.refreshToken = decoded.refreshToken
-//            
-//            print("토큰 리프레시 완료")
-//            return decoded
-//
-//        case .failure(let error):
-//            TokenStorage.clear()
-//            throw error
-//        }
-//    }
-//
-//    // 계정 삭제
-//    func deleteMe() async throws -> String {
-//        let result = await provider.requestAsync(.deleteMe)
-//        switch result {
-//        case .success(let response):
-//            // 래핑/비래핑 모두 허용
-//            if let wrapped = try? JSONDecoder().decode(ApiResponse<String>.self, from: response.data) {
-//                if wrapped.success { return wrapped.message }
-//                throw NSError(
-//                    domain: "AuthService",
-//                    code: response.statusCode,
-//                    userInfo: [NSLocalizedDescriptionKey: wrapped.message]
-//                )
-//            }
-//
-//            // 빈 응답 처리
-//            let raw = String(data: response.data, encoding: .utf8) ?? ""
-//            return raw.isEmpty ? "계정이 삭제되었습니다." : raw
-//
-//        case .failure(let error):
-//            throw error
-//        }
-//    }
-//
-//    // 내 정보 조회
-//    func getMe() async throws -> UserMeDTO {
-//        let result = await provider.requestAsync(.getMe)
-//        switch result {
-//        case .success(let response):
-//            // 래핑/비래핑 모두 허용
-//            if let wrapped = try? JSONDecoder().decode(ApiResponse<UserMeDTO>.self, from: response.data) {
-//                if wrapped.success, let data = wrapped.data { return data }
-//                throw NSError(
-//                    domain: "AuthService",
-//                    code: response.statusCode,
-//                    userInfo: [NSLocalizedDescriptionKey: wrapped.message]
-//                )
-//            }
-//
-//            return try JSONDecoder().decode(UserMeDTO.self, from: response.data)
-//
-//        case .failure(let error):
-//            throw error
-//        }
-//    }
-//}
+
+import Foundation
+import Moya
+
+// MARK: - MoyaProvider async 지원
+private extension MoyaProvider {
+    func requestAsync(_ target: Target) async -> Result<Response, MoyaError> {
+        await withCheckedContinuation { continuation in
+            self.request(target) { result in
+                continuation.resume(returning: result)
+            }
+        }
+    }
+}
+
+enum AuthError: Error, LocalizedError {
+    case noRefreshToken
+    case serverError(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .noRefreshToken:
+            return "로그인이 필요합니다."
+        case .serverError(let msg):
+            return msg
+        }
+    }
+}
+
+final class AuthService {
+    static let shared = AuthService()
+    private let provider = MoyaProvider<AuthAPI>()
+
+    private init() {}
+
+    // MARK: - 로그인
+    func login(email: String, password: String) async throws -> LoginResponse {
+        let result = await provider.requestAsync(.login(email: email, password: password))
+        switch result {
+        case .success(let response):
+            let decoded = try JSONDecoder().decode(LoginResponse.self, from: response.data)
+
+            guard decoded.success, let data = decoded.data else {
+                throw AuthError.serverError(decoded.message)
+            }
+
+            // accessToken 저장
+            TokenStorage.accessToken = data.accessToken
+
+            return decoded
+
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    // MARK: - 회원가입
+    func signup(
+        username: String,
+        handle: String,
+        email: String,
+        phone: String,
+        password: String
+    ) async throws -> SignUpResponse {
+        let result = await provider.requestAsync(
+            .signup(username: username, handle: handle, email: email, phone: phone, password: password)
+        )
+        switch result {
+        case .success(let response):
+            let decoded = try JSONDecoder().decode(SignUpResponse.self, from: response.data)
+
+            guard decoded.success else {
+                throw AuthError.serverError(decoded.message)
+            }
+
+            return decoded
+
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    // MARK: - 토큰 재발급 (RefreshToken은 쿠키에서 서버가 자동 추출)
+    func refreshAccessToken() async throws -> RefreshResponse {
+        let result = await provider.requestAsync(.refresh)
+
+        switch result {
+        case .success(let response):
+            let decoded = try JSONDecoder().decode(RefreshResponse.self, from: response.data)
+
+            guard decoded.success, let data = decoded.data else {
+                throw AuthError.serverError(decoded.message)
+            }
+
+            // 새 accessToken 저장
+            TokenStorage.accessToken = data.accessToken
+
+            return decoded
+
+        case .failure(let error):
+            TokenStorage.clear()
+            throw error
+        }
+    }
+
+    // MARK: - 로그아웃
+    func logout() async throws {
+        let result = await provider.requestAsync(.logout)
+
+        switch result {
+        case .success(let response):
+            let decoded = try JSONDecoder().decode(LogoutResponse.self, from: response.data)
+
+            guard decoded.success else {
+                throw AuthError.serverError(decoded.message)
+            }
+
+            TokenStorage.clear()
+
+        case .failure(let error):
+            TokenStorage.clear()
+            throw error
+        }
+    }
+}

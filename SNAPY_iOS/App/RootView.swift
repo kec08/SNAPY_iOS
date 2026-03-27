@@ -45,7 +45,12 @@ struct RootView: View {
             case .snapyLogin:
                 SnapyLoginView(
                     onLoginTap: {
-                        screen = .onboarding
+                        Task {
+                            await authVM.login()
+                            if authVM.isLoggedIn {
+                                screen = .main
+                            }
+                        }
                     },
                     onRegisterTap: {
                         screen = .registerEmail
@@ -92,7 +97,12 @@ struct RootView: View {
                         screen = .registerPhone
                     },
                     onSignNextTap: {
-                        screen = .registerComplete
+                        Task {
+                            await signUpVM.register()
+                            if signUpVM.isRegistered {
+                                screen = .registerComplete
+                            }
+                        }
                     }
                 )
                 .environmentObject(signUpVM)

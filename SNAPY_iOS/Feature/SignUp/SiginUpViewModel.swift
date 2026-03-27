@@ -16,13 +16,16 @@ final class SiginUpViewModel: ObservableObject {
     @Published var registerPasswordConfirm = ""
     @Published var registerCarrier = "SKT"
     @Published var registerPhone = ""
-    @Published var registerUserID = ""
-    @Published var registerUsername = ""
+    @Published var registerUserID = ""    // handle
+    @Published var registerUsername = ""   // username
     @Published var registerName = ""
     @Published var verificationCode = ""
 
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var isRegistered = false
+
+    private let authService = AuthService.shared
 
     // 회원가입 유효성 검사
     var isEmailValid: Bool {
@@ -49,11 +52,28 @@ final class SiginUpViewModel: ObservableObject {
             errorMessage = nil
         }
 
-        // 임시: 짧은 지연 후 회원가입 완료 처리
-        try? await Task.sleep(nanoseconds: 500_000_000)
+        do {
+            let response = try await authService.signup(
+                username: registerUsername,
+                handle: registerUserID,
+                email: registerEmail,
+                phone: registerPhone,
+                password: registerPassword
+            )
 
-        await MainActor.run {
-            isLoading = false
+            await MainActor.run {
+                if response.success {
+                    isRegistered = true
+                } else {
+                    errorMessage = response.message
+                }
+                isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                isLoading = false
+            }
         }
     }
 
@@ -66,5 +86,6 @@ final class SiginUpViewModel: ObservableObject {
         registerUsername = ""
         registerName = ""
         verificationCode = ""
+        isRegistered = false
     }
 }

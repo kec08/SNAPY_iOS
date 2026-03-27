@@ -38,7 +38,7 @@ struct LoginRequest: Codable {
     let password: String
 }
 
-// 로그인 Response Data
+// 로그인 Response Datadlrj
 struct LoginData: Codable {
     let accessToken: String
 }
@@ -52,4 +52,4 @@ typealias RefreshResponse = BaseResponse<LoginData>
 typealias LogoutResponse = BaseResponse<EmptyData>
 
 // data가 null일 떄 사용
-struct EmptyData: Codable {} 
+struct EmptyData: Codable {}
