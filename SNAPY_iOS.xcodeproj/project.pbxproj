@@ -20,6 +20,9 @@
 		BC6674E52F72F50D009CBF8D /* AlbumHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6674E42F72F50D009CBF8D /* AlbumHeader.swift */; };
 		BC6674E72F73A564009CBF8D /* AlbumStrick.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6674E62F73A551009CBF8D /* AlbumStrick.swift */; };
 		BC6674E92F73D231009CBF8D /* SiginUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6674E82F73D22A009CBF8D /* SiginUpViewModel.swift */; };
+		BC66763C2F797A90009CBF8D /* AlbumEmptyCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC66763B2F797A90009CBF8D /* AlbumEmptyCard.swift */; };
+		BC66763E2F797A99009CBF8D /* AlbumPhotoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC66763D2F797A99009CBF8D /* AlbumPhotoCard.swift */; };
+		BC6676402F797A9E009CBF8D /* AlbumTimeSlotCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC66763F2F797A9E009CBF8D /* AlbumTimeSlotCard.swift */; };
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5842F6ABB5F00ED71E0 /* SnapyLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5832F6ABB5800ED71E0 /* SnapyLoginViewModel.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
@@ -96,6 +99,9 @@
 		BC6674E42F72F50D009CBF8D /* AlbumHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumHeader.swift; sourceTree = "<group>"; };
 		BC6674E62F73A551009CBF8D /* AlbumStrick.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumStrick.swift; sourceTree = "<group>"; };
 		BC6674E82F73D22A009CBF8D /* SiginUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiginUpViewModel.swift; sourceTree = "<group>"; };
+		BC66763B2F797A90009CBF8D /* AlbumEmptyCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumEmptyCard.swift; sourceTree = "<group>"; };
+		BC66763D2F797A99009CBF8D /* AlbumPhotoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumPhotoCard.swift; sourceTree = "<group>"; };
+		BC66763F2F797A9E009CBF8D /* AlbumTimeSlotCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumTimeSlotCard.swift; sourceTree = "<group>"; };
 		BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginView.swift; sourceTree = "<group>"; };
 		BCCAD5832F6ABB5800ED71E0 /* SnapyLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginViewModel.swift; sourceTree = "<group>"; };
 		BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyTextField.swift; sourceTree = "<group>"; };
@@ -487,6 +493,9 @@
 			children = (
 				BC6674E62F73A551009CBF8D /* AlbumStrick.swift */,
 				BC6674E42F72F50D009CBF8D /* AlbumHeader.swift */,
+				BC66763B2F797A90009CBF8D /* AlbumEmptyCard.swift */,
+				BC66763D2F797A99009CBF8D /* AlbumPhotoCard.swift */,
+				BC66763F2F797A9E009CBF8D /* AlbumTimeSlotCard.swift */,
 			);
 			path = Component;
 			sourceTree = "<group>";
@@ -660,7 +669,9 @@
 				BCCAD6112F6B071700ED71E0 /* PhoneView.swift in Sources */,
 				BCD816BF2F69A8D30028AE50 /* AppleSignInButton.swift in Sources */,
 				BCED9C222F6E625A008E47BB /* PhotoStore.swift in Sources */,
+				BC6676402F797A9E009CBF8D /* AlbumTimeSlotCard.swift in Sources */,
 				BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */,
+				BC66763E2F797A99009CBF8D /* AlbumPhotoCard.swift in Sources */,
 				BCD816CC2F6A414D0028AE50 /* HomeViewModel.swift in Sources */,
 				BCD816D62F6A418A0028AE50 /* FriendView.swift in Sources */,
 				BCD816CA2F6A41470028AE50 /* HomeView.swift in Sources */,
@@ -697,6 +708,7 @@
 				BC1DC2FE2F68CF730016A4CD /* ImagePicker.swift in Sources */,
 				BCD816D42F6A41810028AE50 /* CameraViewModel.swift in Sources */,
 				BC1DC2FF2F68CF730016A4CD /* AuthDTO.swift in Sources */,
+				BC66763C2F797A90009CBF8D /* AlbumEmptyCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

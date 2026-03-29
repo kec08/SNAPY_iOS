@@ -9,11 +9,55 @@ import Foundation
 import SwiftUI
 import Combine
 
+// 시간대 구분: 아침/점심/저녁
+// Date+Extensions의 timeSlotName과 동일한 기준 사용
+enum TimeSlot: Int, CaseIterable {
+    case morning = 0   // 06:00 ~ 12:00
+    case afternoon = 1 // 12:00 ~ 18:00
+    case evening = 2   // 18:00 ~ 06:00
+
+    var name: String {
+        switch self {
+        case .morning:   return "아침"
+        case .afternoon: return "점심"
+        case .evening:   return "저녁"
+        }
+    }
+
+    var timeRange: String {
+        switch self {
+        case .morning:   return "06:00 ~ 12:00"
+        case .afternoon: return "12:00 ~ 18:00"
+        case .evening:   return "18:00 ~ 06:00"
+        }
+    }
+
+    // 현재 시간 기준 TimeSlot
+    static var current: TimeSlot {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 6..<12:  return .morning
+        case 12..<18: return .afternoon
+        default:      return .evening
+        }
+    }
+
+    // Date에서 TimeSlot 추출
+    static func from(date: Date) -> TimeSlot {
+        let hour = Calendar.current.component(.hour, from: date)
+        switch hour {
+        case 6..<12:  return .morning
+        case 12..<18: return .afternoon
+        default:      return .evening
+        }
+    }
+}
+
 struct SavedPhoto: Identifiable {
     let id = UUID()
     let frontImage: UIImage?
     let backImage: UIImage?
-//    let timeSlot: TimeSlot
+    let timeSlot: TimeSlot
     let capturedAt: Date
 }
 
@@ -22,9 +66,13 @@ struct DailyAlbum: Identifiable {
     let date: Date
     var photos: [SavedPhoto]
 
-//    var dateString: String {
-//        date.koreanDateString
-//    }
+    // 특정 시간대 사진 가져오기
+    func photos(for slot: TimeSlot) -> [SavedPhoto] {
+        photos.filter { $0.timeSlot == slot }
+    }
+
+    // 오늘 찍은 사진 수 (스트릭용)
+    var photoCount: Int { photos.count }
 }
 
 @MainActor
@@ -43,22 +91,22 @@ final class PhotoStore: ObservableObject {
         dailyAlbums.first { Calendar.current.isDate($0.date, inSameDayAs: date) }
     }
 
-//    func savePhotos(_ photos: [(front: UIImage?, back: UIImage?)]) {
-//        let timeSlot = Date().currentTimeSlot
-//        let savedPhotos = photos.enumerated().map { index, photo in
-//            SavedPhoto(
-//                frontImage: photo.front,
-//                backImage: photo.back,
-//                timeSlot: index < 3 ? TimeSlot.allCases[min(index, 2)] : (index == 3 ? .bonus1 : .bonus2),
-//                capturedAt: Date()
-//            )
-//        }
-//
-//        if let todayIndex = dailyAlbums.firstIndex(where: { Calendar.current.isDateInToday($0.date) }) {
-//            dailyAlbums[todayIndex].photos.append(contentsOf: savedPhotos)
-//        } else {
-//            let newAlbum = DailyAlbum(date: Date(), photos: savedPhotos)
-//            dailyAlbums.insert(newAlbum, at: 0)
-//        }
-//    }
+    /// 카메라에서 저장하기 눌렀을 때 호출
+    func savePhoto(front: UIImage?, back: UIImage?, capturedAt: Date) {
+        let timeSlot = TimeSlot.from(date: capturedAt)
+        let saved = SavedPhoto(
+            frontImage: front,
+            backImage: back,
+            timeSlot: timeSlot,
+            capturedAt: capturedAt
+        )
+
+        // 오늘 앨범이 있으면 추가, 없으면 새로 생성
+        if let index = dailyAlbums.firstIndex(where: { Calendar.current.isDate($0.date, inSameDayAs: capturedAt) }) {
+            dailyAlbums[index].photos.append(saved)
+        } else {
+            let newAlbum = DailyAlbum(date: capturedAt, photos: [saved])
+            dailyAlbums.insert(newAlbum, at: 0)
+        }
+    }
 }

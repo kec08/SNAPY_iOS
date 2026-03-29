@@ -140,7 +140,14 @@ final class CameraViewModel: ObservableObject {
     @Published var shouldDismiss = false
 
     func savePhoto() {
-        // TODO: 로컬 저장 또는 서버 업로드 로직 추가
+        // 마지막 촬영 사진을 PhotoStore에 저장
+        if let lastPhoto = capturedPhotos.last {
+            PhotoStore.shared.savePhoto(
+                front: lastPhoto.front,
+                back: lastPhoto.back,
+                capturedAt: capturedAt ?? Date()
+            )
+        }
         dualCamera.stopSession()
         shouldDismiss = true
     }

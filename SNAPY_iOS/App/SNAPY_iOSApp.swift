@@ -11,7 +11,7 @@ import SwiftUI
 struct SNAPY_iOSApp: App {
     var body: some Scene {
         WindowGroup {
-            MainTabView()
+            RootView()
                 .preferredColorScheme(.dark)
         }
     }
