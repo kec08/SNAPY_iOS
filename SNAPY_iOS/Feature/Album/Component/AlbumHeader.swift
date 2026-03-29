@@ -8,17 +8,16 @@
 import SwiftUI
 
 struct AlbumHeader: View {
+    let dateString: String
     var goToPreviousDay: () -> Void
     var goToNextDay: () -> Void
-    
+
     var body: some View {
         ZStack {
-            VStack(alignment: .leading, spacing: 0) {
-                Text("2025.03.10 (화)")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
-            }
-            
+            Text(dateString)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.white)
+
             HStack {
                 Button {
                     goToPreviousDay()
@@ -28,9 +27,9 @@ struct AlbumHeader: View {
                         .foregroundColor(.textWhite)
                 }
                 .buttonStyle(.glass)
-                
+
                 Spacer()
-                
+
                 Button {
                     goToNextDay()
                 } label: {
@@ -43,6 +42,6 @@ struct AlbumHeader: View {
         }
         .padding(.horizontal, 24)
         .padding(.top, 14)
-        .padding(.bottom, 40)
+        .padding(.bottom, 20)
     }
 }

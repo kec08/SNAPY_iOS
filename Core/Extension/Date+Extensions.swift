@@ -37,4 +37,21 @@ extension Date {
     formatter.dateFormat = "yyyy년 M월 d일 a h시 mm분"
     return formatter.string(from: self)
   }
+
+  /// 앨범 헤더: "2026.03.29 (토)"
+  var albumDateString: String {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "ko_KR")
+    formatter.dateFormat = "yyyy.MM.dd (E)"
+    return formatter.string(from: self)
+  }
+
+  /// 앨범 카드 하단: "아침 2026.03.29 11:36"
+  var albumTimestamp: String {
+    let slot = self.timeSlotName
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "ko_KR")
+    formatter.dateFormat = "yyyy.MM.dd HH:mm"
+    return "\(slot) \(formatter.string(from: self))"
+  }
 }
