@@ -51,7 +51,7 @@ extension Date {
     let slot = self.timeSlotName
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: "ko_KR")
-    formatter.dateFormat = "yyyy.MM.dd HH:mm"
+    formatter.dateFormat = "HH시 mm분"
     return "\(slot) \(formatter.string(from: self))"
   }
 }

@@ -28,7 +28,8 @@ struct AlbumEmptyCard: View {
 
             Spacer()
         }
-        .frame(width: 300, height: 430)
+        .frame(width: 330, height: 430)
+        .padding(.bottom, 34)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color(white: 0.15))

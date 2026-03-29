@@ -20,7 +20,7 @@ struct AlbumPhotoCard: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 430)
+                        .frame(width: 330, height: 430)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
 
@@ -38,7 +38,7 @@ struct AlbumPhotoCard: View {
 
             // 찍은 시간 표시
             Text(photo.capturedAt.albumTimestamp)
-                .font(.system(size: 14))
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.customGray300)
                 .padding(.top, 14)
         }
