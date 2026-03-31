@@ -42,6 +42,6 @@ struct AlbumHeader: View {
         }
         .padding(.horizontal, 24)
         .padding(.top, 14)
-        .padding(.bottom, 14)
+        .padding(.bottom, 10)
     }
 }

@@ -28,6 +28,7 @@ struct AlbumTimeSlotCard: View {
                 AlbumPhotoCard(photo: photos[0])
             }
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, 14)
+        .padding(.bottom, 10)
     }
 }

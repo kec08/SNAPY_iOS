@@ -47,7 +47,8 @@ struct AlbumStrick: View {
             
             Image("Strick_\(level)")
                 .resizable()
-                .frame(width: 40, height: 40)
+                .scaledToFit()
+                .frame(height: 42)
                 .offset(y: -10)
                 .offset(x: -10)
         }

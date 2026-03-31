@@ -46,7 +46,7 @@ extension Date {
     return formatter.string(from: self)
   }
 
-  /// 앨범 카드 하단: "아침 2026.03.29 11:36"
+  /// 앨범 카드 하단: "아침 00시 00분"
   var albumTimestamp: String {
     let slot = self.timeSlotName
     let formatter = DateFormatter()
