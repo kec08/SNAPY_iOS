@@ -27,6 +27,7 @@ struct AlbumView: View {
                 .padding(.bottom, 20)
 
                 AlbumStrick(streakCount: viewModel.streakCount)
+                    .padding(.bottom, -14)
 
                 // 카드 영역만 슬라이드
                 TabView(selection: $viewModel.currentPage) {
@@ -39,6 +40,7 @@ struct AlbumView: View {
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                .animation(nil, value: viewModel.currentPage)
                 .offset(x: dragOffset)
                 .clipped()
             }
@@ -52,8 +54,9 @@ struct AlbumView: View {
         }
     }
 
+    // 슬라이드 애니메이션
     private func performSlideAnimation(direction: AlbumViewModel.SlideDirection) {
-        let screenWidth = UIScreen.main.bounds.width
+        let screenWidth: CGFloat = 400 // 슬라이드 거리
 
         withAnimation(.easeIn(duration: 0.15)) {
             dragOffset = direction == .left ? -screenWidth : screenWidth

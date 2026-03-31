@@ -48,7 +48,7 @@ struct LoginView: View {
                     Text("로그인하여 친구들의 SNAPY를\n확인해보세요!")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(Color.textWhite)
-                        .lineSpacing(12)
+                        .lineSpacing(8)
                 }
                 .padding(.top, 20)
                 .padding(.horizontal, 24)
