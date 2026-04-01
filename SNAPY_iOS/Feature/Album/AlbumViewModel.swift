@@ -9,13 +9,16 @@ import Foundation
 import SwiftUI
 import Combine
 
+// 빈 슬롯의 상태
+enum EmptySlotState {
+    case canTake
+    case missed
+}
+
 @MainActor
 final class AlbumViewModel: ObservableObject {
     @Published var selectedDate: Date = Date()
-
-    // 현재 시간대 슬롯으로 초기 페이지
     @Published var currentPage: Int = TimeSlot.current.rawValue
-
     @Published var slideDirection: SlideDirection = .none
 
     enum SlideDirection {
@@ -26,16 +29,39 @@ final class AlbumViewModel: ObservableObject {
         selectedDate.albumDateString
     }
 
-    // 특정 앨범 슬롯의 사진
     func photo(for slot: AlbumSlot) -> SavedPhoto? {
         guard let album = PhotoStore.shared.album(for: selectedDate) else { return nil }
         return album.photo(for: slot)
     }
 
-    // 스트릭: 오늘 찍은 사진 수 (최대 5)
     var streakCount: Int {
         guard let album = PhotoStore.shared.album(for: selectedDate) else { return 0 }
         return min(album.photoCount, 5)
+    }
+
+    /// 찍을 수 있냐 없냐 여부
+    func emptySlotState(for slot: AlbumSlot) -> EmptySlotState {
+        let isToday = Calendar.current.isDateInToday(selectedDate)
+
+        // 과거 날짜 missed
+        if !isToday {
+            return .missed
+        }
+
+        let currentSlot = TimeSlot.current
+
+        switch slot {
+        case .morning:
+            return currentSlot == .morning ? .canTake : .missed
+        case .afternoon:
+            return currentSlot == .evening ? .missed : .canTake
+        case .evening:
+            return .canTake
+        case .extra1, .extra2:
+            let album = PhotoStore.shared.album(for: selectedDate)
+            let count = album?.photoCount ?? 0
+            return count < 5 ? .canTake : .missed
+        }
     }
 
     func goToPreviousDay() {

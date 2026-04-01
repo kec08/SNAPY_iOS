@@ -10,10 +10,11 @@ import SwiftUI
 struct AlbumTimeSlotCard: View {
     let slot: AlbumSlot
     let photo: SavedPhoto?
+    let emptyState: EmptySlotState
+    var onTapSnap: () -> Void
 
     var body: some View {
         VStack(spacing: 8) {
-            // 슬롯 이름 + 시간 범위
             Text(slot.name)
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.white)
@@ -23,9 +24,14 @@ struct AlbumTimeSlotCard: View {
                 .padding(.bottom, 8)
 
             if let photo = photo {
+                // 사진 있음
                 AlbumPhotoCard(photo: photo)
+            } else if emptyState == .canTake {
+                // 지금 찍을 수 있음
+                AlbumEmptyCard(onTapSnap: onTapSnap)
             } else {
-                AlbumEmptyCard()
+                // 이미 지나감
+                AlbumMissCard()
             }
         }
         .padding(.horizontal, 14)
