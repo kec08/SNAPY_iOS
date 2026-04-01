@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct AlbumTimeSlotCard: View {
-    let slot: TimeSlot
-    let photos: [SavedPhoto]
+    let slot: AlbumSlot
+    let photo: SavedPhoto?
 
     var body: some View {
         VStack(spacing: 8) {
-            // 시간대 이름 + 범위
+            // 슬롯 이름 + 시간 범위
             Text(slot.name)
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.white)
@@ -22,10 +22,10 @@ struct AlbumTimeSlotCard: View {
                 .foregroundColor(.customGray300)
                 .padding(.bottom, 8)
 
-            if photos.isEmpty {
-                AlbumEmptyCard()
+            if let photo = photo {
+                AlbumPhotoCard(photo: photo)
             } else {
-                AlbumPhotoCard(photo: photos[0])
+                AlbumEmptyCard()
             }
         }
         .padding(.horizontal, 14)
