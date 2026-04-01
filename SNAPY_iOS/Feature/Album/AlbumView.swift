@@ -18,7 +18,6 @@ struct AlbumView: View {
             Color.backgroundBlack.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // 헤더, 스트릭은 고정
                 AlbumHeader(
                     dateString: viewModel.dateString,
                     goToPreviousDay: { viewModel.goToPreviousDay() },
@@ -29,12 +28,12 @@ struct AlbumView: View {
                 AlbumStrick(streakCount: viewModel.streakCount)
                     .padding(.bottom, -14)
 
-                // 카드 영역만 슬라이드
+                // 5칸 슬롯: 아침, 점심, 저녁, 추가1, 추가2
                 TabView(selection: $viewModel.currentPage) {
-                    ForEach(TimeSlot.allCases, id: \.rawValue) { slot in
+                    ForEach(AlbumSlot.allCases, id: \.rawValue) { slot in
                         AlbumTimeSlotCard(
                             slot: slot,
-                            photos: viewModel.photos(for: slot)
+                            photo: viewModel.photo(for: slot)
                         )
                         .tag(slot.rawValue)
                     }
@@ -54,9 +53,8 @@ struct AlbumView: View {
         }
     }
 
-    // 슬라이드 애니메이션
     private func performSlideAnimation(direction: AlbumViewModel.SlideDirection) {
-        let screenWidth: CGFloat = 400 // 슬라이드 거리
+        let screenWidth: CGFloat = 400
 
         withAnimation(.easeIn(duration: 0.15)) {
             dragOffset = direction == .left ? -screenWidth : screenWidth
