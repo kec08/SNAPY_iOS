@@ -18,38 +18,33 @@ struct PhotoPreviewView: View {
                 .frame(height: 30)
 
             // 듀얼캠
-            ZStack {
-                // 후면 카메라
-                if let backImage = lastPhoto?.back {
-                    Image(uiImage: backImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 360, height: 480)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                } else {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(white: 0.15))
-                }
+            GeometryReader { geo in
+                ZStack(alignment: .topLeading) {
+                    // 후면 카메라 (메인)
+                    if let backImage = lastPhoto?.back {
+                        Image(uiImage: backImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    } else {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color(white: 0.15))
+                    }
 
-                // 전면 카메라
-                VStack {
-                    HStack {
-                        if let frontImage = lastPhoto?.front {
+                    // 전면 카메라 (드래그 가능)
+                    if let frontImage = lastPhoto?.front {
+                        DraggablePIP(
+                            containerSize: geo.size,
+                            pipWidth: 120,
+                            pipHeight: 160,
+                            padding: 12
+                        ) {
                             Image(uiImage: frontImage)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(width: 120, height: 160)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .shadow(color: .backgroundBlack.opacity(0.5), radius: 5)
-                        } else {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color(white: 0.25))
-                                .frame(width: 110, height: 140)
                         }
-                        Spacer()
                     }
-                    .padding(12)
-                    Spacer()
                 }
             }
             .aspectRatio(3/4, contentMode: .fit)
@@ -57,7 +52,7 @@ struct PhotoPreviewView: View {
 
             Spacer()
 
-            // 다시 찍기 버튼
+            // 다시 찍기 / 저장하기 버튼
             HStack {
                 Button {
                     cameraVM.retakePhoto()

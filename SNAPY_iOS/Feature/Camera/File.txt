@@ -1,0 +1,1 @@
+/Users/kim-eunchan/Documents/swift/SNAPY_iOS/SNAPY_iOS/Feature/Album/Component/AlbumPhotoCard.swift:29:25 Cannot find 'DraggablePIP' in scope

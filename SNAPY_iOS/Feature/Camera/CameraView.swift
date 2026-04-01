@@ -31,7 +31,6 @@ struct CameraView: View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            // 카메라 뷰를 항상 유지하여 세션 연결이 끊기지 않도록 함
             cameraContentView
                 .opacity(cameraVM.showPreview ? 0 : 1)
                 .allowsHitTesting(!cameraVM.showPreview)
@@ -55,7 +54,7 @@ struct CameraView: View {
                 Text("추억이 남을 사진을 찍어보세요!")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
-                
+
                 HStack {
                     Button {
                         cameraVM.shouldDismiss = true
@@ -65,7 +64,7 @@ struct CameraView: View {
                             .foregroundColor(.textWhite)
                     }
                     .buttonStyle(.glass)
-                    
+
                     Spacer()
                 }
             }
@@ -78,7 +77,7 @@ struct CameraView: View {
             GeometryReader { geo in
                 let isSwapped = cameraVM.isCameraSwapped
 
-                // 후면 카메라 - 항상 backPreviewLayer 고정
+                // 후면 카메라 (메인)
                 Group {
                     if let backLayer = cameraVM.backPreviewLayer {
                         CameraPreviewView(previewLayer: backLayer)
@@ -88,8 +87,8 @@ struct CameraView: View {
                     }
                 }
                 .frame(
-                    width: isSwapped ? 120 : geo.size.width,
-                    height: isSwapped ? 160 : geo.size.height
+                    width: isSwapped ? 100 : geo.size.width,
+                    height: isSwapped ? 130 : geo.size.height
                 )
                 .shadow(color: isSwapped ? .black.opacity(0.5) : .clear, radius: 5)
                 .position(
@@ -98,25 +97,40 @@ struct CameraView: View {
                 )
                 .zIndex(isSwapped ? 1 : 0)
 
-                // 전면 카메라 - 항상 frontPreviewLayer 고정
-                Group {
-                    if let frontLayer = cameraVM.frontPreviewLayer {
-                        CameraPreviewView(previewLayer: frontLayer)
-                            .clipShape(RoundedRectangle(cornerRadius: isSwapped ? 16 : 10))
-                    } else {
-                        cameraPlaceholder(text: "전면", isMain: isSwapped)
+                // 전면 카메라 (드래그 가능한 PIP)
+                if !isSwapped {
+                    ZStack(alignment: .topLeading) {
+                        Color.clear
+                            .frame(width: geo.size.width, height: geo.size.height)
+
+                        DraggablePIP(
+                            containerSize: geo.size,
+                            pipWidth: 100,
+                            pipHeight: 130,
+                            padding: 12
+                        ) {
+                            if let frontLayer = cameraVM.frontPreviewLayer {
+                                CameraPreviewView(previewLayer: frontLayer)
+                            } else {
+                                cameraPlaceholder(text: "전면", isMain: false)
+                            }
+                        }
                     }
+                    .zIndex(1)
+                } else {
+                    // 스왑 시 전면이 메인
+                    Group {
+                        if let frontLayer = cameraVM.frontPreviewLayer {
+                            CameraPreviewView(previewLayer: frontLayer)
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                        } else {
+                            cameraPlaceholder(text: "전면", isMain: true)
+                        }
+                    }
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                    .zIndex(0)
                 }
-                .frame(
-                    width: isSwapped ? geo.size.width : 120,
-                    height: isSwapped ? geo.size.height : 160
-                )
-                .shadow(color: isSwapped ? .clear : .black.opacity(0.5), radius: 5)
-                .position(
-                    x: isSwapped ? geo.size.width / 2 : 72,
-                    y: isSwapped ? geo.size.height / 2 : 92
-                )
-                .zIndex(isSwapped ? 0 : 1)
             }
             .aspectRatio(3/4, contentMode: .fit)
             .padding(.horizontal, 16)
@@ -127,7 +141,7 @@ struct CameraView: View {
                 .foregroundColor(.customGray300)
                 .padding(.top, 30)
                 .padding(.bottom, 10)
-            
+
             ZStack {
                 Button {
                     cameraVM.capturePhoto()
@@ -141,12 +155,11 @@ struct CameraView: View {
                             .frame(width: 60, height: 60)
                     }
                 }
-//                .disabled(cameraVM.capturedPhotos.count >= cameraVM.maxPhotos)
 
                 HStack {
                     Spacer()
                         .frame(width: 200)
-                    
+
                     Button {
                         cameraVM.isCameraSwapped.toggle()
                     } label: {

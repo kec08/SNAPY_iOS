@@ -23,6 +23,7 @@
 		BC66763C2F797A90009CBF8D /* AlbumEmptyCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC66763B2F797A90009CBF8D /* AlbumEmptyCard.swift */; };
 		BC66763E2F797A99009CBF8D /* AlbumPhotoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC66763D2F797A99009CBF8D /* AlbumPhotoCard.swift */; };
 		BC6676402F797A9E009CBF8D /* AlbumTimeSlotCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC66763F2F797A9E009CBF8D /* AlbumTimeSlotCard.swift */; };
+		BC6676BD2F7D6370009CBF8D /* DraggablePIP.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6676BC2F7D6370009CBF8D /* DraggablePIP.swift */; };
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5842F6ABB5F00ED71E0 /* SnapyLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5832F6ABB5800ED71E0 /* SnapyLoginViewModel.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
@@ -102,6 +103,7 @@
 		BC66763B2F797A90009CBF8D /* AlbumEmptyCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumEmptyCard.swift; sourceTree = "<group>"; };
 		BC66763D2F797A99009CBF8D /* AlbumPhotoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumPhotoCard.swift; sourceTree = "<group>"; };
 		BC66763F2F797A9E009CBF8D /* AlbumTimeSlotCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumTimeSlotCard.swift; sourceTree = "<group>"; };
+		BC6676BC2F7D6370009CBF8D /* DraggablePIP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraggablePIP.swift; sourceTree = "<group>"; };
 		BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginView.swift; sourceTree = "<group>"; };
 		BCCAD5832F6ABB5800ED71E0 /* SnapyLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginViewModel.swift; sourceTree = "<group>"; };
 		BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyTextField.swift; sourceTree = "<group>"; };
@@ -285,6 +287,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		BC6676BE2F7D6A9E009CBF8D /* Component */ = {
+			isa = PBXGroup;
+			children = (
+				BC6676BC2F7D6370009CBF8D /* DraggablePIP.swift */,
+			);
+			path = Component;
+			sourceTree = "<group>";
+		};
 		BCCAD6052F6B05E100ED71E0 /* Email */ = {
 			isa = PBXGroup;
 			children = (
@@ -401,6 +411,7 @@
 		BCD8159E2F6928F10028AE50 /* Camera */ = {
 			isa = PBXGroup;
 			children = (
+				BC6676BE2F7D6A9E009CBF8D /* Component */,
 				BCED9C192F6E61A9008E47BB /* PhotoPreviewView.swift */,
 				BCED9C172F6E61A9008E47BB /* CameraPreviewView.swift */,
 				BCD816D32F6A417A0028AE50 /* CameraViewModel.swift */,
@@ -701,6 +712,7 @@
 				BCED9C1E2F6E61A9008E47BB /* CameraPreviewView.swift in Sources */,
 				BC1DC2FB2F68CF730016A4CD /* AuthService.swift in Sources */,
 				BCCAD6782F6BA34400ED71E0 /* InfoView.swift in Sources */,
+				BC6676BD2F7D6370009CBF8D /* DraggablePIP.swift in Sources */,
 				BCCAD6742F6B9F7500ED71E0 /* registerCompleteView.swift in Sources */,
 				BCD8162B2F6936740028AE50 /* User.swift in Sources */,
 				BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */,
