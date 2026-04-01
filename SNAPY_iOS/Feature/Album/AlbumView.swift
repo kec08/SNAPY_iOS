@@ -13,6 +13,9 @@ struct AlbumView: View {
 
     @State private var dragOffset: CGFloat = 0
 
+    // MainTabView에서 카메라 열기 위한 콜백
+    var onOpenCamera: () -> Void
+
     var body: some View {
         ZStack {
             Color.backgroundBlack.ignoresSafeArea()
@@ -28,12 +31,14 @@ struct AlbumView: View {
                 AlbumStrick(streakCount: viewModel.streakCount)
                     .padding(.bottom, -14)
 
-                // 5칸 슬롯: 아침, 점심, 저녁, 추가1, 추가2
+                // 5칸 슬롯
                 TabView(selection: $viewModel.currentPage) {
                     ForEach(AlbumSlot.allCases, id: \.rawValue) { slot in
                         AlbumTimeSlotCard(
                             slot: slot,
-                            photo: viewModel.photo(for: slot)
+                            photo: viewModel.photo(for: slot),
+                            emptyState: viewModel.emptySlotState(for: slot),
+                            onTapSnap: onOpenCamera
                         )
                         .tag(slot.rawValue)
                     }
@@ -74,6 +79,6 @@ struct AlbumView: View {
 
 struct AlbumView_Previews: PreviewProvider {
     static var previews: some View {
-        AlbumView()
+        AlbumView(onOpenCamera: {})
     }
 }

@@ -1,37 +1,31 @@
 //
-//  AlbumEmptyCard.swift
+//  AlbumMissCard.swift
 //  SNAPY_iOS
 //
-//  Created by 김은찬 on 3/29/26.
+//  Created by 김은찬 on 4/2/26.
 //
 
 import SwiftUI
 
-struct AlbumEmptyCard: View {
-    var onTapSnap: () -> Void
-
+struct AlbumMissCard: View {
     var body: some View {
         VStack(spacing: 20) {
             Spacer()
 
-            Image("Not_filming_img")
+            Image("Album_Miss_img")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 110, height: 164)
+                .frame(height: 160)
                 .padding(.bottom, 30)
 
-            Text("아직 오늘의 사진을 찍지 않으셨습니다.")
+            Text("오늘 사진을 찍지 못했습니다.")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.customGray200)
                 .padding(.bottom, 10)
 
-            Button {
-                onTapSnap()
-            } label: {
-                Text("클릭하여 스냅찍기 >")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.textWhite)
-            }
+            Text("내일 다시 도전해보세요!")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundColor(.textWhite)
 
             Spacer()
         }
