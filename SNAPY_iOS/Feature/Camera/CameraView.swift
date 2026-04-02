@@ -77,38 +77,50 @@ struct CameraView: View {
             GeometryReader { geo in
                 let isSwapped = cameraVM.isCameraSwapped
 
-                // 후면 카메라 (메인)
+                // === 메인 카메라 (큰 화면) ===
                 Group {
-                    if let backLayer = cameraVM.backPreviewLayer {
-                        CameraPreviewView(previewLayer: backLayer)
-                            .clipShape(RoundedRectangle(cornerRadius: isSwapped ? 10 : 16))
+                    if isSwapped {
+                        // 전환 후: 전면이 메인
+                        if let frontLayer = cameraVM.frontPreviewLayer {
+                            CameraPreviewView(previewLayer: frontLayer)
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                        } else {
+                            cameraPlaceholder(text: "전면", isMain: true)
+                        }
                     } else {
-                        cameraPlaceholder(text: "후면 카메라", isMain: !isSwapped)
+                        // 기본: 후면이 메인
+                        if let backLayer = cameraVM.backPreviewLayer {
+                            CameraPreviewView(previewLayer: backLayer)
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                        } else {
+                            cameraPlaceholder(text: "후면 카메라", isMain: true)
+                        }
                     }
                 }
-                .frame(
-                    width: isSwapped ? 100 : geo.size.width,
-                    height: isSwapped ? 130 : geo.size.height
-                )
-                .shadow(color: isSwapped ? .black.opacity(0.5) : .clear, radius: 5)
-                .position(
-                    x: isSwapped ? 72 : geo.size.width / 2,
-                    y: isSwapped ? 92 : geo.size.height / 2
-                )
-                .zIndex(isSwapped ? 1 : 0)
+                .frame(width: geo.size.width, height: geo.size.height)
+                .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                .zIndex(0)
 
-                // 전면 카메라 (드래그 가능한 PIP)
-                if !isSwapped {
-                    ZStack(alignment: .topLeading) {
-                        Color.clear
-                            .frame(width: geo.size.width, height: geo.size.height)
+                // === PIP 카메라 (작은 화면, 항상 드래그 가능) ===
+                ZStack(alignment: .topLeading) {
+                    Color.clear
+                        .frame(width: geo.size.width, height: geo.size.height)
 
-                        DraggablePIP(
-                            containerSize: geo.size,
-                            pipWidth: 100,
-                            pipHeight: 130,
-                            padding: 12
-                        ) {
+                    DraggablePIP(
+                        containerSize: geo.size,
+                        pipWidth: 100,
+                        pipHeight: 130,
+                        padding: 12
+                    ) {
+                        if isSwapped {
+                            // 전환 후: 후면이 PIP
+                            if let backLayer = cameraVM.backPreviewLayer {
+                                CameraPreviewView(previewLayer: backLayer)
+                            } else {
+                                cameraPlaceholder(text: "후면", isMain: false)
+                            }
+                        } else {
+                            // 기본: 전면이 PIP
                             if let frontLayer = cameraVM.frontPreviewLayer {
                                 CameraPreviewView(previewLayer: frontLayer)
                             } else {
@@ -116,21 +128,8 @@ struct CameraView: View {
                             }
                         }
                     }
-                    .zIndex(1)
-                } else {
-                    // 스왑 시 전면이 메인
-                    Group {
-                        if let frontLayer = cameraVM.frontPreviewLayer {
-                            CameraPreviewView(previewLayer: frontLayer)
-                                .clipShape(RoundedRectangle(cornerRadius: 16))
-                        } else {
-                            cameraPlaceholder(text: "전면", isMain: true)
-                        }
-                    }
-                    .frame(width: geo.size.width, height: geo.size.height)
-                    .position(x: geo.size.width / 2, y: geo.size.height / 2)
-                    .zIndex(0)
                 }
+                .zIndex(1)
             }
             .aspectRatio(3/4, contentMode: .fit)
             .padding(.horizontal, 16)
