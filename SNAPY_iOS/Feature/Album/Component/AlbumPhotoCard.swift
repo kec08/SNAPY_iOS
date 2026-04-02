@@ -28,8 +28,8 @@ struct AlbumPhotoCard: View {
                     if let frontImage = photo.frontImage {
                         DraggablePIP(
                             containerSize: geo.size,
-                            pipWidth: 110,
-                            pipHeight: 140,
+                            pipWidth: 120,
+                            pipHeight: 1620,
                             padding: 12
                         ) {
                             Image(uiImage: frontImage)
