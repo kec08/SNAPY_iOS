@@ -77,7 +77,7 @@ struct CameraView: View {
             GeometryReader { geo in
                 let isSwapped = cameraVM.isCameraSwapped
 
-                // === 메인 카메라 (큰 화면) ===
+                // 메인 카메라
                 Group {
                     if isSwapped {
                         // 전환 후: 전면이 메인
@@ -101,7 +101,7 @@ struct CameraView: View {
                 .position(x: geo.size.width / 2, y: geo.size.height / 2)
                 .zIndex(0)
 
-                // === PIP 카메라 (작은 화면, 항상 드래그 가능) ===
+                // PIP 카메라
                 ZStack(alignment: .topLeading) {
                     Color.clear
                         .frame(width: geo.size.width, height: geo.size.height)
