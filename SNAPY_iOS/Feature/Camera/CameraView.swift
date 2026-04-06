@@ -108,8 +108,8 @@ struct CameraView: View {
 
                     DraggablePIP(
                         containerSize: geo.size,
-                        pipWidth: 100,
-                        pipHeight: 130,
+                        pipWidth: 120,
+                        pipHeight: 160,
                         padding: 12
                     ) {
                         if isSwapped {

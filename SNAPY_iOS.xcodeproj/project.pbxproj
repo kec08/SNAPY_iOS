@@ -26,6 +26,10 @@
 		BC6676BD2F7D6370009CBF8D /* DraggablePIP.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6676BC2F7D6370009CBF8D /* DraggablePIP.swift */; };
 		BC6676C02F7D7086009CBF8D /* AlbumMissCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6676BF2F7D707C009CBF8D /* AlbumMissCard.swift */; };
 		BC6676C92F833C2B009CBF8D /* ImageCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6676C82F833C20009CBF8D /* ImageCarousel.swift */; };
+		BC6676CB2F8405F8009CBF8D /* GuestbookSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6676CA2F8405F3009CBF8D /* GuestbookSection.swift */; };
+		BC6676CD2F840615009CBF8D /* ProfileEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6676CC2F840613009CBF8D /* ProfileEditSheet.swift */; };
+		BC6676D42F8406D1009CBF8D /* ProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6676D12F84066B009CBF8D /* ProfileHeaderView.swift */; };
+		BC6676D52F8406EB009CBF8D /* ProfileFeedGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6676CE2F84062E009CBF8D /* ProfileFeedGrid.swift */; };
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5842F6ABB5F00ED71E0 /* SnapyLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5832F6ABB5800ED71E0 /* SnapyLoginViewModel.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
@@ -108,6 +112,10 @@
 		BC6676BC2F7D6370009CBF8D /* DraggablePIP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraggablePIP.swift; sourceTree = "<group>"; };
 		BC6676BF2F7D707C009CBF8D /* AlbumMissCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumMissCard.swift; sourceTree = "<group>"; };
 		BC6676C82F833C20009CBF8D /* ImageCarousel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCarousel.swift; sourceTree = "<group>"; };
+		BC6676CA2F8405F3009CBF8D /* GuestbookSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestbookSection.swift; sourceTree = "<group>"; };
+		BC6676CC2F840613009CBF8D /* ProfileEditSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditSheet.swift; sourceTree = "<group>"; };
+		BC6676CE2F84062E009CBF8D /* ProfileFeedGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFeedGrid.swift; sourceTree = "<group>"; };
+		BC6676D12F84066B009CBF8D /* ProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderView.swift; sourceTree = "<group>"; };
 		BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginView.swift; sourceTree = "<group>"; };
 		BCCAD5832F6ABB5800ED71E0 /* SnapyLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginViewModel.swift; sourceTree = "<group>"; };
 		BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyTextField.swift; sourceTree = "<group>"; };
@@ -490,6 +498,10 @@
 		BCD816D02F6A415B0028AE50 /* Component */ = {
 			isa = PBXGroup;
 			children = (
+				BC6676D12F84066B009CBF8D /* ProfileHeaderView.swift */,
+				BC6676CE2F84062E009CBF8D /* ProfileFeedGrid.swift */,
+				BC6676CC2F840613009CBF8D /* ProfileEditSheet.swift */,
+				BC6676CA2F8405F3009CBF8D /* GuestbookSection.swift */,
 			);
 			path = Component;
 			sourceTree = "<group>";
@@ -679,11 +691,13 @@
 				BCD815A32F6929550028AE50 /* SplashView.swift in Sources */,
 				BC6674E72F73A564009CBF8D /* AlbumStrick.swift in Sources */,
 				BCD816DC2F6A41A50028AE50 /* ProfileViewModel.swift in Sources */,
+				BC6676CD2F840615009CBF8D /* ProfileEditSheet.swift in Sources */,
 				BC1DC2F12F68CF730016A4CD /* Color+Extensions.swift in Sources */,
 				BCCAD60C2F6B062F00ED71E0 /* PasswordView.swift in Sources */,
 				BCD815AF2F69346D0028AE50 /* MainTabView.swift in Sources */,
 				BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */,
 				BCCAD6112F6B071700ED71E0 /* PhoneView.swift in Sources */,
+				BC6676D42F8406D1009CBF8D /* ProfileHeaderView.swift in Sources */,
 				BCD816BF2F69A8D30028AE50 /* AppleSignInButton.swift in Sources */,
 				BCED9C222F6E625A008E47BB /* PhotoStore.swift in Sources */,
 				BC6676402F797A9E009CBF8D /* AlbumTimeSlotCard.swift in Sources */,
@@ -694,6 +708,7 @@
 				BCD816CA2F6A41470028AE50 /* HomeView.swift in Sources */,
 				BC01FFA52F6BBA6600A85201 /* SignUpButton.swift in Sources */,
 				BCD816C12F69AA6B0028AE50 /* AppleLoginButton.swift in Sources */,
+				BC6676D52F8406EB009CBF8D /* ProfileFeedGrid.swift in Sources */,
 				BCD816D22F6A416F0028AE50 /* CameraView.swift in Sources */,
 				BCD815AB2F69343D0028AE50 /* RootView.swift in Sources */,
 				BCD816D82F6A41940028AE50 /* FriendViewModel.swift in Sources */,
@@ -729,6 +744,7 @@
 				BCD816D42F6A41810028AE50 /* CameraViewModel.swift in Sources */,
 				BC1DC2FF2F68CF730016A4CD /* AuthDTO.swift in Sources */,
 				BC66763C2F797A90009CBF8D /* AlbumEmptyCard.swift in Sources */,
+				BC6676CB2F8405F8009CBF8D /* GuestbookSection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -53,7 +53,7 @@ struct LoginView: View {
                 ImageCarousel(images: images, autoScrollInterval: 2.5)
 
                 Spacer()
-                    .frame(height: 60)
+                    .frame(height: 40)
 
                 HStack(spacing: 8){
                     Text("아직 회원이 아니신가요?")
