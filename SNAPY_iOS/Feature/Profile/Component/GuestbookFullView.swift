@@ -6,11 +6,18 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct GuestbookFullView: View {
     @ObservedObject var viewModel: ProfileViewModel
     @Environment(\.dismiss) private var dismiss
-    @State private var showAddSheet = false
+
+    // 갤러리 → 미리보기 작성 흐름
+    @State private var showPicker = false
+    @State private var pickerItem: PhotosPickerItem?
+    @State private var previewImage: UIImage?
+    @State private var showAddView = false
+    @State private var requestNewImageAfterDismiss = false
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 3)
 
@@ -30,9 +37,9 @@ struct GuestbookFullView: View {
                 .padding(.bottom, 120)
             }
 
-            // 하단 우측 플로팅 연필 버튼
+            // 하단 우측 플로팅 연필 버튼: 즉시 갤러리 표시
             Button {
-                showAddSheet = true
+                showPicker = true
             } label: {
                 ZStack {
                     Circle()
@@ -70,9 +77,37 @@ struct GuestbookFullView: View {
         .toolbarBackground(Color.backgroundBlack, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
-        .fullScreenCover(isPresented: $showAddSheet) {
-            GuestbookAddView { image in
-                viewModel.addGuestbookImage(image)
+        .photosPicker(isPresented: $showPicker, selection: $pickerItem, matching: .images)
+        .onChange(of: pickerItem) { _, newItem in
+            guard let newItem else { return }
+            Task {
+                if let data = try? await newItem.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    previewImage = image
+                    showAddView = true
+                }
+                await MainActor.run { pickerItem = nil }
+            }
+        }
+        .fullScreenCover(isPresented: $showAddView, onDismiss: {
+            previewImage = nil
+            if requestNewImageAfterDismiss {
+                requestNewImageAfterDismiss = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    showPicker = true
+                }
+            }
+        }) {
+            if let image = previewImage {
+                GuestbookAddView(
+                    image: image,
+                    onPicked: { picked in
+                        viewModel.addGuestbookImage(picked)
+                    },
+                    onRequestNewImage: {
+                        requestNewImageAfterDismiss = true
+                    }
+                )
             }
         }
     }

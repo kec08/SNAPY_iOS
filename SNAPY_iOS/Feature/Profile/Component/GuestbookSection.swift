@@ -6,19 +6,26 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct GuestbookSection: View {
     @ObservedObject var viewModel: ProfileViewModel
-    @State private var showAddSheet = false
     @State private var showFullView = false
+
+    // 갤러리 → 미리보기 작성 흐름
+    @State private var showPicker = false
+    @State private var pickerItem: PhotosPickerItem?
+    @State private var previewImage: UIImage?
+    @State private var showAddView = false
+    @State private var requestNewImageAfterDismiss = false
 
     private let thumbSize: CGFloat = 64
 
     var body: some View {
         HStack(spacing: 10) {
-            // + 추가 버튼
+            // + 추가 버튼: 즉시 갤러리 표시
             Button {
-                showAddSheet = true
+                showPicker = true
             } label: {
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
@@ -56,9 +63,39 @@ struct GuestbookSection: View {
             }
         }
         .padding(.horizontal, 16)
-        .fullScreenCover(isPresented: $showAddSheet) {
-            GuestbookAddView { image in
-                viewModel.addGuestbookImage(image)
+        .photosPicker(isPresented: $showPicker, selection: $pickerItem, matching: .images)
+        .onChange(of: pickerItem) { _, newItem in
+            guard let newItem else { return }
+            Task {
+                if let data = try? await newItem.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    previewImage = image
+                    showAddView = true
+                }
+                // 동일한 사진을 다시 고를 수 있도록 초기화
+                await MainActor.run { pickerItem = nil }
+            }
+        }
+        .fullScreenCover(isPresented: $showAddView, onDismiss: {
+            previewImage = nil
+            // "다른 이미지 사용" 으로 닫혔으면 picker 를 다시 띄운다
+            if requestNewImageAfterDismiss {
+                requestNewImageAfterDismiss = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    showPicker = true
+                }
+            }
+        }) {
+            if let image = previewImage {
+                GuestbookAddView(
+                    image: image,
+                    onPicked: { picked in
+                        viewModel.addGuestbookImage(picked)
+                    },
+                    onRequestNewImage: {
+                        requestNewImageAfterDismiss = true
+                    }
+                )
             }
         }
         .navigationDestination(isPresented: $showFullView) {
