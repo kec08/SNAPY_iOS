@@ -38,7 +38,7 @@ struct ProfileEditView: View {
                                 Circle().stroke(Color(white: 0.3), lineWidth: 1)
                             )
                             .overlay(alignment: .bottomTrailing) {
-                                Image(systemName: "camera.fill")
+                                Image(systemName: "pencil")
                                     .font(.system(size: 12))
                                     .foregroundColor(.white)
                                     .padding(6)

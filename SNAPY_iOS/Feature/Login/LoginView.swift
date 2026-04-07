@@ -49,7 +49,7 @@ struct LoginView: View {
                 Spacer()
                     .frame(height: 40)
 
-                // 이미지 캐러셀 (컴포넌트)
+                // 이미지 캐러셀
                 ImageCarousel(images: images, autoScrollInterval: 2.5)
 
                 Spacer()

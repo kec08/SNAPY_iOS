@@ -8,57 +8,83 @@
 import SwiftUI
 
 struct GuestbookSection: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("방명록")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.textWhite)
-                Spacer()
-                Button("전체보기") {}
-                    .font(.system(size: 13))
-                    .foregroundColor(.customGray300)
-            }
-            .padding(.horizontal, 16)
+    @ObservedObject var viewModel: ProfileViewModel
+    @State private var showAddSheet = false
+    @State private var showFullView = false
 
-            // 방명록 placeholder
-            VStack(spacing: 12) {
-                ForEach(0..<2, id: \.self) { _ in
-                    guestbookPlaceholder
+    private let thumbSize: CGFloat = 64
+
+    var body: some View {
+        HStack(spacing: 10) {
+            // + 추가 버튼
+            Button {
+                showAddSheet = true
+            } label: {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(white: 0.18))
+                        .frame(width: thumbSize, height: thumbSize)
+                    Image(systemName: "plus")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(.textWhite)
                 }
             }
-            .padding(.horizontal, 16)
+
+            // 가로 썸네일 (앞쪽 3개 미리보기)
+            HStack(spacing: 6) {
+                ForEach(Array(viewModel.guestbookEntries.prefix(3))) { entry in
+                    Button {
+                        showFullView = true
+                    } label: {
+                        guestbookThumbnail(for: entry)
+                            .frame(width: thumbSize, height: thumbSize)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                }
+            }
+
+            Spacer(minLength: 0)
+
+            // 전체보기 화살표
+            Button {
+                showFullView = true
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.customGray300)
+                    .frame(width: 28, height: thumbSize)
+            }
+        }
+        .padding(.horizontal, 16)
+        .fullScreenCover(isPresented: $showAddSheet) {
+            GuestbookAddView { image in
+                viewModel.addGuestbookImage(image)
+            }
+        }
+        .navigationDestination(isPresented: $showFullView) {
+            GuestbookFullView(viewModel: viewModel)
         }
     }
 
-    private var guestbookPlaceholder: some View {
-        HStack(spacing: 12) {
-            // 펭귄 프사
-            Image("Profile_img")
+    @ViewBuilder
+    private func guestbookThumbnail(for entry: GuestbookEntry) -> some View {
+        if let image = entry.image {
+            Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
-                .frame(width: 36, height: 36)
-                .clipShape(Circle())
-
-            VStack(alignment: .leading, spacing: 4) {
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color(white: 0.25))
-                    .frame(width: 80, height: 12)
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color(white: 0.2))
-                    .frame(height: 12)
-            }
-
-            Spacer()
+        } else if let name = entry.assetName {
+            Image(name)
+                .resizable()
+                .scaledToFill()
+        } else {
+            Color(white: 0.2)
         }
-        .padding(12)
-        .background(Color(white: 0.15))
-        .cornerRadius(12)
     }
 }
 
 struct GuestbookSection_Previews: PreviewProvider {
     static var previews: some View {
-        GuestbookSection()
+        GuestbookSection(viewModel: ProfileViewModel())
+            .background(Color.backgroundBlack)
     }
 }

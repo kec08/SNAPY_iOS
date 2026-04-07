@@ -18,10 +18,27 @@ struct FeedPost: Identifiable {
     let date: String
 }
 
+// 방명록 엔트리
+struct GuestbookEntry: Identifiable {
+    let id = UUID()
+    let assetName: String?
+    let image: UIImage?
+
+    init(assetName: String) {
+        self.assetName = assetName
+        self.image = nil
+    }
+
+    init(image: UIImage) {
+        self.assetName = nil
+        self.image = image
+    }
+}
+
 @MainActor
 final class ProfileViewModel: ObservableObject {
     // 프로필 정보
-    @Published var username: String = "문종은"
+    @Published var username: String = "김은찬"
     @Published var handle: String = "silver_c.ld"
     @Published var postCount: Int = 5
     @Published var friendCount: Int = 13
@@ -40,6 +57,21 @@ final class ProfileViewModel: ObservableObject {
     // 이미지 피커
     @Published var profilePickerItem: PhotosPickerItem? = nil
     @Published var bannerPickerItem: PhotosPickerItem? = nil
+
+    // 방명록 목데이터
+    @Published var guestbookEntries: [GuestbookEntry] = [
+        GuestbookEntry(assetName: "Mock_img1"),
+        GuestbookEntry(assetName: "Mock_img2"),
+        GuestbookEntry(assetName: "Mock_img3"),
+        GuestbookEntry(assetName: "Mock_img4"),
+        GuestbookEntry(assetName: "Mock_img5"),
+        GuestbookEntry(assetName: "Mock_img6"),
+    ]
+
+    // 방명록 추가 (사용자가 본인 방명록을 임시로 남길 수 있도록)
+    func addGuestbookImage(_ image: UIImage) {
+        guestbookEntries.insert(GuestbookEntry(image: image), at: 0)
+    }
 
     // 피드 목데이터
     @Published var feedPosts: [FeedPost] = [

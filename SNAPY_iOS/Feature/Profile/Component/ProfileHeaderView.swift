@@ -32,7 +32,7 @@ struct ProfileHeaderView: View {
                         Image("Banner_img")
                             .resizable()
                             .scaledToFill()
-                            .frame(height: 180)
+                            .frame(height: 170)
                             .clipped()
                     }
                 }
@@ -109,7 +109,7 @@ struct ProfileHeaderView: View {
                             .font(.system(size: 14, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 36)
-                            .background(.darkGray)
+                            .background(.customDarkGray)
                             .foregroundColor(.textWhite)
                             .cornerRadius(8)
                     }
@@ -119,7 +119,7 @@ struct ProfileHeaderView: View {
                             .font(.system(size: 14, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .frame(height: 36)
-                            .background(.darkGray)
+                            .background(.customDarkGray)
                             .foregroundColor(.textWhite)
                             .cornerRadius(8)
                     }

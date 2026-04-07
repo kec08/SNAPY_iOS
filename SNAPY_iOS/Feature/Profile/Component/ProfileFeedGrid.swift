@@ -23,7 +23,7 @@ struct ProfileFeedGrid: View {
                     Image(post.thumbnailImage)
                         .resizable()
                         .scaledToFill()
-                        .frame(height: 130)
+                        .frame(width: 134, height: 160)
                         .frame(maxWidth: .infinity)
                         .clipped()
                 }
@@ -32,7 +32,7 @@ struct ProfileFeedGrid: View {
     }
 }
 
-// MARK: - 피드 상세 (인스타처럼 사진 1~5장 스와이프)
+// MARK: - 피드 상세
 struct FeedDetailView: View {
     let post: FeedPost
 
@@ -49,11 +49,11 @@ struct FeedDetailView: View {
                                 .resizable()
                                 .scaledToFill()
                                 .frame(maxWidth: .infinity)
-                                .frame(height: 400)
+                                .frame(width: 402,height: 482)
                                 .clipped()
                         }
                     }
-                    .frame(height: 400)
+                    .frame(width: 402,height: 482)
                     .tabViewStyle(.page(indexDisplayMode: .always))
 
                     // 날짜
