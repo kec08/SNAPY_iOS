@@ -59,6 +59,7 @@ struct ProfileView: View {
                             .frame(height: 40)
                     }
                 }
+                .ignoresSafeArea(edges: .top)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

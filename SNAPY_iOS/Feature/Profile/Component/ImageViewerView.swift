@@ -86,8 +86,8 @@ struct ImageViewerView: View {
                                 offset = .zero
                                 lastOffset = .zero
                             } else {
-                                scale = 2.5
-                                lastScale = 2.5
+                                scale = 2
+                                lastScale = 2
                             }
                         }
                     }

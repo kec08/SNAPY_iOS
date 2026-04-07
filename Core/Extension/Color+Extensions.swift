@@ -15,6 +15,7 @@ extension Color {
     static let Gray300 = Color("Gray300")
     static let Gray400 = Color("Gray400")
     static let Gray500 = Color("Gray500")
+    static let DarkGray = Color("DarkGray")
     
     static let customRed = Color("ActionRed")
     static let customBlue = Color("ActionBlue")
