@@ -12,26 +12,22 @@ struct GuestbookFullView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showAddSheet = false
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 3)
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 3)
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             Color.backgroundBlack.ignoresSafeArea()
 
             ScrollView {
-                LazyVGrid(columns: columns, spacing: 4) {
+                // 셀 사이 세로 간격은 프로필 오버플로우(셀 밖으로 나옴)를 고려해 충분히 확보
+                LazyVGrid(columns: columns, spacing: 28) {
                     ForEach(viewModel.guestbookEntries) { entry in
-                        GeometryReader { geo in
-                            thumbnail(for: entry)
-                                .frame(width: geo.size.width, height: geo.size.width)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        }
-                        .aspectRatio(1, contentMode: .fit)
+                        guestbookCell(for: entry)
                     }
                 }
-                .padding(.horizontal, 4)
-                .padding(.top, 8)
-                .padding(.bottom, 100)
+                .padding(.horizontal, 6)
+                .padding(.top, 12)
+                .padding(.bottom, 120)
             }
 
             // 하단 우측 플로팅 연필 버튼
@@ -81,6 +77,31 @@ struct GuestbookFullView: View {
         }
     }
 
+    // 가로로 긴 16:9 셀 + 셀 밖 가운데 하단으로 약간 벗어난 원형 프로필
+    @ViewBuilder
+    private func guestbookCell(for entry: GuestbookEntry) -> some View {
+        GeometryReader { geo in
+            let w = geo.size.width
+            let h = w * 9 / 16
+
+            ZStack {
+                thumbnail(for: entry)
+                    .frame(width: w, height: h)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .frame(width: w, height: h)
+            .overlay(alignment: .bottom) {
+                authorAvatar(for: entry)
+                    .frame(width: 26, height: 26)
+                    .background(Circle().fill(Color.backgroundBlack))
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.backgroundBlack, lineWidth: 2))
+                    .offset(y: 13) // 셀 밖으로 절반 정도 벗어나게
+            }
+        }
+        .aspectRatio(16/9, contentMode: .fit)
+    }
+
     @ViewBuilder
     private func thumbnail(for entry: GuestbookEntry) -> some View {
         if let image = entry.image {
@@ -93,6 +114,23 @@ struct GuestbookFullView: View {
                 .scaledToFill()
         } else {
             Color(white: 0.2)
+        }
+    }
+
+    @ViewBuilder
+    private func authorAvatar(for entry: GuestbookEntry) -> some View {
+        if let image = entry.authorProfileImage {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+        } else if let name = entry.authorProfileAsset {
+            Image(name)
+                .resizable()
+                .scaledToFill()
+        } else {
+            Image("Profile_img")
+                .resizable()
+                .scaledToFill()
         }
     }
 }

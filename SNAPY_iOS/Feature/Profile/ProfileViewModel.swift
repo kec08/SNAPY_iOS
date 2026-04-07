@@ -21,17 +21,23 @@ struct FeedPost: Identifiable {
 // 방명록 엔트리
 struct GuestbookEntry: Identifiable {
     let id = UUID()
-    let assetName: String?
-    let image: UIImage?
+    let assetName: String?            // 사진 (목)
+    let image: UIImage?               // 사진 (사용자 추가)
+    let authorProfileAsset: String?   // 작성자 프사 (에셋)
+    let authorProfileImage: UIImage?  // 작성자 프사 (UIImage)
 
-    init(assetName: String) {
+    init(assetName: String, authorProfileAsset: String = "Profile_img") {
         self.assetName = assetName
         self.image = nil
+        self.authorProfileAsset = authorProfileAsset
+        self.authorProfileImage = nil
     }
 
-    init(image: UIImage) {
+    init(image: UIImage, authorProfileImage: UIImage? = nil, authorProfileAsset: String? = "Profile_img") {
         self.assetName = nil
         self.image = image
+        self.authorProfileAsset = authorProfileImage == nil ? authorProfileAsset : nil
+        self.authorProfileImage = authorProfileImage
     }
 }
 

@@ -29,7 +29,7 @@ struct AlbumPhotoCard: View {
                         DraggablePIP(
                             containerSize: geo.size,
                             pipWidth: 120,
-                            pipHeight: 1620,
+                            pipHeight: 160,
                             padding: 12
                         ) {
                             Image(uiImage: frontImage)
