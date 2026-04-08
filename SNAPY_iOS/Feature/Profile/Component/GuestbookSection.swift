@@ -19,38 +19,36 @@ struct GuestbookSection: View {
     @State private var showAddView = false
     @State private var requestNewImageAfterDismiss = false
 
-    private let thumbSize: CGFloat = 64
+    private let thumbWidth: CGFloat = 55
+    private var thumbHeight: CGFloat { thumbWidth * 16 / 9 }
 
     var body: some View {
-        HStack(spacing: 10) {
-            // + 추가 버튼: 즉시 갤러리 표시
+        HStack(spacing: 12) {
+            // + 추가 버튼
             Button {
                 showPicker = true
             } label: {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(white: 0.18))
-                        .frame(width: thumbSize, height: thumbSize)
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(white: 0.14))
+                        .frame(width: thumbWidth, height: thumbHeight)
                     Image(systemName: "plus")
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundColor(.textWhite)
                 }
             }
 
-            // 가로 썸네일 (앞쪽 3개 미리보기)
-            HStack(spacing: 6) {
-                ForEach(Array(viewModel.guestbookEntries.prefix(3))) { entry in
+            // 가로 썸네일
+            HStack(spacing: 12) {
+                ForEach(Array(viewModel.guestbookEntries.prefix(4))) { entry in
                     Button {
                         showFullView = true
                     } label: {
-                        guestbookThumbnail(for: entry)
-                            .frame(width: thumbSize, height: thumbSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        guestbookCell(for: entry)
                     }
                 }
             }
-
-            Spacer(minLength: 0)
+            .padding(.trailing, 4)
 
             // 전체보기 화살표
             Button {
@@ -58,11 +56,10 @@ struct GuestbookSection: View {
             } label: {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.customGray300)
-                    .frame(width: 28, height: thumbSize)
+                    .foregroundColor(.textWhite)
+                    .frame(width: 20, height: thumbHeight)
             }
         }
-        .padding(.horizontal, 16)
         .photosPicker(isPresented: $showPicker, selection: $pickerItem, matching: .images)
         .onChange(of: pickerItem) { _, newItem in
             guard let newItem else { return }
@@ -72,13 +69,11 @@ struct GuestbookSection: View {
                     previewImage = image
                     showAddView = true
                 }
-                // 동일한 사진을 다시 고를 수 있도록 초기화
                 await MainActor.run { pickerItem = nil }
             }
         }
         .fullScreenCover(isPresented: $showAddView, onDismiss: {
             previewImage = nil
-            // "다른 이미지 사용" 으로 닫혔으면 picker 를 다시 띄운다
             if requestNewImageAfterDismiss {
                 requestNewImageAfterDismiss = false
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -103,6 +98,25 @@ struct GuestbookSection: View {
         }
     }
 
+    // 9:16 셀 + 하단 아바타 오버플로우
+    @ViewBuilder
+    private func guestbookCell(for entry: GuestbookEntry) -> some View {
+        ZStack {
+            guestbookThumbnail(for: entry)
+                .frame(width: thumbWidth, height: thumbHeight)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+        .frame(width: thumbWidth, height: thumbHeight)
+        .overlay(alignment: .bottom) {
+            authorAvatar(for: entry)
+                .frame(width: 24, height: 24)
+                .background(Circle().fill(Color.backgroundBlack))
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.backgroundBlack, lineWidth: 2))
+                .offset(y: 10)
+        }
+    }
+
     @ViewBuilder
     private func guestbookThumbnail(for entry: GuestbookEntry) -> some View {
         if let image = entry.image {
@@ -117,11 +131,27 @@ struct GuestbookSection: View {
             Color(white: 0.2)
         }
     }
+
+    @ViewBuilder
+    private func authorAvatar(for entry: GuestbookEntry) -> some View {
+        if let image = entry.authorProfileImage {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+        } else if let name = entry.authorProfileAsset {
+            Image(name)
+                .resizable()
+                .scaledToFill()
+        } else {
+            Image("Profile_img")
+                .resizable()
+                .scaledToFill()
+        }
+    }
 }
 
 struct GuestbookSection_Previews: PreviewProvider {
     static var previews: some View {
         GuestbookSection(viewModel: ProfileViewModel())
-            .background(Color.backgroundBlack)
     }
 }

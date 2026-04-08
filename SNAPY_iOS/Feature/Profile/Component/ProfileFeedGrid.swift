@@ -17,15 +17,19 @@ struct ProfileFeedGrid: View {
     ]
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 2) {
-            ForEach(posts) { post in
-                NavigationLink(destination: FeedDetailView(post: post)) {
-                    Image(post.thumbnailImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 134, height: 160)
-                        .frame(maxWidth: .infinity)
-                        .clipped()
+        GeometryReader { geo in
+            let cellWidth = (geo.size.width - 4) / 3 // spacing 2 * 2
+            let cellHeight = cellWidth * 160 / 134
+
+            LazyVGrid(columns: columns, spacing: 2) {
+                ForEach(posts) { post in
+                    NavigationLink(destination: FeedDetailView(post: post)) {
+                        Image(post.thumbnailImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: cellWidth, height: cellHeight)
+                            .clipped()
+                    }
                 }
             }
         }
@@ -49,11 +53,11 @@ struct FeedDetailView: View {
                                 .resizable()
                                 .scaledToFill()
                                 .frame(maxWidth: .infinity)
-                                .frame(width: 402,height: 482)
+                                .frame(width: 402, height: 482)
                                 .clipped()
                         }
                     }
-                    .frame(width: 402,height: 482)
+                    .frame(width: 402, height: 482)
                     .tabViewStyle(.page(indexDisplayMode: .always))
 
                     // 날짜
@@ -66,5 +70,31 @@ struct FeedDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+// MARK: - Preview
+#Preview("ProfileFeedGrid") {
+    NavigationStack {
+        ScrollView {
+            ProfileFeedGrid(posts: [
+                FeedPost(thumbnailImage: "Mock_img1", images: ["Mock_img1"], date: "2026. 4. 1."),
+                FeedPost(thumbnailImage: "Mock_img2", images: ["Mock_img2"], date: "2026. 4. 2."),
+                FeedPost(thumbnailImage: "Mock_img3", images: ["Mock_img3"], date: "2026. 4. 3."),
+                FeedPost(thumbnailImage: "Mock_img4", images: ["Mock_img4"], date: "2026. 4. 4."),
+                FeedPost(thumbnailImage: "Mock_img5", images: ["Mock_img5"], date: "2026. 4. 5."),
+            ])
+        }
+        .background(Color.backgroundBlack)
+    }
+}
+
+#Preview("FeedDetailView") {
+    NavigationStack {
+        FeedDetailView(post: FeedPost(
+            thumbnailImage: "Mock_img1",
+            images: ["Mock_img1", "Mock_img2", "Mock_img3"],
+            date: "2026. 4. 1."
+        ))
     }
 }

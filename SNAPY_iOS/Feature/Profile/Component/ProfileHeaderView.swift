@@ -127,7 +127,7 @@ struct ProfileHeaderView: View {
                 .padding(.top, 4)
             }
             .padding(.top, 48)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
         }
         // 배너 확대 보기 (원본 크기)
         .fullScreenCover(isPresented: $showBannerViewer) {

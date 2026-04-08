@@ -19,22 +19,19 @@ struct GuestbookFullView: View {
     @State private var showAddView = false
     @State private var requestNewImageAfterDismiss = false
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 3)
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 3)
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             Color.backgroundBlack.ignoresSafeArea()
 
             ScrollView {
-                // 셀 사이 세로 간격은 프로필 오버플로우(셀 밖으로 나옴)를 고려해 충분히 확보
-                LazyVGrid(columns: columns, spacing: 28) {
+                LazyVGrid(columns: columns, spacing: 34) {
                     ForEach(viewModel.guestbookEntries) { entry in
                         guestbookCell(for: entry)
                     }
                 }
-                .padding(.horizontal, 6)
-                .padding(.top, 12)
-                .padding(.bottom, 120)
+                .padding(.horizontal, 20)
             }
 
             // 하단 우측 플로팅 연필 버튼: 즉시 갤러리 표시
@@ -43,7 +40,7 @@ struct GuestbookFullView: View {
             } label: {
                 ZStack {
                     Circle()
-                        .fill(Color(white: 0.18))
+                        .fill(Color.textWhite)
                         .frame(width: 56, height: 56)
                         .shadow(color: .black.opacity(0.4), radius: 6, y: 2)
                     Image("Pen_icon")
@@ -51,7 +48,7 @@ struct GuestbookFullView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 24, height: 24)
-                        .foregroundColor(.textWhite)
+                        .foregroundColor(.backgroundBlack)
                 }
             }
             .padding(.trailing, 20)
@@ -69,8 +66,8 @@ struct GuestbookFullView: View {
                 }
             }
             ToolbarItem(placement: .principal) {
-                Text("방문록")
-                    .font(.system(size: 17, weight: .semibold))
+                Text("방명록")
+                    .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.textWhite)
             }
         }
@@ -112,12 +109,11 @@ struct GuestbookFullView: View {
         }
     }
 
-    // 가로로 긴 16:9 셀 + 셀 밖 가운데 하단으로 약간 벗어난 원형 프로필
     @ViewBuilder
     private func guestbookCell(for entry: GuestbookEntry) -> some View {
         GeometryReader { geo in
             let w = geo.size.width
-            let h = w * 9 / 16
+            let h = w * 16 / 9
 
             ZStack {
                 thumbnail(for: entry)
@@ -127,14 +123,14 @@ struct GuestbookFullView: View {
             .frame(width: w, height: h)
             .overlay(alignment: .bottom) {
                 authorAvatar(for: entry)
-                    .frame(width: 26, height: 26)
+                    .frame(width: 30, height: 30)
                     .background(Circle().fill(Color.backgroundBlack))
                     .clipShape(Circle())
                     .overlay(Circle().stroke(Color.backgroundBlack, lineWidth: 2))
-                    .offset(y: 13) // 셀 밖으로 절반 정도 벗어나게
+                    .offset(y: 13)
             }
         }
-        .aspectRatio(16/9, contentMode: .fit)
+        .aspectRatio(9/16, contentMode: .fit)
     }
 
     @ViewBuilder

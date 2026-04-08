@@ -16,33 +16,17 @@ struct ProfileView: View {
                 Color.backgroundBlack.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 30) {
                         ProfileHeaderView(viewModel: viewModel)
 
-                        Divider()
-                            .background(Color(white: 0.3))
-                            .padding(.horizontal, 16)
+                        GuestbookSection(viewModel: viewModel)
+                            .padding(.bottom, 10)
 
-                        // 피드 그리드 (3열)
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack(spacing: 8) {
-                                
-                                // 방명록
-                                GuestbookSection(viewModel: viewModel)
-
-                                Spacer()
-                            }
-                            .padding(.bottom, 20)
-                            
                             Divider()
                                 .background(Color.Gray500)
-                                .padding(.horizontal, 22)
 
-                            Spacer()
-                                .frame(height: 10)
-
-                            ProfileFeedGrid(posts: viewModel.feedPosts)
-                        }
+                        // 피드 그리드
+                        ProfileFeedGrid(posts: viewModel.feedPosts)
                     }
                 }
                 .ignoresSafeArea(edges: .top)
