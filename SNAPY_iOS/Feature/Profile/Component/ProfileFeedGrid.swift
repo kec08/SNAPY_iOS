@@ -17,19 +17,17 @@ struct ProfileFeedGrid: View {
     ]
 
     var body: some View {
-        GeometryReader { geo in
-            let cellWidth = (geo.size.width - 4) / 3 // spacing 2 * 2
-            let cellHeight = cellWidth * 160 / 134
-
-            LazyVGrid(columns: columns, spacing: 2) {
-                ForEach(posts) { post in
-                    NavigationLink(destination: FeedDetailView(post: post)) {
-                        Image(post.thumbnailImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: cellWidth, height: cellHeight)
-                            .clipped()
-                    }
+        LazyVGrid(columns: columns, spacing: 2) {
+            ForEach(posts) { post in
+                NavigationLink(destination: FeedDetailView(post: post)) {
+                    Color.clear
+                        .aspectRatio(134/160, contentMode: .fit)
+                        .overlay(
+                            Image(post.thumbnailImage)
+                                .resizable()
+                                .scaledToFill()
+                        )
+                        .clipped()
                 }
             }
         }

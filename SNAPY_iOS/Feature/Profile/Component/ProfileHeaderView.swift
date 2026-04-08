@@ -92,7 +92,7 @@ struct ProfileHeaderView: View {
 
                 // 겹지인 목록
                 Text(viewModel.mutualFriendsText)
-                    .font(.system(size: 12))
+                    .font(.system(size: 13))
                     .foregroundColor(.textWhite)
                     .lineLimit(1)
 
@@ -129,7 +129,7 @@ struct ProfileHeaderView: View {
             .padding(.top, 48)
             .padding(.horizontal, 20)
         }
-        // 배너 확대 보기 (원본 크기)
+        // 배너 확대 보기
         .fullScreenCover(isPresented: $showBannerViewer) {
             ImageViewerView(
                 image: viewModel.bannerImage,
@@ -137,7 +137,7 @@ struct ProfileHeaderView: View {
                 horizontalPadding: 0
             )
         }
-        // 프로필 확대 보기 (좌우 60 여백)
+        // 프로필 확대 보기
         .fullScreenCover(isPresented: $showProfileViewer) {
             ImageViewerView(
                 image: viewModel.profileImage,
