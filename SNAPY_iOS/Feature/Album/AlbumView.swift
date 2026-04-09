@@ -12,12 +12,13 @@ struct AlbumView: View {
     @ObservedObject private var photoStore = PhotoStore.shared
 
     @State private var dragOffset: CGFloat = 0
+    @State private var showCalendar = false
 
     // MainTabView에서 카메라 열기 위한 콜백
     var onOpenCamera: () -> Void
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottomTrailing) {
             Color.backgroundBlack.ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -48,6 +49,22 @@ struct AlbumView: View {
                 .offset(x: dragOffset)
                 .clipped()
             }
+
+            // 우하단 달력 플로팅 버튼
+            Button {
+                showCalendar = true
+            } label: {
+                Image(systemName: "calendar")
+                    .font(.system(size: 22, weight: .medium))
+                    .foregroundColor(.white)
+                    .frame(width: 60, height: 60)
+                    .background(.ultraThinMaterial, in: Circle())
+            }
+            .padding(.trailing, 20)
+            .padding(.bottom, 24)
+        }
+        .navigationDestination(isPresented: $showCalendar) {
+            AlbumCalendarView()
         }
         .task {
             // 화면 진입 시 오늘 앨범을 서버에서 가져온다

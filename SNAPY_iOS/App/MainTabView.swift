@@ -37,13 +37,15 @@ struct MainTabView: View {
                 }
                 .tag(2)
 
-            AlbumView(onOpenCamera: { showCamera = true })
-                .tabItem {
-                    Image("Album_icon")
-                        .renderingMode(.template)
-                    Text("앨범")
-                }
-                .tag(3)
+            NavigationStack {
+                AlbumView(onOpenCamera: { showCamera = true })
+            }
+            .tabItem {
+                Image("Album_icon")
+                    .renderingMode(.template)
+                Text("앨범")
+            }
+            .tag(3)
 
             ProfileView()
                 .tabItem {
