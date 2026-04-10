@@ -109,6 +109,35 @@ final class AlbumService {
         }
     }
 
+    // MARK: - 특정 앨범 상세 (DailyAlbumData 형식, /today 와 동일)
+
+    /// /api/albums/{albumId} 를 DailyAlbumData(photos 포함) 형식으로 파싱 시도.
+    /// 백엔드가 photos 배열을 포함해서 응답하면 과거 날짜 사진도 볼 수 있다.
+    func fetchAlbumAsDaily(albumId: Int) async throws -> DailyAlbumData {
+        let response = try await requestWithRefresh(.fetchDetail(albumId: albumId))
+        print("[AlbumService] 앨범 상세 응답 코드 \(response.statusCode)")
+        if let body = String(data: response.data, encoding: .utf8) {
+            print("[AlbumService] 앨범 상세 응답 본문 \(body)")
+        }
+        guard (200..<300).contains(response.statusCode) else {
+            let msg = extractErrorMessage(from: response.data, statusCode: response.statusCode)
+            throw AlbumError.serverError(msg)
+        }
+        do {
+            // /today 와 같은 형식 (DailyAlbumData) 으로 파싱 시도
+            let decoded = try JSONDecoder().decode(TodayAlbumResponse.self, from: response.data)
+            guard decoded.success, let data = decoded.data else {
+                throw AlbumError.serverError(decoded.message)
+            }
+            return data
+        } catch let err as AlbumError {
+            throw err
+        } catch {
+            print("[AlbumService] DailyAlbumData 파싱 실패: \(error)")
+            throw AlbumError.decodingFailed
+        }
+    }
+
     // MARK: - 월간 앨범 목록
 
     func fetchAlbums(month: Int) async throws -> [AlbumListItemData] {

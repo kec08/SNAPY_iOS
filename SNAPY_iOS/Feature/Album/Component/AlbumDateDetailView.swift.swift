@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// 캘린더에서 날짜 탭 시 push 되는 앨범 뷰.
-/// 헤더에 날짜 이동(< >) 대신 뒤로가기 버튼 + 날짜 타이틀만 표시.
+/// 오늘이면 todayAlbum, 과거 날짜면 서버에서 albumId 로 상세 조회.
 struct AlbumDateDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var photoStore = PhotoStore.shared
@@ -20,6 +20,10 @@ struct AlbumDateDetailView: View {
 
     var dateString: String {
         date.albumDateString
+    }
+
+    private var isToday: Bool {
+        calendar.isDateInToday(date)
     }
 
     var body: some View {
@@ -68,9 +72,16 @@ struct AlbumDateDetailView: View {
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .task {
-            // 해당 날짜가 오늘이면 today 로드, 아니면 현재는 데이터 없음
-            if calendar.isDateInToday(date) {
+            if isToday {
                 await photoStore.loadToday()
+            } else if let albumId = photoStore.albumId(for: date) {
+                await photoStore.loadAlbumById(albumId)
+            }
+        }
+        .onDisappear {
+            // 나갈 때 selectedDateAlbum 정리
+            if !isToday {
+                photoStore.selectedDateAlbum = nil
             }
         }
     }
@@ -78,17 +89,23 @@ struct AlbumDateDetailView: View {
     // MARK: - 데이터 헬퍼
 
     private func photo(for slot: AlbumSlot) -> PhotoData? {
-        guard calendar.isDateInToday(date) else { return nil }
-        return photoStore.todayPhoto(for: slot)
+        if isToday {
+            return photoStore.todayPhoto(for: slot)
+        } else {
+            return photoStore.selectedDatePhoto(for: slot)
+        }
     }
 
     private var streakCount: Int {
-        guard calendar.isDateInToday(date) else { return 0 }
-        return min(photoStore.todayPhotoCount, 5)
+        if isToday {
+            return min(photoStore.todayPhotoCount, 5)
+        } else {
+            return min(photoStore.selectedDatePhotoCount, 5)
+        }
     }
 
     private func emptySlotState(for slot: AlbumSlot) -> EmptySlotState {
-        let isToday = calendar.isDateInToday(date)
+        // 과거 날짜는 더 이상 찍을 수 없으므로 사진 없으면 missed
         if !isToday { return .missed }
 
         let currentSlot = TimeSlot.current
