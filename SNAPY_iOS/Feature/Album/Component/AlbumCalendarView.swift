@@ -69,9 +69,12 @@ struct AlbumCalendarView: View {
                 months = generateMonths(count: 5)
             }
         }
-        .task {
-            let currentMonth = calendar.component(.month, from: Date())
-            await photoStore.loadMonth(currentMonth)
+        .onChange(of: months) { _, newMonths in
+            // months 가 채워지면 모든 달의 앨범 데이터를 로드
+            guard !newMonths.isEmpty else { return }
+            let monthNumbers = newMonths.map { calendar.component(.month, from: $0) }
+            let uniqueMonths = Array(Set(monthNumbers)).sorted()
+            Task { await photoStore.loadMonths(uniqueMonths) }
         }
         .navigationDestination(isPresented: $showAlbumDetail) {
             if let date = selectedAlbumDate {

@@ -70,8 +70,7 @@ struct AlbumPhotoCard: View {
             }
             .frame(width: 330, height: 430)
 
-            // 타입 표시 (예: "MORNING")
-            Text(photo.albumSlot?.name ?? photo.type)
+            Text(photo.capturedTimeText ?? (photo.albumSlot?.name ?? photo.type))
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.customGray300)
                 .padding(.top, 14)

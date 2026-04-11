@@ -67,18 +67,18 @@ struct AlbumView: View {
             AlbumCalendarView()
         }
         .task {
-            // 화면 진입 시 오늘 앨범을 서버에서 가져온다
-            await viewModel.refreshToday()
+            await viewModel.loadSelectedDate()
         }
         .onChange(of: viewModel.selectedDate) { _, _ in
             viewModel.currentPage = TimeSlot.current.rawValue
+            Task { await viewModel.loadSelectedDate() }
         }
         .onChange(of: viewModel.slideDirection) { _, direction in
             guard direction != .none else { return }
             performSlideAnimation(direction: direction)
         }
         .refreshable {
-            await viewModel.refreshToday()
+            await viewModel.loadSelectedDate()
         }
     }
 

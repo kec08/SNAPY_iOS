@@ -88,6 +88,9 @@ final class PhotoStore: ObservableObject {
     /// 앨범 상세 캐시 (albumId → list)
     @Published var detailCache: [Int: [AlbumListItemData]] = [:]
 
+    /// 캘린더에서 선택한 특정 날짜의 앨범 (photos 포함)
+    @Published var selectedDateAlbum: DailyAlbumData?
+
     @Published var isLoading = false
     @Published var errorMessage: String?
 
@@ -103,7 +106,7 @@ final class PhotoStore: ObservableObject {
             todayAlbum = data
         } catch {
             errorMessage = error.localizedDescription
-            // today 가 없으면 nil 처리 (서버가 빈 응답 줄 수도 있음)
+            // today 가 없으면 nil 처리
             todayAlbum = nil
         }
         isLoading = false
@@ -122,6 +125,23 @@ final class PhotoStore: ObservableObject {
         isLoading = false
     }
 
+    /// 여러 달을 한 번에 로드해서 monthAlbums 에 합침 (캘린더용)
+    func loadMonths(_ months: [Int]) async {
+        isLoading = true
+        errorMessage = nil
+        var allItems: [AlbumListItemData] = []
+        for month in months {
+            do {
+                let list = try await AlbumService.shared.fetchAlbums(month: month)
+                allItems.append(contentsOf: list)
+            } catch {
+                // 개별 월 실패는 무시하고 계속 진행
+            }
+        }
+        monthAlbums = allItems
+        isLoading = false
+    }
+
     func loadDetail(albumId: Int) async {
         do {
             let list = try await AlbumService.shared.fetchAlbumDetail(albumId: albumId)
@@ -129,6 +149,38 @@ final class PhotoStore: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    /// 특정 albumId 의 상세 데이터를 DailyAlbumData(photos 포함) 형식으로 로드.
+    /// 캘린더에서 과거 날짜 탭 시 사용.
+    func loadAlbumById(_ albumId: Int) async {
+        isLoading = true
+        do {
+            let data = try await AlbumService.shared.fetchAlbumAsDaily(albumId: albumId)
+            selectedDateAlbum = data
+        } catch {
+            print("[PhotoStore] albumId=\(albumId) 상세 로드 실패: \(error)")
+            selectedDateAlbum = nil
+        }
+        isLoading = false
+    }
+
+    /// 특정 날짜의 앨범에서 슬롯별 사진 조회 (selectedDateAlbum 기반)
+    func selectedDatePhoto(for slot: AlbumSlot) -> PhotoData? {
+        selectedDateAlbum?.photos.first { $0.type == slot.albumType.rawValue }
+    }
+
+    /// 특정 날짜 앨범의 사진 수
+    var selectedDatePhotoCount: Int {
+        selectedDateAlbum?.photoCount ?? selectedDateAlbum?.photos.count ?? 0
+    }
+
+    /// monthAlbums 에서 해당 날짜의 albumId 찾기
+    func albumId(for date: Date) -> Int? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateString = formatter.string(from: date)
+        return monthAlbums.first { $0.albumDate == dateString }?.albumId
     }
 
     // MARK: - 업로드

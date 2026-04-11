@@ -35,7 +35,7 @@
 		BC6676D52F8406EB009CBF8D /* ProfileFeedGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6676CE2F84062E009CBF8D /* ProfileFeedGrid.swift */; };
 		BC6676D72F840F70009CBF8D /* ImageViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6676D62F840F6B009CBF8D /* ImageViewerView.swift */; };
 		BC706DFD2F87C1FA0093C0B8 /* AlbumCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706DFC2F87C1F80093C0B8 /* AlbumCalendarView.swift */; };
-		BC706DFF2F87FA0E0093C0B8 /* AlbumDateDetailView.swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706DFE2F87FA0C0093C0B8 /* AlbumDateDetailView.swift.swift */; };
+		BC706DFF2F87FA0E0093C0B8 /* AlbumDateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706DFE2F87FA0C0093C0B8 /* AlbumDateDetailView.swift */; };
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
 		BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */; };
@@ -127,7 +127,7 @@
 		BC6676D12F84066B009CBF8D /* ProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderView.swift; sourceTree = "<group>"; };
 		BC6676D62F840F6B009CBF8D /* ImageViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerView.swift; sourceTree = "<group>"; };
 		BC706DFC2F87C1F80093C0B8 /* AlbumCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumCalendarView.swift; sourceTree = "<group>"; };
-		BC706DFE2F87FA0C0093C0B8 /* AlbumDateDetailView.swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDateDetailView.swift.swift; sourceTree = "<group>"; };
+		BC706DFE2F87FA0C0093C0B8 /* AlbumDateDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDateDetailView.swift; sourceTree = "<group>"; };
 		BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginView.swift; sourceTree = "<group>"; };
 		BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyTextField.swift; sourceTree = "<group>"; };
 		BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailView.swift; sourceTree = "<group>"; };
@@ -288,6 +288,7 @@
 			children = (
 				BCD8162A2F6936700028AE50 /* User.swift */,
 				BC1DC2EB2F68CF730016A4CD /* ImagePicker.swift */,
+				BC1DC2EA2F68CF730016A4CD /* Core */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -297,8 +298,6 @@
 			children = (
 				BCD815972F69285F0028AE50 /* SNAPY_iOS */,
 				BC5AFEBF2F6866FF00273744 /* Products */,
-				BC1DC2EA2F68CF730016A4CD /* Core */,
-				BC1DC2EC2F68CF730016A4CD /* Model */,
 				BC5AFECE2F68670100273744 /* SNAPY_iOSTests */,
 				BC5AFED82F68670100273744 /* SNAPY_iOSUITests */,
 			);
@@ -411,6 +410,7 @@
 				BCD815922F69285F0028AE50 /* App */,
 				BCD815932F69285F0028AE50 /* Feature */,
 				BCD815942F69285F0028AE50 /* Assets.xcassets */,
+				BC1DC2EC2F68CF730016A4CD /* Model */,
 			);
 			path = SNAPY_iOS;
 			sourceTree = "<group>";
@@ -552,7 +552,7 @@
 		BCD816E82F6A43890028AE50 /* Component */ = {
 			isa = PBXGroup;
 			children = (
-				BC706DFE2F87FA0C0093C0B8 /* AlbumDateDetailView.swift.swift */,
+				BC706DFE2F87FA0C0093C0B8 /* AlbumDateDetailView.swift */,
 				BC706DFC2F87C1F80093C0B8 /* AlbumCalendarView.swift */,
 				BC6676BF2F7D707C009CBF8D /* AlbumMissCard.swift */,
 				BC6674E62F73A551009CBF8D /* AlbumStrick.swift */,
@@ -731,7 +731,7 @@
 				BCD815AF2F69346D0028AE50 /* MainTabView.swift in Sources */,
 				BC64737A2F86ADDA00FA15EA /* AlbumAPI.swift in Sources */,
 				BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */,
-				BC706DFF2F87FA0E0093C0B8 /* AlbumDateDetailView.swift.swift in Sources */,
+				BC706DFF2F87FA0E0093C0B8 /* AlbumDateDetailView.swift in Sources */,
 				BCCAD6112F6B071700ED71E0 /* PhoneView.swift in Sources */,
 				BC6676D42F8406D1009CBF8D /* ProfileHeaderView.swift in Sources */,
 				BCD816BF2F69A8D30028AE50 /* AppleSignInButton.swift in Sources */,
