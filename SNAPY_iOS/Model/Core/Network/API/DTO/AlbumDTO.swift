@@ -47,11 +47,35 @@ struct PhotoData: Codable, Identifiable {
     let type: String
     let frontImageUrl: String?
     let backImageUrl: String?
+    let capturedAt: String?     // "2026-04-09T09:30:00" (서버가 안 주면 nil)
 
     var id: String { type }
 
     var albumType: AlbumType? { AlbumType(rawValue: type) }
     var albumSlot: AlbumSlot? { albumType?.albumSlot }
+
+    /// 촬영 시각을 "09:30" 형태로 반환. 없으면 nil.
+    var capturedTimeText: String? {
+        guard let capturedAt = capturedAt else { return nil }
+        // ISO8601 파싱 시도
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = formatter.date(from: capturedAt) {
+            let tf = DateFormatter()
+            tf.dateFormat = "HH시 mm분"
+            tf.locale = Locale(identifier: "ko_KR")
+            return tf.string(from: date)
+        }
+        // "T" 기준으로 시간 부분만 추출 시도
+        if let timepart = capturedAt.split(separator: "T").last {
+            let hhmm = String(timepart.prefix(5))  // "09:30"
+            let parts = hhmm.split(separator: ":")
+            if parts.count == 2 {
+                return "\(parts[0])시 \(parts[1])분"
+            }
+        }
+        return nil
+    }
 }
 
 /// 데일리 앨범 (today 응답)

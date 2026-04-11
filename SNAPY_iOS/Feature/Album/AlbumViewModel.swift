@@ -25,29 +25,35 @@ final class AlbumViewModel: ObservableObject {
         case none, left, right
     }
 
+    private var isToday: Bool {
+        Calendar.current.isDateInToday(selectedDate)
+    }
+
     var dateString: String {
         selectedDate.albumDateString
     }
 
-    /// 오늘 앨범에서 해당 슬롯의 사진 (서버 응답 기반)
+    /// 현재 선택된 날짜의 슬롯별 사진
     func photo(for slot: AlbumSlot) -> PhotoData? {
-        guard Calendar.current.isDateInToday(selectedDate) else { return nil }
-        return PhotoStore.shared.todayPhoto(for: slot)
+        if isToday {
+            return PhotoStore.shared.todayPhoto(for: slot)
+        } else {
+            return PhotoStore.shared.selectedDatePhoto(for: slot)
+        }
     }
 
     var streakCount: Int {
-        guard Calendar.current.isDateInToday(selectedDate) else { return 0 }
-        return min(PhotoStore.shared.todayPhotoCount, 5)
+        if isToday {
+            return min(PhotoStore.shared.todayPhotoCount, 5)
+        } else {
+            return min(PhotoStore.shared.selectedDatePhotoCount, 5)
+        }
     }
 
     /// 찍을 수 있냐 없냐 여부
     func emptySlotState(for slot: AlbumSlot) -> EmptySlotState {
-        let isToday = Calendar.current.isDateInToday(selectedDate)
-
-        // 과거 날짜 missed
-        if !isToday {
-            return .missed
-        }
+        // 과거 날짜는 더 이상 찍을 수 없음
+        if !isToday { return .missed }
 
         let currentSlot = TimeSlot.current
 
@@ -81,8 +87,22 @@ final class AlbumViewModel: ObservableObject {
         }
     }
 
-    /// 화면 진입 / 새로고침 시 호출 — 오늘 앨범을 서버에서 다시 받아온다.
-    func refreshToday() async {
-        await PhotoStore.shared.loadToday()
+    /// 선택된 날짜의 앨범을 서버에서 로드
+    func loadSelectedDate() async {
+        if isToday {
+            await PhotoStore.shared.loadToday()
+        } else if let albumId = PhotoStore.shared.albumId(for: selectedDate) {
+            await PhotoStore.shared.loadAlbumById(albumId)
+        } else {
+            // monthAlbums 에 없으면 해당 월 데이터부터 로드
+            let month = Calendar.current.component(.month, from: selectedDate)
+            await PhotoStore.shared.loadMonth(month)
+            // 다시 시도
+            if let albumId = PhotoStore.shared.albumId(for: selectedDate) {
+                await PhotoStore.shared.loadAlbumById(albumId)
+            } else {
+                PhotoStore.shared.selectedDateAlbum = nil
+            }
+        }
     }
 }
