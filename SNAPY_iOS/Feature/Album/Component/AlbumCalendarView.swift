@@ -39,7 +39,9 @@ struct AlbumCalendarView: View {
                 }
                 .onChange(of: months) { _, newMonths in
                     if let last = newMonths.last {
-                        proxy.scrollTo(last, anchor: .bottom)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            proxy.scrollTo(last, anchor: .bottom)
+                        }
                     }
                 }
             }
@@ -64,17 +66,15 @@ struct AlbumCalendarView: View {
         .toolbarBackground(Color.backgroundBlack, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
-        .onAppear {
+        .task {
+            // 1. 월 배열 생성
             if months.isEmpty {
                 months = generateMonths(count: 5)
             }
-        }
-        .onChange(of: months) { _, newMonths in
-            // months 가 채워지면 모든 달의 앨범 데이터를 로드
-            guard !newMonths.isEmpty else { return }
-            let monthNumbers = newMonths.map { calendar.component(.month, from: $0) }
+            // 2. 5개월치 데이터를 캘린더 전용 캐시에 로드
+            let monthNumbers = months.map { calendar.component(.month, from: $0) }
             let uniqueMonths = Array(Set(monthNumbers)).sorted()
-            Task { await photoStore.loadMonths(uniqueMonths) }
+            await photoStore.loadCalendarMonths(uniqueMonths)
         }
         .navigationDestination(isPresented: $showAlbumDetail) {
             if let date = selectedAlbumDate {
@@ -151,10 +151,21 @@ struct AlbumCalendarView: View {
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 50, height: 70)
-                        default:
+                        case .failure:
+                            Color(white: 0.15)
+                                .overlay(
+                                    Image(systemName: "photo")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.gray)
+                                )
+                        case .empty:
+                            Color(white: 0.15)
+                                .overlay(ProgressView().scaleEffect(0.5))
+                        @unknown default:
                             Color(white: 0.15)
                         }
                     }
+                    .id(url)
                     .frame(width: 50, height: 70)
                     .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 6))
@@ -185,7 +196,7 @@ struct AlbumCalendarView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         let dateString = formatter.string(from: date)
-        return photoStore.monthAlbums.first { $0.albumDate == dateString }?.thumbnailUrl
+        return photoStore.calendarThumbnail(for: dateString)
     }
 
     private func firstWeekdayOfMonth(_ date: Date) -> Int {

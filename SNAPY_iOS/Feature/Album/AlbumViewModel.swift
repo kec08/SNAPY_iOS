@@ -94,9 +94,9 @@ final class AlbumViewModel: ObservableObject {
         } else if let albumId = PhotoStore.shared.albumId(for: selectedDate) {
             await PhotoStore.shared.loadAlbumById(albumId)
         } else {
-            // monthAlbums 에 없으면 해당 월 데이터부터 로드
+            // monthAlbums 에 없으면 해당 월을 추가 로드 (기존 데이터 유지)
             let month = Calendar.current.component(.month, from: selectedDate)
-            await PhotoStore.shared.loadMonth(month)
+            await PhotoStore.shared.appendMonth(month)
             // 다시 시도
             if let albumId = PhotoStore.shared.albumId(for: selectedDate) {
                 await PhotoStore.shared.loadAlbumById(albumId)

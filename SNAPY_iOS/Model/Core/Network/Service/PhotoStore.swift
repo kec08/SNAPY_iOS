@@ -85,6 +85,10 @@ final class PhotoStore: ObservableObject {
     /// 월간 앨범 목록 (썸네일만)
     @Published var monthAlbums: [AlbumListItemData] = []
 
+    /// 캘린더 전용 캐시 — key: "yyyy-MM-dd", value: AlbumListItemData
+    /// 다른 코드가 덮어쓸 수 없는 독립 저장소
+    @Published var calendarCache: [String: AlbumListItemData] = [:]
+
     /// 앨범 상세 캐시 (albumId → list)
     @Published var detailCache: [Int: [AlbumListItemData]] = [:]
 
@@ -123,6 +127,43 @@ final class PhotoStore: ObservableObject {
             monthAlbums = []
         }
         isLoading = false
+    }
+
+    /// 한 달치를 기존 monthAlbums 에 추가 (덮어쓰지 않음, 날짜 이동 시 사용)
+    func appendMonth(_ month: Int) async {
+        do {
+            let list = try await AlbumService.shared.fetchAlbums(month: month)
+            // 이미 있는 albumId 는 중복 추가하지 않음
+            let existingIds = Set(monthAlbums.map { $0.albumId })
+            let newItems = list.filter { !existingIds.contains($0.albumId) }
+            monthAlbums.append(contentsOf: newItems)
+        } catch {
+            // 실패해도 기존 데이터 유지
+        }
+    }
+
+    /// 캘린더용: 여러 달을 로드해서 calendarCache 딕셔너리에 저장
+    func loadCalendarMonths(_ months: [Int]) async {
+        for month in months {
+            do {
+                let list = try await AlbumService.shared.fetchAlbums(month: month)
+                for item in list {
+                    calendarCache[item.albumDate] = item
+                }
+            } catch {
+                // 개별 월 실패는 무시
+            }
+        }
+    }
+
+    /// calendarCache 에서 날짜로 썸네일 조회
+    func calendarThumbnail(for dateString: String) -> String? {
+        calendarCache[dateString]?.thumbnailUrl
+    }
+
+    /// calendarCache 에서 날짜로 albumId 조회
+    func calendarAlbumId(for dateString: String) -> Int? {
+        calendarCache[dateString]?.albumId
     }
 
     /// 여러 달을 한 번에 로드해서 monthAlbums 에 합침 (캘린더용)
