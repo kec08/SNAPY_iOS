@@ -93,18 +93,6 @@ struct ProfileEditView: View {
                             .frame(maxWidth: .infinity)
                             .clipped()
                             .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color(white: 0.3), lineWidth: 1)
-                            )
-                            .overlay {
-                                Image(systemName: "camera.fill")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(.white)
-                                    .padding(12)
-                                    .background(.ultraThinMaterial)
-                                    .clipShape(Circle())
-                            }
                         }
                         .onChange(of: viewModel.bannerPickerItem) { _, _ in
                             Task { await viewModel.loadBannerImage() }
