@@ -27,7 +27,7 @@ struct FriendHeaderView: View {
                 }
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 22)
         .padding(.top, 8)
         .padding(.bottom, 16)
     }

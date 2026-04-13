@@ -86,7 +86,7 @@ struct SuggestedFriendRow: View {
                 }
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 22)
         .padding(.vertical, 10)
     }
 }

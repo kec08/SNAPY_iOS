@@ -11,8 +11,8 @@ internal import Alamofire
 import UIKit
 
 enum ProfileAPI {
-    case fetchMyProfile                                  // GET  /api/users/me/profile
-    case fetchUserProfile(handle: String)                // GET  /api/users/{handle}/profile
+    case fetchMyProfile                                  // GET  /api/users/me
+    case fetchUserProfile(handle: String)                // GET  /api/users/{handle}
     case updateProfileImage(image: UIImage)               // PATCH /api/users/me/profile-image
     case updateBackgroundImage(image: UIImage)             // PATCH /api/users/me/background-image
 }
@@ -28,7 +28,7 @@ extension ProfileAPI: TargetType {
         case .fetchMyProfile:
             return "/api/users/me"
         case .fetchUserProfile(let handle):
-            return "/api/users/\(handle)/profile"
+            return "/api/users/\(handle)"
         case .updateProfileImage:
             return "/api/users/me/profile-image"
         case .updateBackgroundImage:

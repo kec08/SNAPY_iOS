@@ -66,7 +66,7 @@ struct FriendView: View {
                                 Text("추천 친구")
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(.textWhite)
-                                    .padding(.horizontal, 20)
+                                    .padding(.horizontal, 22)
                                     .padding(.bottom, 12)
 
                                 ForEach(viewModel.filteredFriends) { friend in
@@ -84,6 +84,9 @@ struct FriendView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(isPresented: $showFriendRequest) {
+                FriendRequestView()
+            }
         }
     }
 }
