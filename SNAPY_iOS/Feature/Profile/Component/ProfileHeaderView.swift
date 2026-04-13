@@ -28,6 +28,17 @@ struct ProfileHeaderView: View {
                             .scaledToFill()
                             .frame(height: 180)
                             .clipped()
+                    } else if let url = viewModel.bannerImageUrl {
+                        AsyncImage(url: URL(string: url)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image.resizable().scaledToFill()
+                            default:
+                                Image("Banner_img").resizable().scaledToFill()
+                            }
+                        }
+                        .frame(height: 180)
+                        .clipped()
                     } else {
                         Image("Banner_img")
                             .resizable()
@@ -51,6 +62,15 @@ struct ProfileHeaderView: View {
                                 Image(uiImage: profileImage)
                                     .resizable()
                                     .scaledToFill()
+                            } else if let url = viewModel.profileImageUrl {
+                                AsyncImage(url: URL(string: url)) { phase in
+                                    switch phase {
+                                    case .success(let image):
+                                        image.resizable().scaledToFill()
+                                    default:
+                                        Image("Profile_img").resizable().scaledToFill()
+                                    }
+                                }
                             } else {
                                 Image("Profile_img")
                                     .resizable()

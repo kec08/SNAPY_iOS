@@ -51,6 +51,7 @@ struct ProfileEditView: View {
                         }
 
                         Text("프로필 사진 변경")
+                            .padding(.top, 8)
                             .font(.system(size: 13))
                             .foregroundColor(.mainYellow)
                     }
@@ -70,7 +71,7 @@ struct ProfileEditView: View {
                                         .scaledToFill()
                                 }
                             }
-                            .frame(height: 120)
+                            .frame(height: 160)
                             .frame(maxWidth: .infinity)
                             .clipped()
                             .cornerRadius(12)
@@ -92,6 +93,7 @@ struct ProfileEditView: View {
                         }
 
                         Text("배너 이미지 변경")
+                            .padding(.top, 8)
                             .font(.system(size: 13))
                             .foregroundColor(.mainYellow)
                     }

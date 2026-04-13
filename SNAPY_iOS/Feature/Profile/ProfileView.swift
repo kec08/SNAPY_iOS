@@ -60,6 +60,9 @@ struct ProfileView: View {
             .navigationDestination(isPresented: $viewModel.showEditProfile) {
                 ProfileEditView(viewModel: viewModel)
             }
+            .task {
+                await viewModel.loadProfile()
+            }
         }
     }
 }
