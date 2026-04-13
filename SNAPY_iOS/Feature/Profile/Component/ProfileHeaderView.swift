@@ -26,14 +26,22 @@ struct ProfileHeaderView: View {
                         Image(uiImage: bannerImage)
                             .resizable()
                             .scaledToFill()
-                            .frame(height: 180)
+                            .frame(height: 200)
                             .clipped()
+                    } else if let url = viewModel.bannerImageUrl {
+                        AsyncImage(url: URL(string: url)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image.resizable().scaledToFill()
+                            default:
+                                Color.customDarkGray
+                            }
+                        }
+                        .frame(height: 200)
+                        .clipped()
                     } else {
-                        Image("Banner_img")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(height: 170)
-                            .clipped()
+                        Color.customDarkGray
+                            .frame(height: 200)
                     }
                 }
             }
@@ -51,10 +59,17 @@ struct ProfileHeaderView: View {
                                 Image(uiImage: profileImage)
                                     .resizable()
                                     .scaledToFill()
+                            } else if let url = viewModel.profileImageUrl {
+                                AsyncImage(url: URL(string: url)) { phase in
+                                    switch phase {
+                                    case .success(let image):
+                                        image.resizable().scaledToFill()
+                                    default:
+                                        Color.customDarkGray
+                                    }
+                                }
                             } else {
-                                Image("Profile_img")
-                                    .resizable()
-                                    .scaledToFill()
+                                Color.customDarkGray
                             }
                         }
                         .frame(width: 96, height: 96)
@@ -133,16 +148,18 @@ struct ProfileHeaderView: View {
         .fullScreenCover(isPresented: $showBannerViewer) {
             ImageViewerView(
                 image: viewModel.bannerImage,
+                imageUrl: viewModel.bannerImageUrl,
                 assetName: "Banner_img",
-                horizontalPadding: 0
+                isCircle: false
             )
         }
         // 프로필 확대 보기
         .fullScreenCover(isPresented: $showProfileViewer) {
             ImageViewerView(
                 image: viewModel.profileImage,
+                imageUrl: viewModel.profileImageUrl,
                 assetName: "Profile_img",
-                horizontalPadding: 60
+                isCircle: true
             )
         }
     }

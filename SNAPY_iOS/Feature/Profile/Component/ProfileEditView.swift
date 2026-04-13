@@ -26,6 +26,15 @@ struct ProfileEditView: View {
                                     Image(uiImage: profileImage)
                                         .resizable()
                                         .scaledToFill()
+                                } else if let url = viewModel.profileImageUrl {
+                                    AsyncImage(url: URL(string: url)) { phase in
+                                        switch phase {
+                                        case .success(let img): img.resizable().scaledToFill()
+                                        default:
+                                            Color.customDarkGray
+                                                .overlay(ProgressView().tint(.white))
+                                        }
+                                    }
                                 } else {
                                     Image("Profile_img")
                                         .resizable()
@@ -51,6 +60,7 @@ struct ProfileEditView: View {
                         }
 
                         Text("프로필 사진 변경")
+                            .padding(.top, 8)
                             .font(.system(size: 13))
                             .foregroundColor(.mainYellow)
                     }
@@ -64,13 +74,22 @@ struct ProfileEditView: View {
                                     Image(uiImage: bannerImage)
                                         .resizable()
                                         .scaledToFill()
+                                } else if let url = viewModel.bannerImageUrl {
+                                    AsyncImage(url: URL(string: url)) { phase in
+                                        switch phase {
+                                        case .success(let img): img.resizable().scaledToFill()
+                                        default:
+                                            Color.customDarkGray
+                                                .overlay(ProgressView().tint(.white))
+                                        }
+                                    }
                                 } else {
                                     Image("Banner_img")
                                         .resizable()
                                         .scaledToFill()
                                 }
                             }
-                            .frame(height: 120)
+                            .frame(height: 180)
                             .frame(maxWidth: .infinity)
                             .clipped()
                             .cornerRadius(12)
@@ -92,6 +111,7 @@ struct ProfileEditView: View {
                         }
 
                         Text("배너 이미지 변경")
+                            .padding(.top, 8)
                             .font(.system(size: 13))
                             .foregroundColor(.mainYellow)
                     }

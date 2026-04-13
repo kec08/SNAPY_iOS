@@ -20,7 +20,6 @@ struct ProfileView: View {
                         ProfileHeaderView(viewModel: viewModel)
 
                         GuestbookSection(viewModel: viewModel)
-                            .padding(.bottom, 10)
 
                             Divider()
                                 .background(Color.Gray500)
@@ -59,6 +58,12 @@ struct ProfileView: View {
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $viewModel.showEditProfile) {
                 ProfileEditView(viewModel: viewModel)
+            }
+            .task {
+                // 저장된 URL 이 없을 때만 서버에서 가져옴 (이미 있으면 바로 표시)
+                if viewModel.profileImageUrl == nil && viewModel.bannerImageUrl == nil {
+                    await viewModel.loadProfile()
+                }
             }
         }
     }

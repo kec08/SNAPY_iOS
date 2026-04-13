@@ -9,8 +9,10 @@ import SwiftUI
 
 struct ImageViewerView: View {
     let image: UIImage?
+    let imageUrl: String?
     let assetName: String
     var horizontalPadding: CGFloat = 0
+    var isCircle: Bool = false          // true: 프로필(원형), false: 배너(직사각)
 
     @Environment(\.dismiss) private var dismiss
     @State private var scale: CGFloat = 1.0
@@ -27,13 +29,29 @@ struct ImageViewerView: View {
                 if let uiImage = image {
                     Image(uiImage: uiImage)
                         .resizable()
-                        .scaledToFit()
+                        .scaledToFill()
+                } else if let url = imageUrl, let imgUrl = URL(string: url) {
+                    AsyncImage(url: imgUrl) { phase in
+                        switch phase {
+                        case .success(let img):
+                            img.resizable().scaledToFill()
+                        default:
+                            Color.customDarkGray
+                                .overlay(ProgressView().tint(.white))
+                        }
+                    }
                 } else {
                     Image(assetName)
                         .resizable()
-                        .scaledToFit()
+                        .scaledToFill()
                 }
             }
+            .frame(
+                width: isCircle ? 300 : nil,
+                height: isCircle ? 300 : 230
+            )
+            .frame(maxWidth: isCircle ? nil : .infinity)
+            .clipShape(isCircle ? AnyShape(Circle()) : AnyShape(RoundedRectangle(cornerRadius: 16)))
             .padding(.horizontal, horizontalPadding)
             .scaleEffect(scale)
             .offset(offset)

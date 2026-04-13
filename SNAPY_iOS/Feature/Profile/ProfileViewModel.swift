@@ -51,9 +51,34 @@ final class ProfileViewModel: ObservableObject {
     @Published var streakCount: Int = 2
     @Published var mutualFriendsText: String = "zhvcx_flii, kimikhnа0816님 외 32명 친구 중 입니다"
 
-    // 프로필/배너 이미지
+    // 프로필/배너 이미지 URL (UserDefaults 에 저장 → 앱 재시작해도 유지)
+    @Published var profileImageUrl: String? {
+        didSet { UserDefaults.standard.set(profileImageUrl, forKey: "profileImageUrl") }
+    }
+    @Published var bannerImageUrl: String? {
+        didSet { UserDefaults.standard.set(bannerImageUrl, forKey: "bannerImageUrl") }
+    }
+
+    // 프로필/배너 이미지 (디스크 캐시 → 즉시 표시, 로딩 없음)
     @Published var profileImage: UIImage? = nil
     @Published var bannerImage: UIImage? = nil
+
+    // 디스크 캐시 경로
+    private static let profileCachePath = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("profile_image.jpg")
+    private static let bannerCachePath = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("banner_image.jpg")
+
+    /// 이미지를 디스크에 저장
+    private func saveImageToDisk(_ image: UIImage, path: URL) {
+        if let data = image.jpegData(compressionQuality: 0.9) {
+            try? data.write(to: path)
+        }
+    }
+
+    /// 디스크에서 이미지 로드
+    private static func loadImageFromDisk(_ path: URL) -> UIImage? {
+        guard let data = try? Data(contentsOf: path) else { return nil }
+        return UIImage(data: data)
+    }
 
     // 수정 모드
     @Published var showEditProfile = false
@@ -63,6 +88,16 @@ final class ProfileViewModel: ObservableObject {
     // 이미지 피커
     @Published var profilePickerItem: PhotosPickerItem? = nil
     @Published var bannerPickerItem: PhotosPickerItem? = nil
+
+    @Published var isLoading = false
+    @Published var errorMessage: String? = nil
+
+    init() {
+        profileImageUrl = UserDefaults.standard.string(forKey: "profileImageUrl")
+        bannerImageUrl = UserDefaults.standard.string(forKey: "bannerImageUrl")
+        profileImage = Self.loadImageFromDisk(Self.profileCachePath)
+        bannerImage = Self.loadImageFromDisk(Self.bannerCachePath)
+    }
 
     // 방명록 목데이터
     @Published var guestbookEntries: [GuestbookEntry] = [
@@ -87,6 +122,24 @@ final class ProfileViewModel: ObservableObject {
         FeedPost(thumbnailImage: "Mock_img4", images: ["Mock_img3", "Mock_img4"], date: "2026.03.20"),
     ]
 
+    // MARK: - 프로필 로드 (서버)
+
+    func loadProfile() async {
+        isLoading = true
+        do {
+            let profile = try await ProfileService.shared.fetchMyProfile()
+            username = profile.username
+            handle = profile.handle
+            profileImageUrl = profile.profileImageUrl
+            bannerImageUrl = profile.backgroundImageUrl
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isLoading = false
+    }
+
+    // MARK: - 수정 모드
+
     func startEdit() {
         editUsername = username
         editHandle = handle
@@ -99,19 +152,37 @@ final class ProfileViewModel: ObservableObject {
         showEditProfile = false
     }
 
+    // MARK: - 프로필 이미지 변경 (피커 → 서버 업로드)
+
     func loadProfileImage() async {
         guard let item = profilePickerItem else { return }
         if let data = try? await item.loadTransferable(type: Data.self),
            let image = UIImage(data: data) {
             profileImage = image
+            saveImageToDisk(image, path: Self.profileCachePath)
+            do {
+                let url = try await ProfileService.shared.updateProfileImage(image)
+                profileImageUrl = url
+            } catch {
+                errorMessage = error.localizedDescription
+            }
         }
     }
+
+    // MARK: - 배너 이미지 변경 (피커 → 서버 업로드)
 
     func loadBannerImage() async {
         guard let item = bannerPickerItem else { return }
         if let data = try? await item.loadTransferable(type: Data.self),
            let image = UIImage(data: data) {
             bannerImage = image
+            saveImageToDisk(image, path: Self.bannerCachePath)
+            do {
+                let url = try await ProfileService.shared.updateBackgroundImage(image)
+                bannerImageUrl = url
+            } catch {
+                errorMessage = error.localizedDescription
+            }
         }
     }
 }

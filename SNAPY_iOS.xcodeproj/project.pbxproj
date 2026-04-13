@@ -36,6 +36,9 @@
 		BC6676D72F840F70009CBF8D /* ImageViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6676D62F840F6B009CBF8D /* ImageViewerView.swift */; };
 		BC706DFD2F87C1FA0093C0B8 /* AlbumCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706DFC2F87C1F80093C0B8 /* AlbumCalendarView.swift */; };
 		BC706DFF2F87FA0E0093C0B8 /* AlbumDateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706DFE2F87FA0C0093C0B8 /* AlbumDateDetailView.swift */; };
+		BC706E4A2F8BF9B00093C0B8 /* ProfileDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E492F8BF9AF0093C0B8 /* ProfileDTO.swift */; };
+		BC706E4D2F8BF9D90093C0B8 /* ProfileAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E4C2F8BF9D80093C0B8 /* ProfileAPI.swift */; };
+		BC706E4F2F8BFA050093C0B8 /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E4E2F8BF9FF0093C0B8 /* ProfileService.swift */; };
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
 		BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */; };
@@ -128,6 +131,9 @@
 		BC6676D62F840F6B009CBF8D /* ImageViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerView.swift; sourceTree = "<group>"; };
 		BC706DFC2F87C1F80093C0B8 /* AlbumCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumCalendarView.swift; sourceTree = "<group>"; };
 		BC706DFE2F87FA0C0093C0B8 /* AlbumDateDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDateDetailView.swift; sourceTree = "<group>"; };
+		BC706E492F8BF9AF0093C0B8 /* ProfileDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDTO.swift; sourceTree = "<group>"; };
+		BC706E4C2F8BF9D80093C0B8 /* ProfileAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileAPI.swift; sourceTree = "<group>"; };
+		BC706E4E2F8BF9FF0093C0B8 /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
 		BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginView.swift; sourceTree = "<group>"; };
 		BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyTextField.swift; sourceTree = "<group>"; };
 		BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailView.swift; sourceTree = "<group>"; };
@@ -228,6 +234,7 @@
 		BC1DC2DA2F68CF730016A4CD /* DTO */ = {
 			isa = PBXGroup;
 			children = (
+				BC706E492F8BF9AF0093C0B8 /* ProfileDTO.swift */,
 				BC6473722F86AD4700FA15EA /* AlbumDTO.swift */,
 				BC1DC2D72F68CF730016A4CD /* AuthDTO.swift */,
 			);
@@ -245,6 +252,7 @@
 		BC1DC2E12F68CF730016A4CD /* API */ = {
 			isa = PBXGroup;
 			children = (
+				BC706E4B2F8BF9C70093C0B8 /* Profile */,
 				BC6473762F86ADC300FA15EA /* Album */,
 				BC1DC2D32F68CF730016A4CD /* Token */,
 				BC1DC2DA2F68CF730016A4CD /* DTO */,
@@ -256,6 +264,7 @@
 		BC1DC2E82F68CF730016A4CD /* Service */ = {
 			isa = PBXGroup;
 			children = (
+				BC706E4E2F8BF9FF0093C0B8 /* ProfileService.swift */,
 				BC64737B2F86B41700FA15EA /* MoyaAsync */,
 				BC6473742F86AD6D00FA15EA /* AlbumService.swift */,
 				BCED9C212F6E6259008E47BB /* PhotoStore.swift */,
@@ -335,6 +344,14 @@
 				BC6676BC2F7D6370009CBF8D /* DraggablePIP.swift */,
 			);
 			path = Component;
+			sourceTree = "<group>";
+		};
+		BC706E4B2F8BF9C70093C0B8 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				BC706E4C2F8BF9D80093C0B8 /* ProfileAPI.swift */,
+			);
+			path = Profile;
 			sourceTree = "<group>";
 		};
 		BCCAD6052F6B05E100ED71E0 /* Email */ = {
@@ -748,12 +765,14 @@
 				BC6676D52F8406EB009CBF8D /* ProfileFeedGrid.swift in Sources */,
 				BCD816D22F6A416F0028AE50 /* CameraView.swift in Sources */,
 				BCD815AB2F69343D0028AE50 /* RootView.swift in Sources */,
+				BC706E4D2F8BF9D90093C0B8 /* ProfileAPI.swift in Sources */,
 				BCD816D82F6A41940028AE50 /* FriendViewModel.swift in Sources */,
 				BC6473752F86AD6E00FA15EA /* AlbumService.swift in Sources */,
 				BCD816EB2F6A52390028AE50 /* OnboardingView.swift in Sources */,
 				BCD816DA2F6A419C0028AE50 /* ProfileView.swift in Sources */,
 				BCD816E72F6A43860028AE50 /* AlbumViewModel.swift in Sources */,
 				BCED9C202F6E6215008E47BB /* DualCameraService.swift in Sources */,
+				BC706E4F2F8BFA050093C0B8 /* ProfileService.swift in Sources */,
 				BCD815B12F6934790028AE50 /* AppState.swift in Sources */,
 				BCD8159A2F69285F0028AE50 /* SNAPY_iOSApp.swift in Sources */,
 				BC1DC2F22F68CF730016A4CD /* AuthAPI.swift in Sources */,
@@ -783,6 +802,7 @@
 				BC64737D2F86B42C00FA15EA /* MoyaProvider.swift in Sources */,
 				BCD816D42F6A41810028AE50 /* CameraViewModel.swift in Sources */,
 				BC1DC2FF2F68CF730016A4CD /* AuthDTO.swift in Sources */,
+				BC706E4A2F8BF9B00093C0B8 /* ProfileDTO.swift in Sources */,
 				BC66763C2F797A90009CBF8D /* AlbumEmptyCard.swift in Sources */,
 				BC6676CB2F8405F8009CBF8D /* GuestbookSection.swift in Sources */,
 			);
