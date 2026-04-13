@@ -13,14 +13,24 @@ struct FriendProfileView: View {
     let name: String
     let handle: String
     let profileImageUrl: String?
+    var isFriend: Bool = false
 
     // 목 데이터
     private let postCount = 5
     private let friendCount = 13
     private let streakCount = 2
 
-    // 친구 추가 상태
     @State private var isFriendRequested = false
+    @State private var showFriendSheet = false
+    @State private var currentFriend: Bool
+
+    init(name: String, handle: String, profileImageUrl: String?, isFriend: Bool = false) {
+        self.name = name
+        self.handle = handle
+        self.profileImageUrl = profileImageUrl
+        self.isFriend = isFriend
+        self._currentFriend = State(initialValue: isFriend)
+    }
 
     var body: some View {
         ZStack {
@@ -35,7 +45,6 @@ struct FriendProfileView: View {
                     // MARK: 프로필 정보
                     VStack(alignment: .leading, spacing: 16) {
                         HStack(alignment: .center) {
-                            // 프로필 이미지
                             Group {
                                 if let url = profileImageUrl {
                                     AsyncImage(url: URL(string: url)) { phase in
@@ -85,42 +94,99 @@ struct FriendProfileView: View {
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.textWhite)
 
-                        // 친구 추가 / 취소 버튼
-                        Button {
-                            isFriendRequested.toggle()
-                        } label: {
-                            HStack(spacing: 6) {
-                                Image(systemName: isFriendRequested ? "clock" : "person.badge.plus")
-                                    .font(.system(size: 14, weight: .medium))
-                                Text(isFriendRequested ? "요청됨" : "친구 추가")
-                                    .font(.system(size: 14, weight: .semibold))
+                        // MARK: 버튼 영역 (친구 / 비친구 분기)
+                        if currentFriend {
+                            // 친구인 경우: [친구] + [방명록 작성]
+                            HStack(spacing: 12) {
+                                Button {
+                                    showFriendSheet = true
+                                } label: {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "person.2.fill")
+                                            .font(.system(size: 13))
+                                        Text("친구")
+                                            .font(.system(size: 14, weight: .semibold))
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 36)
+                                    .foregroundColor(.mainYellow)
+                                    .background(.customDarkGray)
+                                    .cornerRadius(8)
+                                }
+
+                                Button {
+                                    // 방명록 작성 (추후 연결)
+                                } label: {
+                                    Text("방명록 작성")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 36)
+                                        .foregroundColor(.textWhite)
+                                        .background(.customDarkGray)
+                                        .cornerRadius(8)
+                                }
                             }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 40)
-                            .foregroundColor(isFriendRequested ? .customGray300 : .textWhite)
-                            .background(.customDarkGray)
-                            .cornerRadius(8)
+                        } else {
+                            // 비친구: [친구 추가] / [요청됨]
+                            Button {
+                                isFriendRequested.toggle()
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Image(systemName: isFriendRequested ? "clock" : "person.badge.plus")
+                                        .font(.system(size: 14, weight: .medium))
+                                    Text(isFriendRequested ? "요청됨" : "친구 추가")
+                                        .font(.system(size: 14, weight: .semibold))
+                                }
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 40)
+                                .foregroundColor(isFriendRequested ? .customGray300 : .textWhite)
+                                .background(.customDarkGray)
+                                .cornerRadius(8)
+                            }
                         }
                     }
                     .padding(.top, 28)
                     .padding(.horizontal, 22)
 
-                    // MARK: 공개 프로필 안내
-                    VStack(spacing: 12) {
-                        Image(systemName: "person.2.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.textWhite)
+                    // MARK: 하단 콘텐츠 (친구 / 비친구 분기)
+                    if currentFriend {
+                        // 친구인 경우: 방명록 + 피드
+                        VStack(spacing: 20) {
+                            // 방명록 (목 데이터)
+                            GuestbookSection(viewModel: ProfileViewModel())
+                                .padding(.top, 20)
 
-                        Text("친구 공개 프로필입니다")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.textWhite)
+                            Divider()
+                                .background(Color.Gray500)
+                                .padding(.horizontal, 22)
 
-                        Text("지금 친구 추가하고 친구의 SNAP을 만나보세요.")
-                            .font(.system(size: 14))
-                            .foregroundColor(.customGray300)
+                            // 피드 (목 데이터)
+                            ProfileFeedGrid(posts: [
+                                FeedPost(thumbnailImage: "Mock_img1", images: ["Mock_img1"], date: "2026.04.01"),
+                                FeedPost(thumbnailImage: "Mock_img2", images: ["Mock_img2"], date: "2026.03.28"),
+                                FeedPost(thumbnailImage: "Mock_img3", images: ["Mock_img3"], date: "2026.03.25"),
+                                FeedPost(thumbnailImage: "Mock_img4", images: ["Mock_img4"], date: "2026.03.20"),
+                            ])
+                        }
+                    } else {
+                        // 비친구: 공개 프로필 안내
+                        VStack(spacing: 12) {
+                            Image(systemName: "person.2.fill")
+                                .font(.system(size: 40))
+                                .foregroundColor(.textWhite)
+                                .padding(.bottom, 8)
+
+                            Text("친구 공개 프로필입니다")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.textWhite)
+
+                            Text("지금 친구 추가하고 친구의 SNAP을 만나보세요.")
+                                .font(.system(size: 14))
+                                .foregroundColor(.customGray300)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 80)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 80)
                 }
             }
             .ignoresSafeArea(edges: .top)
@@ -149,6 +215,18 @@ struct FriendProfileView: View {
             }
         }
         .toolbarBackground(Color.clear, for: .navigationBar)
+        .sheet(isPresented: $showFriendSheet) {
+            FriendRelationSheet(
+                name: name,
+                handle: handle,
+                onRemoveFriend: {
+                    showFriendSheet = false
+                    dismiss()
+                }
+            )
+            .presentationDetents([.fraction(0.35)])
+            .presentationDragIndicator(.visible)
+        }
     }
 
     private func statItem(value: Int, label: String) -> some View {
@@ -160,5 +238,29 @@ struct FriendProfileView: View {
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.textWhite)
         }
+    }
+}
+
+// MARK: - Preview
+
+#Preview("공개 프로필 (비친구)") {
+    NavigationStack {
+        FriendProfileView(
+            name: "김무기",
+            handle: "david_18",
+            profileImageUrl: nil,
+            isFriend: false
+        )
+    }
+}
+
+#Preview("친구 프로필") {
+    NavigationStack {
+        FriendProfileView(
+            name: "김무기",
+            handle: "david_18",
+            profileImageUrl: nil,
+            isFriend: true
+        )
     }
 }
