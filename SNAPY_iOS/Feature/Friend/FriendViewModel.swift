@@ -28,9 +28,13 @@ enum FriendRequestState {
 final class FriendViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published var suggestedFriends: [SuggestedFriend] = []
+    @Published var searchResults: [SuggestedFriend] = []
     @Published var hiddenIds: Set<UUID> = []
     @Published var errorMessage: String? = nil
     @Published var isLoading = false
+    @Published var isSearching = false
+
+    private var searchTask: Task<Void, Never>?
 
     /// 서버에서 추천 친구 조회
     func loadRecommendedFriends() async {
@@ -51,13 +55,46 @@ final class FriendViewModel: ObservableObject {
         isLoading = false
     }
 
-    /// 검색 필터 + 숨김 제외
+    /// 검색 중이면 서버 결과, 아니면 추천 친구
     var filteredFriends: [SuggestedFriend] {
-        let visible = suggestedFriends.filter { !hiddenIds.contains($0.id) }
-        if searchText.isEmpty { return visible }
-        let query = searchText.lowercased()
-        return visible.filter {
-            $0.name.lowercased().contains(query) || $0.handle.lowercased().contains(query)
+        if !searchText.isEmpty {
+            return searchResults
+        }
+        return suggestedFriends.filter { !hiddenIds.contains($0.id) }
+    }
+
+    /// 검색어 변경 시 서버 검색 (디바운스 0.5초)
+    func onSearchTextChanged() {
+        searchTask?.cancel()
+
+        guard !searchText.isEmpty else {
+            searchResults = []
+            isSearching = false
+            return
+        }
+
+        isSearching = true
+        searchTask = Task {
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5초 디바운스
+            guard !Task.isCancelled else { return }
+
+            do {
+                let results = try await FriendService.shared.searchUsers(query: searchText)
+                guard !Task.isCancelled else { return }
+                searchResults = results.map { user in
+                    SuggestedFriend(
+                        name: user.username,
+                        handle: user.handle,
+                        profileImageUrl: user.profileImageUrl,
+                        mutualText: nil
+                    )
+                }
+            } catch {
+                if !Task.isCancelled {
+                    searchResults = []
+                }
+            }
+            isSearching = false
         }
     }
 

@@ -17,6 +17,7 @@ enum FriendAPI {
     case getRequestStatus(handle: String)                   // GET    /api/friend-requests/{handle}
     case removeFriend(handle: String)                       // DELETE /api/friends/{handle}
     case getRecommendedFriends                              // GET    /api/users/me/recommended-friends
+    case searchUsers(query: String)                         // GET    /api/users?q=
 }
 
 extension FriendAPI: TargetType {
@@ -37,6 +38,8 @@ extension FriendAPI: TargetType {
             return "/api/friends/\(handle)"
         case .getRecommendedFriends:
             return "/api/users/me/recommended-friends"
+        case .searchUsers:
+            return "/api/users"
         }
     }
 
@@ -46,7 +49,7 @@ extension FriendAPI: TargetType {
             return .post
         case .cancelRequest, .removeFriend:
             return .delete
-        case .getReceivedRequests, .getRequestStatus, .getRecommendedFriends:
+        case .getReceivedRequests, .getRequestStatus, .getRecommendedFriends, .searchUsers:
             return .get
         case .processRequest:
             return .patch
@@ -58,6 +61,8 @@ extension FriendAPI: TargetType {
         case .processRequest(_, let action):
             let body = FriendRequestActionBody(action: action.rawValue)
             return .requestJSONEncodable(body)
+        case .searchUsers(let query):
+            return .requestParameters(parameters: ["q": query], encoding: URLEncoding.queryString)
         default:
             return .requestPlain
         }

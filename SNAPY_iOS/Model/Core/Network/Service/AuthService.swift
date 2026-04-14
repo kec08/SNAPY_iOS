@@ -62,6 +62,10 @@ final class AuthService {
         )
         switch result {
         case .success(let response):
+            print("[AuthService] 회원가입 응답 코드 \(response.statusCode)")
+            if let body = String(data: response.data, encoding: .utf8) {
+                print("[AuthService] 회원가입 응답 \(body)")
+            }
             let decoded = try JSONDecoder().decode(SignUpResponse.self, from: response.data)
 
             guard decoded.success else {

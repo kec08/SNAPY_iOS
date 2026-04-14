@@ -28,6 +28,21 @@ final class FriendService {
         return data
     }
 
+    // MARK: - 유저 검색
+
+    func searchUsers(query: String) async throws -> [RecommendedFriendData] {
+        let response = try await requestWithRefresh(.searchUsers(query: query))
+        guard (200..<300).contains(response.statusCode) else {
+            throw FriendError.serverError(extractMessage(from: response))
+        }
+        // 응답: [{ handle, username, profileImageUrl }] — RecommendedFriendData 와 동일 형식
+        let decoded = try JSONDecoder().decode(BaseResponse<[RecommendedFriendData]>.self, from: response.data)
+        guard decoded.success, let data = decoded.data else {
+            throw FriendError.serverError(decoded.message)
+        }
+        return data
+    }
+
     // MARK: - 친구 요청 보내기
 
     func sendRequest(handle: String) async throws {

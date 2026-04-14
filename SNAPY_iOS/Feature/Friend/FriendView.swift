@@ -98,6 +98,9 @@ struct FriendView: View {
             .task {
                 await viewModel.loadRecommendedFriends()
             }
+            .onChange(of: viewModel.searchText) { _, _ in
+                viewModel.onSearchTextChanged()
+            }
             .navigationDestination(isPresented: $showFriendRequest) {
                 FriendRequestView()
             }
