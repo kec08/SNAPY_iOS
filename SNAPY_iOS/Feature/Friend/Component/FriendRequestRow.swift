@@ -17,8 +17,8 @@ struct FriendRequestRow: View {
     var body: some View {
         HStack(spacing: 12) {
             // 프로필 사진
-            if let url = request.profileImageUrl {
-                AsyncImage(url: URL(string: url)) { phase in
+            if let url = request.profileImageUrl, let imgUrl = URL(string: url) {
+                AsyncImage(url: imgUrl, transaction: Transaction(animation: nil)) { phase in
                     switch phase {
                     case .success(let image):
                         image.resizable().scaledToFill()
@@ -26,6 +26,7 @@ struct FriendRequestRow: View {
                         Color.customDarkGray
                     }
                 }
+                .id(url)
                 .frame(width: 56, height: 56)
                 .clipShape(Circle())
             } else {

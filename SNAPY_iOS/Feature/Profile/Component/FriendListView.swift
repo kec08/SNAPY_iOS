@@ -89,13 +89,14 @@ struct FriendListRow: View {
     var body: some View {
         HStack(spacing: 14) {
             // 프로필
-            if let url = friend.profileImageUrl {
-                AsyncImage(url: URL(string: url)) { phase in
+            if let url = friend.profileImageUrl, let imgUrl = URL(string: url) {
+                AsyncImage(url: imgUrl, transaction: Transaction(animation: nil)) { phase in
                     switch phase {
                     case .success(let img): img.resizable().scaledToFill()
                     default: Color.customDarkGray
                     }
                 }
+                .id(url)
                 .frame(width: 56, height: 56)
                 .clipShape(Circle())
             } else {
