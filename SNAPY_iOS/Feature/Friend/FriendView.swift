@@ -53,21 +53,35 @@ struct FriendView: View {
                     .padding(.horizontal, 22)
                     .padding(.bottom, 30)
 
-                    // MARK: 추천 친구 리스트
-                    if viewModel.filteredFriends.isEmpty {
+                    // MARK: 친구 리스트
+                    if viewModel.isLoading || viewModel.isSearching {
                         Spacer()
-                        Text("추천 친구가 없습니다")
-                            .font(.system(size: 14))
-                            .foregroundColor(.customGray300)
+                        ProgressView()
+                            .tint(.white)
+                        Spacer()
+                    } else if viewModel.filteredFriends.isEmpty {
+                        Spacer()
+                        VStack(spacing: 24) {
+                            Image("Crying_img")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 80, height: 80)
+                            Text(viewModel.searchText.isEmpty ? "추천 친구가 없습니다" : "검색 결과가 없습니다")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(.customGray300)
+                        }
                         Spacer()
                     } else {
                         ScrollView {
                             VStack(alignment: .leading, spacing: 0) {
-                                Text("추천 친구")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.textWhite)
-                                    .padding(.horizontal, 22)
-                                    .padding(.bottom, 12)
+                                // 검색 중이 아닐 때만 "추천 친구" 타이틀
+                                if viewModel.searchText.isEmpty {
+                                    Text("추천 친구")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(.textWhite)
+                                        .padding(.horizontal, 22)
+                                        .padding(.bottom, 12)
+                                }
 
                                 ForEach(viewModel.filteredFriends) { friend in
                                     SuggestedFriendRow(
@@ -85,6 +99,12 @@ struct FriendView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .task {
+                await viewModel.loadRecommendedFriends()
+            }
+            .onChange(of: viewModel.searchText) { _, _ in
+                viewModel.onSearchTextChanged()
+            }
             .navigationDestination(isPresented: $showFriendRequest) {
                 FriendRequestView()
             }

@@ -45,6 +45,11 @@
 		BC706E592F8D09950093C0B8 /* FriendRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E582F8D09940093C0B8 /* FriendRequestView.swift */; };
 		BC706E5B2F8D39700093C0B8 /* FriendProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E5A2F8D396F0093C0B8 /* FriendProfileView.swift */; };
 		BC706E5D2F8D482C0093C0B8 /* FriendRelationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E5C2F8D48280093C0B8 /* FriendRelationSheet.swift */; };
+		BC706E5F2F8DC0E20093C0B8 /* FriendDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E5E2F8DC0E10093C0B8 /* FriendDTO.swift */; };
+		BC706E622F8DC1100093C0B8 /* FriendAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E612F8DC1090093C0B8 /* FriendAPI.swift */; };
+		BC706E642F8DC1350093C0B8 /* FriendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E632F8DC1330093C0B8 /* FriendService.swift */; };
+		BC706E682F8DFDD70093C0B8 /* ContactSyncView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E672F8DFDD60093C0B8 /* ContactSyncView.swift */; };
+		BC706E722F8E92110093C0B8 /* FriendListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E712F8E92100093C0B8 /* FriendListView.swift */; };
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
 		BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */; };
@@ -146,6 +151,11 @@
 		BC706E582F8D09940093C0B8 /* FriendRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRequestView.swift; sourceTree = "<group>"; };
 		BC706E5A2F8D396F0093C0B8 /* FriendProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendProfileView.swift; sourceTree = "<group>"; };
 		BC706E5C2F8D48280093C0B8 /* FriendRelationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRelationSheet.swift; sourceTree = "<group>"; };
+		BC706E5E2F8DC0E10093C0B8 /* FriendDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendDTO.swift; sourceTree = "<group>"; };
+		BC706E612F8DC1090093C0B8 /* FriendAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendAPI.swift; sourceTree = "<group>"; };
+		BC706E632F8DC1330093C0B8 /* FriendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendService.swift; sourceTree = "<group>"; };
+		BC706E672F8DFDD60093C0B8 /* ContactSyncView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSyncView.swift; sourceTree = "<group>"; };
+		BC706E712F8E92100093C0B8 /* FriendListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendListView.swift; sourceTree = "<group>"; };
 		BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginView.swift; sourceTree = "<group>"; };
 		BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyTextField.swift; sourceTree = "<group>"; };
 		BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailView.swift; sourceTree = "<group>"; };
@@ -246,6 +256,7 @@
 		BC1DC2DA2F68CF730016A4CD /* DTO */ = {
 			isa = PBXGroup;
 			children = (
+				BC706E5E2F8DC0E10093C0B8 /* FriendDTO.swift */,
 				BC706E492F8BF9AF0093C0B8 /* ProfileDTO.swift */,
 				BC6473722F86AD4700FA15EA /* AlbumDTO.swift */,
 				BC1DC2D72F68CF730016A4CD /* AuthDTO.swift */,
@@ -264,6 +275,7 @@
 		BC1DC2E12F68CF730016A4CD /* API */ = {
 			isa = PBXGroup;
 			children = (
+				BC706E602F8DC1010093C0B8 /* Friend */,
 				BC706E4B2F8BF9C70093C0B8 /* Profile */,
 				BC6473762F86ADC300FA15EA /* Album */,
 				BC1DC2D32F68CF730016A4CD /* Token */,
@@ -276,6 +288,7 @@
 		BC1DC2E82F68CF730016A4CD /* Service */ = {
 			isa = PBXGroup;
 			children = (
+				BC706E632F8DC1330093C0B8 /* FriendService.swift */,
 				BC706E4E2F8BF9FF0093C0B8 /* ProfileService.swift */,
 				BC64737B2F86B41700FA15EA /* MoyaAsync */,
 				BC6473742F86AD6D00FA15EA /* AlbumService.swift */,
@@ -364,6 +377,22 @@
 				BC706E4C2F8BF9D80093C0B8 /* ProfileAPI.swift */,
 			);
 			path = Profile;
+			sourceTree = "<group>";
+		};
+		BC706E602F8DC1010093C0B8 /* Friend */ = {
+			isa = PBXGroup;
+			children = (
+				BC706E612F8DC1090093C0B8 /* FriendAPI.swift */,
+			);
+			path = Friend;
+			sourceTree = "<group>";
+		};
+		BC706E662F8DFDCD0093C0B8 /* Contact */ = {
+			isa = PBXGroup;
+			children = (
+				BC706E672F8DFDD60093C0B8 /* ContactSyncView.swift */,
+			);
+			path = Contact;
 			sourceTree = "<group>";
 		};
 		BCCAD6052F6B05E100ED71E0 /* Email */ = {
@@ -458,6 +487,7 @@
 		BCD8159C2F6928AC0028AE50 /* SignUp */ = {
 			isa = PBXGroup;
 			children = (
+				BC706E662F8DFDCD0093C0B8 /* Contact */,
 				BC6674E82F73D22A009CBF8D /* SiginUpViewModel.swift */,
 				BCCAD6722F6B9F6000ED71E0 /* Complete */,
 				BCCAD6142F6B072800ED71E0 /* Info */,
@@ -563,6 +593,7 @@
 		BCD816D02F6A415B0028AE50 /* Component */ = {
 			isa = PBXGroup;
 			children = (
+				BC706E712F8E92100093C0B8 /* FriendListView.swift */,
 				BCD10DAD2F854CAB004CBC29 /* GuestbookAddView.swift */,
 				BCD10DAB2F854C8F004CBC29 /* GuestbookFullView.swift */,
 				BC6676D62F840F6B009CBF8D /* ImageViewerView.swift */,
@@ -764,6 +795,8 @@
 				BC1DC2F12F68CF730016A4CD /* Color+Extensions.swift in Sources */,
 				BCCAD60C2F6B062F00ED71E0 /* PasswordView.swift in Sources */,
 				BCD815AF2F69346D0028AE50 /* MainTabView.swift in Sources */,
+				BC706E5F2F8DC0E20093C0B8 /* FriendDTO.swift in Sources */,
+				BC706E682F8DFDD70093C0B8 /* ContactSyncView.swift in Sources */,
 				BC64737A2F86ADDA00FA15EA /* AlbumAPI.swift in Sources */,
 				BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */,
 				BC706DFF2F87FA0E0093C0B8 /* AlbumDateDetailView.swift in Sources */,
@@ -783,12 +816,14 @@
 				BCD816C12F69AA6B0028AE50 /* AppleLoginButton.swift in Sources */,
 				BC6676D52F8406EB009CBF8D /* ProfileFeedGrid.swift in Sources */,
 				BCD816D22F6A416F0028AE50 /* CameraView.swift in Sources */,
+				BC706E722F8E92110093C0B8 /* FriendListView.swift in Sources */,
 				BCD815AB2F69343D0028AE50 /* RootView.swift in Sources */,
 				BC706E4D2F8BF9D90093C0B8 /* ProfileAPI.swift in Sources */,
 				BCD816D82F6A41940028AE50 /* FriendViewModel.swift in Sources */,
 				BC706E5D2F8D482C0093C0B8 /* FriendRelationSheet.swift in Sources */,
 				BC6473752F86AD6E00FA15EA /* AlbumService.swift in Sources */,
 				BCD816EB2F6A52390028AE50 /* OnboardingView.swift in Sources */,
+				BC706E642F8DC1350093C0B8 /* FriendService.swift in Sources */,
 				BCD816DA2F6A419C0028AE50 /* ProfileView.swift in Sources */,
 				BCD816E72F6A43860028AE50 /* AlbumViewModel.swift in Sources */,
 				BCED9C202F6E6215008E47BB /* DualCameraService.swift in Sources */,
@@ -803,6 +838,7 @@
 				BC706E512F8CEA450093C0B8 /* SuggestedFriendRow.swift in Sources */,
 				BCD816E52F6A437D0028AE50 /* AlbumView.swift in Sources */,
 				BCD10DB02F854CDA004CBC29 /* GuestbookAddView.swift in Sources */,
+				BC706E622F8DC1100093C0B8 /* FriendAPI.swift in Sources */,
 				BCD8162D2F6937940028AE50 /* SnapyButton.swift in Sources */,
 				BC6676D72F840F70009CBF8D /* ImageViewerView.swift in Sources */,
 				BCD815A72F692FB50028AE50 /* LoginViewModel.swift in Sources */,
@@ -996,6 +1032,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "SNAPY-iOS-Info.plist";
 				INFOPLIST_KEY_NSCameraUsageDescription = "앱에서 사진을 촬영하기 위해 카메라 사용 권한이 필요합니다.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "친구를 찾기 위해 연락처에 접근합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1006,7 +1043,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.messiofcoding.snapy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1037,6 +1074,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "SNAPY-iOS-Info.plist";
 				INFOPLIST_KEY_NSCameraUsageDescription = "앱에서 사진을 촬영하기 위해 카메라 사용 권한이 필요합니다.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "친구를 찾기 위해 연락처에 접근합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1047,7 +1085,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.messiofcoding.snapy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

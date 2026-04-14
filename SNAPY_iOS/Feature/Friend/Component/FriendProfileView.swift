@@ -10,29 +10,34 @@ import SwiftUI
 struct FriendProfileView: View {
     @Environment(\.dismiss) private var dismiss
 
-    let name: String
     let handle: String
-    let profileImageUrl: String?
     var isFriend: Bool = false
-    var mutualFriendsText: String? = nil     // "김은찬 외 4명과 친구"
-    var contactText: String? = nil            // "연락처에 있는 친구"
+    var mutualFriendsText: String? = nil
+    var contactText: String? = nil
 
-    // 목 데이터
-    private let postCount = 5
-    private let friendCount = 13
-    private let streakCount = 2
+    // 서버에서 로드되는 값
+    @State private var name: String
+    @State private var profileImageUrl: String?
+    @State private var bannerImageUrl: String?
+    @State private var friendCount: Int = 0
+    @State private var postCount: Int = 0
+    @State private var streakCount: Int = 0
+    @State private var isLoading = true
 
     @State private var isFriendRequested = false
     @State private var showFriendSheet = false
     @State private var currentFriend: Bool
+    @State private var showBannerViewer = false
+    @State private var showProfileViewer = false
 
-    init(name: String, handle: String, profileImageUrl: String?, isFriend: Bool = false, mutualFriendsText: String? = nil, contactText: String? = nil) {
-        self.name = name
+    init(name: String, handle: String, profileImageUrl: String?, bannerImageUrl: String? = nil, isFriend: Bool = false, mutualFriendsText: String? = nil, contactText: String? = nil) {
         self.handle = handle
-        self.profileImageUrl = profileImageUrl
         self.isFriend = isFriend
         self.mutualFriendsText = mutualFriendsText
         self.contactText = contactText
+        self._name = State(initialValue: name)
+        self._profileImageUrl = State(initialValue: profileImageUrl)
+        self._bannerImageUrl = State(initialValue: bannerImageUrl)
         self._currentFriend = State(initialValue: isFriend)
     }
 
@@ -43,29 +48,47 @@ struct FriendProfileView: View {
             ScrollView {
                 VStack(spacing: 0) {
                     // MARK: 배너
-                    Color.customDarkGray
-                        .frame(height: 200)
+                    Button { showBannerViewer = true } label: {
+                        if let url = bannerImageUrl {
+                            AsyncImage(url: URL(string: url)) { phase in
+                                switch phase {
+                                case .success(let img): img.resizable().scaledToFill()
+                                default: Image("Banner_img").resizable().scaledToFill()
+                                }
+                            }
+                            .frame(height: 200)
+                            .clipped()
+                        } else {
+                            Image("Banner_img")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(height: 200)
+                                .clipped()
+                        }
+                    }
 
                     // MARK: 프로필 정보
                     VStack(alignment: .leading, spacing: 16) {
                         HStack(alignment: .center) {
-                            Group {
-                                if let url = profileImageUrl {
-                                    AsyncImage(url: URL(string: url)) { phase in
-                                        switch phase {
-                                        case .success(let img): img.resizable().scaledToFill()
-                                        default: Color.customDarkGray
+                            Button { showProfileViewer = true } label: {
+                                Group {
+                                    if let url = profileImageUrl {
+                                        AsyncImage(url: URL(string: url)) { phase in
+                                            switch phase {
+                                            case .success(let img): img.resizable().scaledToFill()
+                                            default: Image("Profile_img").resizable().scaledToFill()
+                                            }
                                         }
+                                    } else {
+                                        Image("Profile_img")
+                                            .resizable()
+                                            .scaledToFill()
                                     }
-                                } else {
-                                    Image("Profile_img")
-                                        .resizable()
-                                        .scaledToFill()
                                 }
+                                .frame(width: 96, height: 96)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.backgroundBlack, lineWidth: 3))
                             }
-                            .frame(width: 96, height: 96)
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.backgroundBlack, lineWidth: 3))
 
                             Spacer().frame(width: 30)
 
@@ -148,7 +171,19 @@ struct FriendProfileView: View {
                         } else {
                             // 비친구: [친구 추가] / [요청됨]
                             Button {
-                                isFriendRequested.toggle()
+                                if isFriendRequested {
+                                    isFriendRequested = false
+                                    Task {
+                                        do { try await FriendService.shared.cancelRequest(handle: handle) }
+                                        catch { isFriendRequested = true }
+                                    }
+                                } else {
+                                    isFriendRequested = true
+                                    Task {
+                                        do { try await FriendService.shared.sendRequest(handle: handle) }
+                                        catch { isFriendRequested = false }
+                                    }
+                                }
                             } label: {
                                 HStack(spacing: 6) {
                                     Image(systemName: isFriendRequested ? "clock" : "person.badge.plus")
@@ -234,17 +269,58 @@ struct FriendProfileView: View {
             }
         }
         .toolbarBackground(Color.clear, for: .navigationBar)
+        .task {
+            // 서버에서 이 유저의 프로필 + 친구 수 조회
+            do {
+                let profile = try await ProfileService.shared.fetchUserProfile(handle: handle)
+                name = profile.username
+                profileImageUrl = profile.profileImageUrl
+                bannerImageUrl = profile.backgroundImageUrl
+            } catch {
+                print("[FriendProfile] 프로필 로드 실패: \(error)")
+            }
+            do {
+                let friends = try await FriendService.shared.getFriends(handle: handle)
+                friendCount = friends.count
+            } catch {
+                print("[FriendProfile] 친구 수 로드 실패: \(error)")
+            }
+            isLoading = false
+        }
         .sheet(isPresented: $showFriendSheet) {
             FriendRelationSheet(
                 name: name,
                 handle: handle,
                 onRemoveFriend: {
+                    Task {
+                        do {
+                            try await FriendService.shared.removeFriend(handle: handle)
+                        } catch {
+                            print("[FriendProfile] 친구 삭제 실패: \(error)")
+                        }
+                    }
                     showFriendSheet = false
                     dismiss()
                 }
             )
             .presentationDetents([.fraction(0.35)])
             .presentationDragIndicator(.visible)
+        }
+        .fullScreenCover(isPresented: $showBannerViewer) {
+            ImageViewerView(
+                image: nil,
+                imageUrl: bannerImageUrl,
+                assetName: "Banner_img",
+                isCircle: false
+            )
+        }
+        .fullScreenCover(isPresented: $showProfileViewer) {
+            ImageViewerView(
+                image: nil,
+                imageUrl: profileImageUrl,
+                assetName: "Profile_img",
+                isCircle: true
+            )
         }
     }
 

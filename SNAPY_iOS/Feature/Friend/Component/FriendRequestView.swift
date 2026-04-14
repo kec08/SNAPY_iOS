@@ -7,24 +7,12 @@
 
 import SwiftUI
 
-// 친구 요청 모델
-struct FriendRequest: Identifiable {
-    let id = UUID()
-    let name: String
-    let handle: String
-    let profileImageUrl: String?
-}
-
 struct FriendRequestView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = FriendViewModel()
 
-    // 임시 목 데이터
-    @State private var requests: [FriendRequest] = [
-        FriendRequest(name: "김은찬", handle: "silver_c.ld", profileImageUrl: nil),
-        FriendRequest(name: "김은찬", handle: "silver_c.ld", profileImageUrl: nil),
-        FriendRequest(name: "김은찬", handle: "silver_c.ld", profileImageUrl: nil),
-    ]
+    @State private var requests: [ReceivedFriendRequest] = []
+    @State private var isLoading = false
 
     var body: some View {
         ZStack {
@@ -103,13 +91,44 @@ struct FriendRequestView: View {
         .toolbarBackground(Color.backgroundBlack, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .task {
+            await loadRequests()
+        }
     }
 
-    private func acceptRequest(_ request: FriendRequest) {
-        requests.removeAll { $0.id == request.id }
+    private func loadRequests() async {
+        isLoading = true
+        do {
+            requests = try await FriendService.shared.getReceivedRequests()
+        } catch {
+            print("[FriendRequestView] 받은 요청 로드 실패: \(error)")
+        }
+        isLoading = false
     }
 
-    private func rejectRequest(_ request: FriendRequest) {
-        requests.removeAll { $0.id == request.id }
+    private func acceptRequest(_ request: ReceivedFriendRequest) {
+        Task {
+            do {
+                try await FriendService.shared.processRequest(requestId: request.requestId, action: .approve)
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    requests.removeAll { $0.id == request.id }
+                }
+            } catch {
+                print("[FriendRequestView] 수락 실패: \(error)")
+            }
+        }
+    }
+
+    private func rejectRequest(_ request: ReceivedFriendRequest) {
+        Task {
+            do {
+                try await FriendService.shared.processRequest(requestId: request.requestId, action: .reject)
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    requests.removeAll { $0.id == request.id }
+                }
+            } catch {
+                print("[FriendRequestView] 거절 실패: \(error)")
+            }
+        }
     }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FriendRequestRow: View {
-    let request: FriendRequest
+    let request: ReceivedFriendRequest
     let onAccept: () -> Void
     let onReject: () -> Void
 
@@ -17,8 +17,8 @@ struct FriendRequestRow: View {
     var body: some View {
         HStack(spacing: 12) {
             // 프로필 사진
-            if let url = request.profileImageUrl {
-                AsyncImage(url: URL(string: url)) { phase in
+            if let url = request.profileImageUrl, let imgUrl = URL(string: url) {
+                AsyncImage(url: imgUrl, transaction: Transaction(animation: nil)) { phase in
                     switch phase {
                     case .success(let image):
                         image.resizable().scaledToFill()
@@ -26,6 +26,7 @@ struct FriendRequestRow: View {
                         Color.customDarkGray
                     }
                 }
+                .id(url)
                 .frame(width: 56, height: 56)
                 .clipShape(Circle())
             } else {
@@ -38,7 +39,7 @@ struct FriendRequestRow: View {
 
             // 이름 + 핸들
             VStack(alignment: .leading, spacing: 3) {
-                Text(request.name)
+                Text(request.username)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.textWhite)
 
@@ -72,9 +73,10 @@ struct FriendRequestRow: View {
         .onTapGesture { showProfile = true }
         .navigationDestination(isPresented: $showProfile) {
             FriendProfileView(
-                name: request.name,
+                name: request.username,
                 handle: request.handle,
-                profileImageUrl: request.profileImageUrl
+                profileImageUrl: request.profileImageUrl,
+                isFriend: false
             )
         }
     }

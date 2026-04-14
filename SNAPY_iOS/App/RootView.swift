@@ -16,6 +16,7 @@ enum AppScreen {
     case registerPhone
     case registerInfo
     case registerComplete
+    case contactSync
     case onboarding
     case main
 }
@@ -100,12 +101,19 @@ struct RootView: View {
                         Task {
                             await signUpVM.register()
                             if signUpVM.isRegistered {
-                                screen = .registerComplete
+                                screen = .contactSync
                             }
                         }
                     }
                 )
                 .environmentObject(signUpVM)
+
+            case .contactSync:
+                ContactSyncView(
+                    onDoneTap: {
+                        screen = .registerComplete
+                    }
+                )
 
             case .registerComplete:
                 registerCompleteView(
