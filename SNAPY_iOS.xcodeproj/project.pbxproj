@@ -49,6 +49,7 @@
 		BC706E622F8DC1100093C0B8 /* FriendAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E612F8DC1090093C0B8 /* FriendAPI.swift */; };
 		BC706E642F8DC1350093C0B8 /* FriendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E632F8DC1330093C0B8 /* FriendService.swift */; };
 		BC706E682F8DFDD70093C0B8 /* ContactSyncView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E672F8DFDD60093C0B8 /* ContactSyncView.swift */; };
+		BC706E722F8E92110093C0B8 /* FriendListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706E712F8E92100093C0B8 /* FriendListView.swift */; };
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
 		BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */; };
@@ -154,6 +155,7 @@
 		BC706E612F8DC1090093C0B8 /* FriendAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendAPI.swift; sourceTree = "<group>"; };
 		BC706E632F8DC1330093C0B8 /* FriendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendService.swift; sourceTree = "<group>"; };
 		BC706E672F8DFDD60093C0B8 /* ContactSyncView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSyncView.swift; sourceTree = "<group>"; };
+		BC706E712F8E92100093C0B8 /* FriendListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendListView.swift; sourceTree = "<group>"; };
 		BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginView.swift; sourceTree = "<group>"; };
 		BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyTextField.swift; sourceTree = "<group>"; };
 		BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailView.swift; sourceTree = "<group>"; };
@@ -591,6 +593,7 @@
 		BCD816D02F6A415B0028AE50 /* Component */ = {
 			isa = PBXGroup;
 			children = (
+				BC706E712F8E92100093C0B8 /* FriendListView.swift */,
 				BCD10DAD2F854CAB004CBC29 /* GuestbookAddView.swift */,
 				BCD10DAB2F854C8F004CBC29 /* GuestbookFullView.swift */,
 				BC6676D62F840F6B009CBF8D /* ImageViewerView.swift */,
@@ -813,6 +816,7 @@
 				BCD816C12F69AA6B0028AE50 /* AppleLoginButton.swift in Sources */,
 				BC6676D52F8406EB009CBF8D /* ProfileFeedGrid.swift in Sources */,
 				BCD816D22F6A416F0028AE50 /* CameraView.swift in Sources */,
+				BC706E722F8E92110093C0B8 /* FriendListView.swift in Sources */,
 				BCD815AB2F69343D0028AE50 /* RootView.swift in Sources */,
 				BC706E4D2F8BF9D90093C0B8 /* ProfileAPI.swift in Sources */,
 				BCD816D82F6A41940028AE50 /* FriendViewModel.swift in Sources */,

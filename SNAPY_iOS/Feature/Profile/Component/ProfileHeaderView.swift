@@ -13,6 +13,7 @@ struct ProfileHeaderView: View {
 
     @State private var showBannerViewer = false
     @State private var showProfileViewer = false
+    @State private var showFriendList = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -88,7 +89,10 @@ struct ProfileHeaderView: View {
                         
                         HStack(spacing: 65) {
                             statItem(value: viewModel.postCount, label: "게시물")
-                            statItem(value: viewModel.friendCount, label: "친구")
+
+                            Button { showFriendList = true } label: {
+                                statItem(value: viewModel.friendCount, label: "친구")
+                            }
                             
                             VStack(spacing: 6) {
                                 Image("Strick_fire")
@@ -160,6 +164,9 @@ struct ProfileHeaderView: View {
                 assetName: "Profile_img",
                 isCircle: true
             )
+        }
+        .navigationDestination(isPresented: $showFriendList) {
+            FriendListView(handle: viewModel.handle)
         }
     }
 

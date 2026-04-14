@@ -46,10 +46,10 @@ final class ProfileViewModel: ObservableObject {
     // 프로필 정보
     @Published var username: String = "김은찬"
     @Published var handle: String = "silver_c.ld"
-    @Published var postCount: Int = 5
-    @Published var friendCount: Int = 13
-    @Published var streakCount: Int = 2
-    @Published var mutualFriendsText: String = "zhvcx_flii, kimikhnа0816님 외 32명 친구 중 입니다"
+    @Published var postCount: Int = 0
+    @Published var friendCount: Int = 0
+    @Published var streakCount: Int = 0
+    @Published var mutualFriendsText: String = ""
 
     // 프로필/배너 이미지 URL (UserDefaults 에 저장 → 앱 재시작해도 유지)
     @Published var profileImageUrl: String? {
@@ -134,6 +134,15 @@ final class ProfileViewModel: ObservableObject {
             bannerImageUrl = profile.backgroundImageUrl
             // 자기 handle 저장 (추천 친구에서 자신 제외용)
             UserDefaults.standard.set(profile.handle, forKey: "myHandle")
+
+            // 친구 수 서버에서 가져오기
+            do {
+                let friends = try await FriendService.shared.getFriends(handle: profile.handle)
+                friendCount = friends.count
+                print("[Profile] 친구 수: \(friends.count)")
+            } catch {
+                print("[Profile] 친구 목록 로드 실패: \(error)")
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
