@@ -18,6 +18,7 @@ enum FriendAPI {
     case removeFriend(handle: String)                       // DELETE /api/friends/{handle}
     case getRecommendedFriends                              // GET    /api/users/me/recommended-friends
     case searchUsers(query: String)                         // GET    /api/users?q=
+    case syncContacts(phones: [String])                     // POST   /api/contacts/sync
 }
 
 extension FriendAPI: TargetType {
@@ -40,12 +41,14 @@ extension FriendAPI: TargetType {
             return "/api/users/me/recommended-friends"
         case .searchUsers:
             return "/api/users"
+        case .syncContacts:
+            return "/api/contacts/sync"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .sendRequest:
+        case .sendRequest, .syncContacts:
             return .post
         case .cancelRequest, .removeFriend:
             return .delete
@@ -63,6 +66,8 @@ extension FriendAPI: TargetType {
             return .requestJSONEncodable(body)
         case .searchUsers(let query):
             return .requestParameters(parameters: ["q": query], encoding: URLEncoding.queryString)
+        case .syncContacts(let phones):
+            return .requestJSONEncodable(["phones": phones])
         default:
             return .requestPlain
         }

@@ -87,9 +87,21 @@ struct ContactSyncView: View {
             if granted {
                 let phones = self.fetchAllPhoneNumbers(store: store)
                 print("[ContactSync] 연락처 \(phones.count)개 번호 가져옴")
-                // 추후 POST /api/contacts/sync 연결
-                Task { @MainActor in
-                    onDoneTap()
+                Task {
+                    do {
+                        let contacts = try await FriendService.shared.syncContacts(phones: phones)
+                        // 가입된 유저 handle 목록 저장 (친구 화면에서 "연락처에 있는 친구" 표시용)
+                        let handles = contacts.map { $0.handle }
+                        await MainActor.run {
+                            UserDefaults.standard.set(handles, forKey: "contactSyncedHandles")
+                        }
+                        print("[ContactSync] 가입된 유저 \(contacts.count)명 동기화 완료")
+                    } catch {
+                        print("[ContactSync] 동기화 실패: \(error)")
+                    }
+                    await MainActor.run {
+                        onDoneTap()
+                    }
                 }
             } else {
                 print("[ContactSync] 연락처 권한 거부")

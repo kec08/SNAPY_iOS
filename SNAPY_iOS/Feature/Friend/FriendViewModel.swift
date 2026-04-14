@@ -45,6 +45,9 @@ final class FriendViewModel: ObservableObject {
             let list = try await FriendService.shared.searchUsers(query: "")
             // 자기 자신 제외 (내 handle 은 UserDefaults 에 저장된 값)
             let myHandle = UserDefaults.standard.string(forKey: "myHandle") ?? ""
+            // 연락처 동기화된 handle 목록
+            let contactHandles = Set(UserDefaults.standard.stringArray(forKey: "contactSyncedHandles") ?? [])
+
             suggestedFriends = list
                 .filter { $0.handle != myHandle }
                 .map { friend in
@@ -52,7 +55,7 @@ final class FriendViewModel: ObservableObject {
                         name: friend.username,
                         handle: friend.handle,
                         profileImageUrl: friend.profileImageUrl,
-                        mutualText: nil
+                        mutualText: contactHandles.contains(friend.handle) ? "연락처에 있는 친구" : nil
                     )
                 }
         } catch {

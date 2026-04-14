@@ -39,6 +39,22 @@ struct FriendRequestStatusData: Codable {
 
 typealias FriendRequestStatusResponse = BaseResponse<FriendRequestStatusData>
 
+// MARK: - 연락처 동기화
+
+struct ContactSyncResponseData: Codable {
+    let contacts: [ContactUserData]
+}
+
+struct ContactUserData: Codable, Identifiable {
+    let handle: String
+    let username: String
+    let profileImageUrl: String?
+
+    var id: String { handle }
+}
+
+typealias ContactSyncResponse = BaseResponse<ContactSyncResponseData>
+
 // MARK: - 추천 친구
 
 struct RecommendedFriendData: Codable, Identifiable {

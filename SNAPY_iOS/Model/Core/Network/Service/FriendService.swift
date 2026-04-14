@@ -28,6 +28,22 @@ final class FriendService {
         return data
     }
 
+    // MARK: - 연락처 동기화
+
+    func syncContacts(phones: [String]) async throws -> [ContactUserData] {
+        print("[FriendService] 연락처 동기화 - \(phones.count)개 번호")
+        let response = try await requestWithRefresh(.syncContacts(phones: phones))
+        print("[FriendService] 응답 코드 \(response.statusCode)")
+        guard (200..<300).contains(response.statusCode) else {
+            throw FriendError.serverError(extractMessage(from: response))
+        }
+        let decoded = try JSONDecoder().decode(ContactSyncResponse.self, from: response.data)
+        guard decoded.success, let data = decoded.data else {
+            throw FriendError.serverError(decoded.message)
+        }
+        return data.contacts
+    }
+
     // MARK: - 유저 검색
 
     func searchUsers(query: String) async throws -> [RecommendedFriendData] {
