@@ -12,8 +12,8 @@ struct FriendProfileView: View {
 
     let handle: String
     var isFriend: Bool = false
-    var mutualFriendsText: String? = nil
-    var contactText: String? = nil
+    var initialMutualFriendsText: String? = nil
+    var initialContactText: String? = nil
 
     // 서버에서 로드되는 값
     @State private var name: String
@@ -23,6 +23,8 @@ struct FriendProfileView: View {
     @State private var postCount: Int = 0
     @State private var streakCount: Int = 0
     @State private var isLoading = true
+    @State private var mutualFriendsText: String?
+    @State private var contactText: String?
 
     @State private var isFriendRequested = false
     @State private var showFriendSheet = false
@@ -33,12 +35,14 @@ struct FriendProfileView: View {
     init(name: String, handle: String, profileImageUrl: String?, bannerImageUrl: String? = nil, isFriend: Bool = false, mutualFriendsText: String? = nil, contactText: String? = nil) {
         self.handle = handle
         self.isFriend = isFriend
-        self.mutualFriendsText = mutualFriendsText
-        self.contactText = contactText
+        self.initialMutualFriendsText = mutualFriendsText
+        self.initialContactText = contactText
         self._name = State(initialValue: name)
         self._profileImageUrl = State(initialValue: profileImageUrl)
         self._bannerImageUrl = State(initialValue: bannerImageUrl)
         self._currentFriend = State(initialValue: isFriend)
+        self._mutualFriendsText = State(initialValue: mutualFriendsText)
+        self._contactText = State(initialValue: contactText)
     }
 
     var body: some View {
@@ -116,19 +120,15 @@ struct FriendProfileView: View {
                             .padding(.top, 10)
                         }
 
-                        // 겹친구 (친구인 경우) / 연락처 친구 (비친구인 경우)
-                        if currentFriend {
-                            if let mutual = mutualFriendsText {
-                                Text(mutual)
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundColor(.textWhite)
-                            }
-                        } else {
-                            if let contact = contactText {
-                                Text(contact)
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundColor(.customGray300)
-                            }
+                        // 겹친구 > 연락처 우선순위로 표시
+                        if let mutual = mutualFriendsText {
+                            Text(mutual)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(.textWhite)
+                        } else if let contact = contactText {
+                            Text(contact)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(.customGray300)
                         }
 
                         // @handle
@@ -284,6 +284,29 @@ struct FriendProfileView: View {
                 friendCount = friends.count
             } catch {
                 print("[FriendProfile] 친구 수 로드 실패: \(error)")
+            }
+            // 겹친구 조회 (init에서 전달받지 못한 경우 서버에서 조회)
+            if mutualFriendsText == nil {
+                do {
+                    let mutuals = try await FriendService.shared.getMutualFriends(handle: handle)
+                    if !mutuals.isEmpty {
+                        let firstName = mutuals[0].username
+                        if mutuals.count == 1 {
+                            mutualFriendsText = "\(firstName)님과 친구입니다"
+                        } else {
+                            mutualFriendsText = "\(firstName)님 외 \(mutuals.count - 1)명과 친구입니다"
+                        }
+                    }
+                } catch {
+                    print("[FriendProfile] 겹친구 로드 실패: \(error)")
+                }
+                // 연락처 확인 (겹친구가 없을 때)
+                if mutualFriendsText == nil && contactText == nil {
+                    let contactHandles = Set(UserDefaults.standard.stringArray(forKey: "contactSyncedHandles") ?? [])
+                    if contactHandles.contains(handle) {
+                        contactText = "연락처에 있음"
+                    }
+                }
             }
             isLoading = false
         }

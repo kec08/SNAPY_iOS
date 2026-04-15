@@ -97,7 +97,9 @@ struct SuggestedFriendRow: View {
             FriendProfileView(
                 name: friend.name,
                 handle: friend.handle,
-                profileImageUrl: friend.profileImageUrl
+                profileImageUrl: friend.profileImageUrl,
+                mutualFriendsText: friend.mutualText?.contains("친구입니다") == true ? friend.mutualText : nil,
+                contactText: friend.mutualText?.contains("연락처") == true ? friend.mutualText : nil
             )
         }
     }

@@ -15,7 +15,7 @@ struct SuggestedFriend: Identifiable {
     let name: String
     let handle: String
     let profileImageUrl: String?
-    let mutualText: String?
+    var mutualText: String?
     var requestState: FriendRequestState = .none
 }
 
@@ -43,25 +43,57 @@ final class FriendViewModel: ObservableObject {
         isLoading = true
         do {
             let list = try await FriendService.shared.searchUsers(query: "")
-            // 자기 자신 제외 (내 handle 은 UserDefaults 에 저장된 값)
+            print("[FriendVM] 유저 조회 성공: \(list.count)명")
             let myHandle = UserDefaults.standard.string(forKey: "myHandle") ?? ""
-            // 연락처 동기화된 handle 목록
             let contactHandles = Set(UserDefaults.standard.stringArray(forKey: "contactSyncedHandles") ?? [])
 
-            suggestedFriends = list
-                .filter { $0.handle != myHandle }
-                .map { friend in
-                    SuggestedFriend(
-                        name: friend.username,
-                        handle: friend.handle,
-                        profileImageUrl: friend.profileImageUrl,
-                        mutualText: contactHandles.contains(friend.handle) ? "연락처에 있는 친구" : nil
-                    )
+            let filtered = list.filter { $0.handle != myHandle }
+
+            // 먼저 연락처 정보만으로 리스트 표시
+            suggestedFriends = filtered.map { friend in
+                SuggestedFriend(
+                    name: friend.username,
+                    handle: friend.handle,
+                    profileImageUrl: friend.profileImageUrl,
+                    mutualText: contactHandles.contains(friend.handle) ? "연락처에 있음" : nil
+                )
+            }
+            isLoading = false
+
+            // 겹친구 정보를 비동기로 업데이트 (우선순위: 겹친구 > 연락처 > nil)
+            for friend in filtered {
+                Task { [weak self] in
+                    guard let self else { return }
+                    let mutuals = (try? await FriendService.shared.getMutualFriends(handle: friend.handle)) ?? []
+                    if !mutuals.isEmpty, let text = self.buildMutualText(mutuals: mutuals, isContact: false) {
+                        if let idx = self.suggestedFriends.firstIndex(where: { $0.handle == friend.handle }) {
+                            self.suggestedFriends[idx].mutualText = text
+                        }
+                    }
                 }
+            }
+            return
         } catch {
+            print("[FriendVM] 유저 조회 실패: \(error)")
             errorMessage = error.localizedDescription
         }
         isLoading = false
+    }
+
+    /// 우선순위: 겹친구 텍스트 > 연락처에 있음 > nil
+    private func buildMutualText(mutuals: [FriendData], isContact: Bool) -> String? {
+        if !mutuals.isEmpty {
+            let firstName = mutuals[0].username
+            if mutuals.count == 1 {
+                return "\(firstName)님과 친구입니다"
+            } else {
+                return "\(firstName)님 외 \(mutuals.count - 1)명과 친구입니다"
+            }
+        }
+        if isContact {
+            return "연락처에 있음"
+        }
+        return nil
     }
 
     /// 검색 중이면 서버 결과, 아니면 추천 친구
@@ -90,13 +122,29 @@ final class FriendViewModel: ObservableObject {
             do {
                 let results = try await FriendService.shared.searchUsers(query: searchText)
                 guard !Task.isCancelled else { return }
+                let contactHandles = Set(UserDefaults.standard.stringArray(forKey: "contactSyncedHandles") ?? [])
+
+                // 먼저 연락처 정보만으로 결과 표시
                 searchResults = results.map { user in
                     SuggestedFriend(
                         name: user.username,
                         handle: user.handle,
                         profileImageUrl: user.profileImageUrl,
-                        mutualText: nil
+                        mutualText: contactHandles.contains(user.handle) ? "연락처에 있음" : nil
                     )
+                }
+
+                // 겹친구 정보 비동기 업데이트
+                for user in results {
+                    Task { [weak self] in
+                        guard let self, !Task.isCancelled else { return }
+                        let mutuals = (try? await FriendService.shared.getMutualFriends(handle: user.handle)) ?? []
+                        if !mutuals.isEmpty, let text = self.buildMutualText(mutuals: mutuals, isContact: false) {
+                            if let idx = self.searchResults.firstIndex(where: { $0.handle == user.handle }) {
+                                self.searchResults[idx].mutualText = text
+                            }
+                        }
+                    }
                 }
             } catch {
                 if !Task.isCancelled {
