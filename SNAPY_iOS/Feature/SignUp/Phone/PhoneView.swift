@@ -76,7 +76,14 @@ struct PhoneView: View {
 
                         HStack(spacing: 12) {
 
-                            TextField("010-0000-0000", text: $signUpVM.registerPhone)
+                            TextField("010-0000-0000", text: Binding(
+                                get: { signUpVM.formattedPhone },
+                                set: { newValue in
+                                    // 숫자와 하이픈만 허용, 숫자만 저장
+                                    let digits = newValue.filter { $0.isNumber }
+                                    signUpVM.registerPhone = String(digits.prefix(11))
+                                }
+                            ))
                                 .foregroundColor(.textWhite)
                                 .font(.system(size: 18))
                                 .keyboardType(.phonePad)
@@ -99,6 +106,16 @@ struct PhoneView: View {
                             .fill(Color.textWhite)
                             .frame(height: 2)
                             .padding(.top, 6)
+
+                        Text("휴대폰 번호 11자리를 입력해주세요")
+                            .font(.system(size: 12))
+                            .foregroundColor(.customGray300)
+
+                        if let msg = signUpVM.phoneValidationMessage {
+                            Text(msg)
+                                .font(.system(size: 12))
+                                .foregroundColor(.red)
+                        }
                     }
 
                     // 인증번호 입력

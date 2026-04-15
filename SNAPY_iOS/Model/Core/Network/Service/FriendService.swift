@@ -42,6 +42,20 @@ final class FriendService {
         return data
     }
 
+    // MARK: - 겹친구 조회
+
+    func getMutualFriends(handle: String) async throws -> [FriendData] {
+        let response = try await requestWithRefresh(.getMutualFriends(handle: handle))
+        guard (200..<300).contains(response.statusCode) else {
+            throw FriendError.serverError(extractMessage(from: response))
+        }
+        let decoded = try JSONDecoder().decode(FriendListResponse.self, from: response.data)
+        guard decoded.success, let data = decoded.data else {
+            throw FriendError.serverError(decoded.message)
+        }
+        return data
+    }
+
     // MARK: - 연락처 동기화
 
     func syncContacts(phones: [String]) async throws -> [ContactUserData] {

@@ -34,22 +34,42 @@ struct InfoView: View {
                 .padding(.top, 20)
                 .padding(.horizontal, 24)
 
-                VStack(spacing: 32) {
-                    SnapyTextField(
-                        label: "사용자 ID",
-                        placeholder: "ID를 입력해주세요",
-                        text: $signUpVM.registerUserID
-                    )
-                    
-                    SnapyTextField(
-                        label: "이름",
-                        placeholder: "이름을 입력해주세요",
-                        text: $signUpVM.registerUsername
-                    )
+                VStack(spacing: 24) {
+                    VStack(spacing: 8) {
+                        SnapyTextField(
+                            label: "사용자 ID",
+                            placeholder: "ID를 입력해주세요",
+                            text: $signUpVM.registerUserID
+                        )
+
+                        Text("영문, 숫자, 밑줄(_), 마침표(.)만 사용 가능합니다")
+                            .font(.system(size: 12))
+                            .foregroundColor(.customGray300)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        if let msg = signUpVM.userIDValidationMessage {
+                            Text(msg)
+                                .font(.system(size: 12))
+                                .foregroundColor(.red)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+
+                    VStack(spacing: 8) {
+                        SnapyTextField(
+                            label: "이름",
+                            placeholder: "이름을 입력해주세요",
+                            text: $signUpVM.registerUsername
+                        )
+
+                        Text("다른 사용자에게 표시되는 이름입니다")
+                            .font(.system(size: 12))
+                            .foregroundColor(.customGray300)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 40)
-                
 
                 if let error = signUpVM.errorMessage {
                     Text(error)

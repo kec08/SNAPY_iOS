@@ -34,24 +34,46 @@ struct PasswordView: View {
                 .padding(.top, 20)
                 .padding(.horizontal, 24)
 
-                VStack(spacing: 32) {
-                    SnapyTextField(
-                        label: "비밀번호",
-                        placeholder: "비밀번호를 입력해주세요",
-                        text: $signUpVM.registerPassword,
-                        isSecure: true
-                    )
-                    
-                    SnapyTextField(
-                        label: "비밀번호 확인",
-                        placeholder: "비밀번호를 다시 입력해주세요",
-                        text: $signUpVM.registerPasswordConfirm,
-                        isSecure: true
-                    )
+                VStack(spacing: 24) {
+                    VStack(spacing: 8) {
+                        SnapyTextField(
+                            label: "비밀번호",
+                            placeholder: "비밀번호를 입력해주세요",
+                            text: $signUpVM.registerPassword,
+                            isSecure: true
+                        )
+
+                        Text("영문, 숫자 포함 8자 이상 입력해주세요")
+                            .font(.system(size: 12))
+                            .foregroundColor(.customGray300)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        if let msg = signUpVM.passwordValidationMessage {
+                            Text(msg)
+                                .font(.system(size: 12))
+                                .foregroundColor(.red)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+
+                    VStack(spacing: 8) {
+                        SnapyTextField(
+                            label: "비밀번호 확인",
+                            placeholder: "비밀번호를 다시 입력해주세요",
+                            text: $signUpVM.registerPasswordConfirm,
+                            isSecure: true
+                        )
+
+                        if let msg = signUpVM.passwordConfirmValidationMessage {
+                            Text(msg)
+                                .font(.system(size: 12))
+                                .foregroundColor(.red)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 40)
-                
 
                 if let error = signUpVM.errorMessage {
                     Text(error)

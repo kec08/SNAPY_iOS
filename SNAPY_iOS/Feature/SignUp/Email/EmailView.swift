@@ -34,17 +34,28 @@ struct EmailView: View {
                 .padding(.top, 20)
                 .padding(.horizontal, 24)
 
-                VStack(spacing: 32) {
+                VStack(spacing: 8) {
                     SnapyTextField(
                         label: "이메일",
                         placeholder: "이메일을 입력해주세요",
                         text: $signUpVM.registerEmail,
                         keyboardType: .emailAddress
                     )
+
+                    Text("example@email.com 형식으로 입력해주세요")
+                        .font(.system(size: 12))
+                        .foregroundColor(.customGray300)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    if let msg = signUpVM.emailValidationMessage {
+                        Text(msg)
+                            .font(.system(size: 12))
+                            .foregroundColor(.red)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 40)
-                
 
                 if let error = signUpVM.errorMessage {
                     Text(error)

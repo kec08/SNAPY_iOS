@@ -66,6 +66,23 @@ final class AuthService {
             if let body = String(data: response.data, encoding: .utf8) {
                 print("[AuthService] 회원가입 응답 \(body)")
             }
+
+            // 서버 에러 상태 코드 처리
+            if response.statusCode == 409 {
+                // 서버 메시지 추출 시도
+                if let parsed = try? JSONDecoder().decode(BaseResponse<EmptyData>.self, from: response.data) {
+                    throw AuthError.serverError(parsed.message)
+                }
+                throw AuthError.serverError("이미 등록된 정보입니다")
+            }
+
+            guard (200..<300).contains(response.statusCode) else {
+                if let parsed = try? JSONDecoder().decode(BaseResponse<EmptyData>.self, from: response.data) {
+                    throw AuthError.serverError(parsed.message)
+                }
+                throw AuthError.serverError("서버 오류 (\(response.statusCode))")
+            }
+
             let decoded = try JSONDecoder().decode(SignUpResponse.self, from: response.data)
 
             guard decoded.success else {
