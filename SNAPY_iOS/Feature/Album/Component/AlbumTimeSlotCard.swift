@@ -18,7 +18,7 @@ struct AlbumTimeSlotCard: View {
             Text(slot.name)
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.white)
-            Text(slot.timeRange)
+            Text(photo?.capturedTimeText ?? slot.timeRange)
                 .font(.system(size: 13))
                 .foregroundColor(.customGray300)
                 .padding(.bottom, 8)

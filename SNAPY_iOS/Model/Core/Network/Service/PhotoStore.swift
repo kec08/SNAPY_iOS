@@ -30,9 +30,9 @@ enum AlbumSlot: Int, CaseIterable {
 
     var timeRange: String {
         switch self {
-        case .morning:   return "06:00 ~ 12:00"
-        case .afternoon: return "12:00 ~ 18:00"
-        case .evening:   return "18:00 ~ 06:00"
+        case .morning:   return "06:00 ~ 11:00"
+        case .afternoon: return "12:00 ~ 16:00"
+        case .evening:   return "17:00 ~ 24:00"
         case .extra1:    return "추가 촬영 1"
         case .extra2:    return "추가 촬영 2"
         }
@@ -45,30 +45,34 @@ enum TimeSlot: Int, CaseIterable {
     case morning = 0
     case afternoon = 1
     case evening = 2
+    case extra = 3      // 0-6, 11-12, 16-17 시간대
 
     static var current: TimeSlot {
         let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 6..<12:  return .morning
-        case 12..<18: return .afternoon
-        default:      return .evening
-        }
+        return from(hour: hour)
     }
 
     static func from(date: Date) -> TimeSlot {
         let hour = Calendar.current.component(.hour, from: date)
+        return from(hour: hour)
+    }
+
+    private static func from(hour: Int) -> TimeSlot {
         switch hour {
-        case 6..<12:  return .morning
-        case 12..<18: return .afternoon
-        default:      return .evening
+        case 6..<11:   return .morning
+        case 12..<16:  return .afternoon
+        case 17..<24:  return .evening
+        default:        return .extra   // 0-6, 11-12, 16-17
         }
     }
 
-    var albumSlot: AlbumSlot {
+    /// 메인 시간대의 앨범 슬롯. extra 시간대는 nil.
+    var albumSlot: AlbumSlot? {
         switch self {
         case .morning:   return .morning
         case .afternoon: return .afternoon
         case .evening:   return .evening
+        case .extra:     return nil
         }
     }
 }
@@ -241,16 +245,21 @@ final class PhotoStore: ObservableObject {
 
     // MARK: - 슬롯 자동 결정
 
-    /// 촬영 시각의 기본 시간대 슬롯이 비어있으면 그 슬롯, 차있으면 FREE_1 → FREE_2 순으로 결정.
+    /// 촬영 시각의 기본 시간대 슬롯이 비어있으면 그 슬롯, 차있거나 추가 시간대면 FREE_1 → FREE_2 순으로 결정.
     /// 모두 차있으면 nil 반환.
     private func nextAvailableType(at date: Date) -> AlbumType? {
-        let primary = TimeSlot.from(date: date).albumSlot.albumType
-
+        let timeSlot = TimeSlot.from(date: date)
         let usedTypes: Set<String> = Set(todayAlbum?.photos.map { $0.type } ?? [])
 
-        if !usedTypes.contains(primary.rawValue) {
-            return primary
+        // 메인 시간대이고 해당 슬롯이 비어있으면 배정
+        if let primarySlot = timeSlot.albumSlot {
+            let primary = primarySlot.albumType
+            if !usedTypes.contains(primary.rawValue) {
+                return primary
+            }
         }
+
+        // 메인 슬롯이 차있거나 추가 시간대면 FREE_1 → FREE_2
         if !usedTypes.contains(AlbumType.free1.rawValue) {
             return .free1
         }

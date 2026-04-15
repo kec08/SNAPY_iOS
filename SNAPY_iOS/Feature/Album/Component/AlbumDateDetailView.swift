@@ -113,7 +113,7 @@ struct AlbumDateDetailView: View {
         case .morning:
             return currentSlot == .morning ? .canTake : .missed
         case .afternoon:
-            return currentSlot == .evening ? .missed : .canTake
+            return (currentSlot == .evening || currentSlot == .extra) ? .missed : .canTake
         case .evening:
             return .canTake
         case .extra1, .extra2:

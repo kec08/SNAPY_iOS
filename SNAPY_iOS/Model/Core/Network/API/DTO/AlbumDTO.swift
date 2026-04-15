@@ -47,27 +47,31 @@ struct PhotoData: Codable, Identifiable {
     let type: String
     let frontImageUrl: String?
     let backImageUrl: String?
-    let capturedAt: String?     // "2026-04-09T09:30:00" (서버가 안 주면 nil)
+    let createdAt: String?      // "2026-04-15T11:16:23.050Z"
 
     var id: String { type }
+
+    private enum CodingKeys: String, CodingKey {
+        case type, frontImageUrl, backImageUrl, createdAt
+    }
 
     var albumType: AlbumType? { AlbumType(rawValue: type) }
     var albumSlot: AlbumSlot? { albumType?.albumSlot }
 
-    /// 촬영 시각을 "09:30" 형태로 반환. 없으면 nil.
+    /// 촬영 시각을 "11시 16분" 형태로 반환. 없으면 nil.
     var capturedTimeText: String? {
-        guard let capturedAt = capturedAt else { return nil }
+        guard let createdAt = createdAt else { return nil }
         // ISO8601 파싱 시도
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        if let date = formatter.date(from: capturedAt) {
+        if let date = formatter.date(from: createdAt) {
             let tf = DateFormatter()
             tf.dateFormat = "HH시 mm분"
             tf.locale = Locale(identifier: "ko_KR")
             return tf.string(from: date)
         }
         // "T" 기준으로 시간 부분만 추출 시도
-        if let timepart = capturedAt.split(separator: "T").last {
+        if let timepart = createdAt.split(separator: "T").last {
             let hhmm = String(timepart.prefix(5))  // "09:30"
             let parts = hhmm.split(separator: ":")
             if parts.count == 2 {
