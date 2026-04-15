@@ -64,16 +64,12 @@ final class FriendViewModel: ObservableObject {
             for friend in filtered {
                 Task { [weak self] in
                     guard let self else { return }
-                    do {
-                        let mutuals = try await FriendService.shared.getMutualFriends(handle: friend.handle)
+                    let mutuals = (try? await FriendService.shared.getMutualFriends(handle: friend.handle)) ?? []
+                    if !mutuals.isEmpty, let text = self.buildMutualText(mutuals: mutuals, isContact: false) {
                         print("[FriendVM] 겹친구 \(friend.handle): \(mutuals.count)명")
-                        if !mutuals.isEmpty, let text = self.buildMutualText(mutuals: mutuals, isContact: false) {
-                            if let idx = self.suggestedFriends.firstIndex(where: { $0.handle == friend.handle }) {
-                                self.suggestedFriends[idx].mutualText = text
-                            }
+                        if let idx = self.suggestedFriends.firstIndex(where: { $0.handle == friend.handle }) {
+                            self.suggestedFriends[idx].mutualText = text
                         }
-                    } catch {
-                        print("[FriendVM] 겹친구 조회 실패 \(friend.handle): \(error)")
                     }
                 }
             }

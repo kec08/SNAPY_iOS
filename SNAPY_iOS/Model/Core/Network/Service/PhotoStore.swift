@@ -216,12 +216,14 @@ final class PhotoStore: ObservableObject {
         selectedDateAlbum?.photoCount ?? selectedDateAlbum?.photos.count ?? 0
     }
 
-    /// monthAlbums 에서 해당 날짜의 albumId 찾기
+    /// monthAlbums 또는 calendarCache 에서 해당 날짜의 albumId 찾기
     func albumId(for date: Date) -> Int? {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         let dateString = formatter.string(from: date)
+        // monthAlbums 먼저 확인, 없으면 calendarCache 에서 조회
         return monthAlbums.first { $0.albumDate == dateString }?.albumId
+            ?? calendarCache[dateString]?.albumId
     }
 
     // MARK: - 업로드
