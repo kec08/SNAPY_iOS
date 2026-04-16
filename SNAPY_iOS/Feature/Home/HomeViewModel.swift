@@ -38,7 +38,6 @@ struct StoryItem: Identifiable {
 final class HomeViewModel: ObservableObject {
     @Published var stories: [StoryItem] = []
     @Published var feedPosts: [HomeFeedPost] = []
-    @Published var showPublishSheet = false
 
     init() {
         loadMockData()
