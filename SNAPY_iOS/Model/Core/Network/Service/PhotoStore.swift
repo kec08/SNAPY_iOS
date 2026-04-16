@@ -102,7 +102,17 @@ final class PhotoStore: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    private init() {}
+    /// 마지막으로 게시한 날짜 ("yyyy-MM-dd"). UserDefaults에 영속화.
+    @Published private(set) var lastPublishedDate: String? {
+        didSet {
+            UserDefaults.standard.set(lastPublishedDate, forKey: Self.lastPublishedDateKey)
+        }
+    }
+    private static let lastPublishedDateKey = "PhotoStore.lastPublishedDate"
+
+    private init() {
+        self.lastPublishedDate = UserDefaults.standard.string(forKey: Self.lastPublishedDateKey)
+    }
 
     // MARK: - 조회
 
@@ -268,6 +278,32 @@ final class PhotoStore: ObservableObject {
             return .free2
         }
         return nil
+    }
+
+    // MARK: - 게시 가능 여부 (하루 1회 제한)
+
+    /// 오늘 이미 게시했는지 여부.
+    var hasPublishedToday: Bool {
+        guard let last = lastPublishedDate else { return false }
+        return last == Self.todayDateString()
+    }
+
+    /// 지금 게시할 수 있으면 nil, 이미 했으면 친절한 안내 메시지 반환.
+    func cannotPublishMessage() -> String? {
+        guard hasPublishedToday else { return nil }
+        return "오늘은 이미 게시했어요!\n내일 다시 만나요 🐧"
+    }
+
+    /// 게시 성공 시 호출 — 오늘 날짜를 마킹.
+    func markPublishedToday() {
+        lastPublishedDate = Self.todayDateString()
+    }
+
+    private static func todayDateString() -> String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "ko_KR")
+        return f.string(from: Date())
     }
 
     // MARK: - 촬영 가능 여부

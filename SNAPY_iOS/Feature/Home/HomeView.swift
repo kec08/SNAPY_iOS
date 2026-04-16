@@ -41,7 +41,7 @@ struct HomeView: View {
 
                 // 게시 플로팅 버튼 → 페이지 단위로 이동
                 NavigationLink {
-                    PublishPreviewView()
+                    PublishPreviewView(homeViewModel: viewModel)
                 } label: {
                     Image(systemName: "paperplane.fill")
                         .font(.system(size: 20))

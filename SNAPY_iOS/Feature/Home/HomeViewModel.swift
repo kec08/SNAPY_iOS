@@ -13,15 +13,20 @@ import Combine
 
 struct HomeFeedPost: Identifiable {
     let id = UUID()
-    let profileImage: String
+    let profileImage: String        // asset 이름 또는 URL (http로 시작하면 URL로 인식)
     let displayName: String
     let handle: String
     let date: String
-    let images: [String]
+    let images: [String]            // asset 이름 또는 URL 혼용 가능
     var isLiked: Bool = false
     var likeCount: Int = 0
     var commentCount: Int = 0
     var isStorySeen: Bool = true
+}
+
+extension String {
+    /// 이미지 문자열이 URL인지 (http/https로 시작) — 피드/스토리에서 asset vs URL 분기에 사용
+    var isImageURL: Bool { hasPrefix("http") }
 }
 
 struct StoryItem: Identifiable {
@@ -92,5 +97,34 @@ final class HomeViewModel: ObservableObject {
             feedPosts[idx].isLiked.toggle()
             feedPosts[idx].likeCount += feedPosts[idx].isLiked ? 1 : -1
         }
+    }
+
+    // MARK: - 게시 결과를 피드 맨 위에 추가
+
+    /// 오늘 게시한 앨범의 사진들을 피드 맨 앞에 prepend.
+    /// 사용자 정보는 임시 기본값 사용 (추후 ProfileStore 연동 가능).
+    func prependPublishedPost(photos: [PhotoData],
+                              displayName: String = "은찬",
+                              handle: String = "silver_c_Id",
+                              profileImage: String = "Profile_img") {
+        let urls = photos.compactMap { $0.backImageUrl }.filter { !$0.isEmpty }
+        guard !urls.isEmpty else { return }
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "M월 d일"
+        let dateText = formatter.string(from: Date())
+
+        let post = HomeFeedPost(
+            profileImage: profileImage,
+            displayName: displayName,
+            handle: handle,
+            date: dateText,
+            images: urls,
+            likeCount: 0,
+            commentCount: 0,
+            isStorySeen: false
+        )
+        feedPosts.insert(post, at: 0)
     }
 }

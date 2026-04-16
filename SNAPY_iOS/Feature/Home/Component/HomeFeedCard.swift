@@ -21,9 +21,7 @@ struct HomeFeedCard: View {
                 Button {
                     // 스토리 화면 이동
                 } label: {
-                    Image(post.profileImage)
-                        .resizable()
-                        .scaledToFill()
+                    profileImageView
                         .frame(width: 36, height: 36)
                         .clipShape(Circle())
                         .padding(3)
@@ -65,9 +63,7 @@ struct HomeFeedCard: View {
             // 사진 슬라이더
             TabView(selection: $currentPage) {
                 ForEach(Array(post.images.enumerated()), id: \.offset) { index, imageName in
-                    Image(imageName)
-                        .resizable()
-                        .scaledToFit()
+                    feedImageView(for: imageName)
                         .frame(maxWidth: .infinity)
                         .clipped()
                         .tag(index)
@@ -134,6 +130,52 @@ struct HomeFeedCard: View {
             ImageCommentSection()
                 .padding(.horizontal, 14)
                 .padding(.bottom, 12)
+        }
+    }
+
+    // MARK: - 이미지 분기 (asset vs URL)
+
+    @ViewBuilder
+    private var profileImageView: some View {
+        if post.profileImage.isImageURL, let url = URL(string: post.profileImage) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .success(let image):
+                    image.resizable().scaledToFill()
+                case .failure, .empty:
+                    Color.customGray500
+                @unknown default:
+                    Color.customGray500
+                }
+            }
+        } else {
+            Image(post.profileImage)
+                .resizable()
+                .scaledToFill()
+        }
+    }
+
+    @ViewBuilder
+    private func feedImageView(for source: String) -> some View {
+        if source.isImageURL, let url = URL(string: source) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .success(let image):
+                    image.resizable().scaledToFit()
+                case .failure:
+                    Color.customGray500.overlay(
+                        Image(systemName: "photo").foregroundColor(.customGray300)
+                    )
+                case .empty:
+                    Color.customGray500.overlay(ProgressView().tint(.white))
+                @unknown default:
+                    Color.customGray500
+                }
+            }
+        } else {
+            Image(source)
+                .resizable()
+                .scaledToFit()
         }
     }
 }

@@ -159,6 +159,32 @@ final class AlbumService {
         }
     }
 
+    // MARK: - 게시 (publish)
+
+    /// /api/albums/{albumId}/publish — 앨범을 피드에 공개한다.
+    func publish(albumId: Int) async throws -> AlbumPublishData {
+        let response = try await requestWithRefresh(.publish(albumId: albumId))
+        print("[AlbumService] publish 응답 코드 \(response.statusCode)")
+        if let body = String(data: response.data, encoding: .utf8) {
+            print("[AlbumService] publish 응답 본문 \(body)")
+        }
+        guard (200..<300).contains(response.statusCode) else {
+            let msg = extractErrorMessage(from: response.data, statusCode: response.statusCode)
+            throw AlbumError.serverError(msg)
+        }
+        do {
+            let decoded = try JSONDecoder().decode(AlbumPublishResponse.self, from: response.data)
+            guard decoded.success, let data = decoded.data else {
+                throw AlbumError.serverError(decoded.message)
+            }
+            return data
+        } catch let err as AlbumError {
+            throw err
+        } catch {
+            throw AlbumError.decodingFailed
+        }
+    }
+
     // MARK: - 캘린더 전체 조회
 
     /// /api/albums/calendar — 사용자의 모든 앨범을 한 번에 가져온다.
