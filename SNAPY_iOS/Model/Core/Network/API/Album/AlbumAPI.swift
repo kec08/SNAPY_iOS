@@ -14,6 +14,7 @@ enum AlbumAPI {
     case upload(front: UIImage, back: UIImage, type: AlbumType)
     case fetchToday
     case fetchByMonth(month: Int)
+    case fetchCalendar
     case fetchDetail(albumId: Int)
 }
 
@@ -31,6 +32,8 @@ extension AlbumAPI: TargetType {
             return "/api/albums/today"
         case .fetchByMonth:
             return "/api/albums"
+        case .fetchCalendar:
+            return "/api/albums/calendar"
         case .fetchDetail(let albumId):
             return "/api/albums/\(albumId)"
         }
@@ -40,7 +43,7 @@ extension AlbumAPI: TargetType {
         switch self {
         case .upload:
             return .post
-        case .fetchToday, .fetchByMonth, .fetchDetail:
+        case .fetchToday, .fetchByMonth, .fetchCalendar, .fetchDetail:
             return .get
         }
     }
@@ -77,7 +80,7 @@ extension AlbumAPI: TargetType {
                 encoding: URLEncoding.queryString
             )
 
-        case .fetchToday, .fetchDetail:
+        case .fetchToday, .fetchCalendar, .fetchDetail:
             return .requestPlain
         }
     }

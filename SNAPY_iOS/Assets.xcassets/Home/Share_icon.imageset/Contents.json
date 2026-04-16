@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "mynaui_send-solid.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

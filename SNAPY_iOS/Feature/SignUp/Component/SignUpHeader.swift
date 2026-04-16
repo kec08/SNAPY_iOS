@@ -13,7 +13,7 @@ struct SignUpHeader: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack {
-                Image("Login_TextLogo")
+                Image("SNAPY_logo")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 100, height: 25)

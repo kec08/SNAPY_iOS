@@ -71,10 +71,8 @@ struct AlbumCalendarView: View {
             if months.isEmpty {
                 months = generateMonths(count: 5)
             }
-            // 2. 5개월치 데이터를 캘린더 전용 캐시에 로드
-            let monthNumbers = months.map { calendar.component(.month, from: $0) }
-            let uniqueMonths = Array(Set(monthNumbers)).sorted()
-            await photoStore.loadCalendarMonths(uniqueMonths)
+            // 2. 캘린더 전체 데이터를 한 번에 로드
+            await photoStore.loadCalendar()
         }
         .navigationDestination(isPresented: $showAlbumDetail) {
             if let date = selectedAlbumDate {

@@ -19,7 +19,7 @@ struct registerCompleteView: View {
                 HStack {
                     Spacer()
                     
-                    Image("Login_TextLogo")
+                    Image("SNAPY_logo")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 100, height: 25)

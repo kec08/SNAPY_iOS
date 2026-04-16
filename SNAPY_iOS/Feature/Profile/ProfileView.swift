@@ -25,7 +25,12 @@ struct ProfileView: View {
                                 .background(Color.Gray500)
 
                         // 피드 그리드
-                        ProfileFeedGrid(posts: viewModel.feedPosts)
+                        ProfileFeedGrid(
+                            posts: viewModel.feedPosts,
+                            displayName: viewModel.username,
+                            handle: viewModel.handle,
+                            profileImage: viewModel.profileImage
+                        )
                     }
                 }
                 .ignoresSafeArea(edges: .top)

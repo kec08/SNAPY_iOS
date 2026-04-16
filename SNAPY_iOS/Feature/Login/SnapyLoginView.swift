@@ -24,7 +24,7 @@ struct SnapyLoginView: View {
                         .scaledToFit()
                         .frame(height: 34)
                     
-                    Image("Login_TextLogo")
+                    Image("SNAPY_logo")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 130, height: 28)

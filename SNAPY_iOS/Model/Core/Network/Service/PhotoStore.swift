@@ -146,17 +146,18 @@ final class PhotoStore: ObservableObject {
         }
     }
 
-    /// 캘린더용: 여러 달을 로드해서 calendarCache 딕셔너리에 저장
-    func loadCalendarMonths(_ months: [Int]) async {
-        for month in months {
-            do {
-                let list = try await AlbumService.shared.fetchAlbums(month: month)
-                for item in list {
-                    calendarCache[item.albumDate] = item
-                }
-            } catch {
-                // 개별 월 실패는 무시
+    /// 캘린더용: 전체 앨범을 한 번에 받아서 calendarCache 에 저장
+    func loadCalendar() async {
+        do {
+            let list = try await AlbumService.shared.fetchCalendar()
+            // 새 응답으로 캐시를 통째로 교체 (오래된 항목 제거)
+            var newCache: [String: AlbumListItemData] = [:]
+            for item in list {
+                newCache[item.albumDate] = item
             }
+            calendarCache = newCache
+        } catch {
+            // 실패 시 기존 캐시 유지
         }
     }
 
