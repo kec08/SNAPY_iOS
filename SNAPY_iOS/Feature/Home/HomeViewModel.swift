@@ -14,10 +14,14 @@ import Combine
 struct HomeFeedPost: Identifiable {
     let id = UUID()
     let profileImage: String
-    let username: String
+    let displayName: String
+    let handle: String
     let date: String
     let images: [String]
     var isLiked: Bool = false
+    var likeCount: Int = 0
+    var commentCount: Int = 0
+    var isStorySeen: Bool = true
 }
 
 struct StoryItem: Identifiable {
@@ -53,21 +57,33 @@ final class HomeViewModel: ObservableObject {
         feedPosts = [
             HomeFeedPost(
                 profileImage: "Profile_img",
-                username: "silver_c_Id",
-                date: "+9 7/8",
-                images: ["Mock_img1", "Mock_img2", "Mock_img3", "Mock_img4"]
+                displayName: "은찬",
+                handle: "silver_c_Id",
+                date: "4월 15일",
+                images: ["Mock_img1", "Mock_img2", "Mock_img3", "Mock_img4"],
+                likeCount: 12,
+                commentCount: 3,
+                isStorySeen: false
             ),
             HomeFeedPost(
                 profileImage: "Profile_img",
-                username: "silver_c_Id",
-                date: "+9 7/8",
-                images: ["Mock_img2", "Mock_img3"]
+                displayName: "은찬",
+                handle: "silver_c_Id",
+                date: "4월 14일",
+                images: ["Mock_img2", "Mock_img3"],
+                likeCount: 5,
+                commentCount: 1,
+                isStorySeen: true
             ),
             HomeFeedPost(
                 profileImage: "Profile_img",
-                username: "silver_c_Id",
-                date: "+9 7/8",
-                images: ["Mock_img3", "Mock_img4", "Mock_img5"]
+                displayName: "은찬",
+                handle: "silver_c_Id",
+                date: "4월 13일",
+                images: ["Mock_img3", "Mock_img4", "Mock_img5"],
+                likeCount: 24,
+                commentCount: 7,
+                isStorySeen: false
             ),
         ]
     }
@@ -75,6 +91,7 @@ final class HomeViewModel: ObservableObject {
     func toggleLike(for post: HomeFeedPost) {
         if let idx = feedPosts.firstIndex(where: { $0.id == post.id }) {
             feedPosts[idx].isLiked.toggle()
+            feedPosts[idx].likeCount += feedPosts[idx].isLiked ? 1 : -1
         }
     }
 }

@@ -92,8 +92,8 @@ final class SiginUpViewModel: ObservableObject {
 
     var userIDValidationMessage: String? {
         guard !registerUserID.isEmpty else { return nil }
-        if registerUserID.count < 3 {
-            return "아이디는 3자 이상이어야 합니다"
+        if registerUserID.count < 5 || registerUserID.count > 24 {
+            return "아이디는 5자 이상, 24자 이하로 설정 해야합니다"
         }
         if registerUserID.contains(" ") {
             return "아이디에 공백을 사용할 수 없습니다"

@@ -133,3 +133,7 @@ struct PublishPreviewSheet: View {
             )
     }
 }
+
+#Preview("PublishPreviewSheet") {
+    PublishPreviewSheet()
+}

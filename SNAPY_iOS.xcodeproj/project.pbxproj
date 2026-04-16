@@ -53,6 +53,7 @@
 		BC706F5B2F8FEF910093C0B8 /* HomeFeedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F5A2F8FEF900093C0B8 /* HomeFeedCard.swift */; };
 		BC706F5D2F8FEFB00093C0B8 /* HomeStoryBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F5C2F8FEFAF0093C0B8 /* HomeStoryBar.swift */; };
 		BC706F5F2F8FEFC20093C0B8 /* PublishPreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F5E2F8FEFC10093C0B8 /* PublishPreviewSheet.swift */; };
+		BC706F612F906B600093C0B8 /* HomeHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F602F906B5E0093C0B8 /* HomeHeader.swift */; };
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
 		BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */; };
@@ -162,6 +163,7 @@
 		BC706F5A2F8FEF900093C0B8 /* HomeFeedCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeFeedCard.swift; sourceTree = "<group>"; };
 		BC706F5C2F8FEFAF0093C0B8 /* HomeStoryBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeStoryBar.swift; sourceTree = "<group>"; };
 		BC706F5E2F8FEFC10093C0B8 /* PublishPreviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishPreviewSheet.swift; sourceTree = "<group>"; };
+		BC706F602F906B5E0093C0B8 /* HomeHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeHeader.swift; sourceTree = "<group>"; };
 		BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginView.swift; sourceTree = "<group>"; };
 		BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyTextField.swift; sourceTree = "<group>"; };
 		BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailView.swift; sourceTree = "<group>"; };
@@ -579,6 +581,7 @@
 		BCD816CD2F6A41500028AE50 /* Component */ = {
 			isa = PBXGroup;
 			children = (
+				BC706F602F906B5E0093C0B8 /* HomeHeader.swift */,
 				BC706F5E2F8FEFC10093C0B8 /* PublishPreviewSheet.swift */,
 				BC706F5C2F8FEFAF0093C0B8 /* HomeStoryBar.swift */,
 				BC706F5A2F8FEF900093C0B8 /* HomeFeedCard.swift */,
@@ -860,6 +863,7 @@
 				BC6674E52F72F50D009CBF8D /* AlbumHeader.swift in Sources */,
 				BC706E572F8D096F0093C0B8 /* FriendRequestRow.swift in Sources */,
 				BCED9C1C2F6E61A9008E47BB /* PhotoPreviewView.swift in Sources */,
+				BC706F612F906B600093C0B8 /* HomeHeader.swift in Sources */,
 				BCED9C1E2F6E61A9008E47BB /* CameraPreviewView.swift in Sources */,
 				BC706E552F8CFDA30093C0B8 /* FriendHeaderView.swift in Sources */,
 				BC1DC2FB2F68CF730016A4CD /* AuthService.swift in Sources */,

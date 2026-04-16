@@ -13,7 +13,8 @@ struct HomeStoryBar: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 13) {
-                ForEach(stories) { story in
+                let sorted = stories.sorted { !$0.isSeen && $1.isSeen }
+                ForEach(sorted) { story in
                     Button {
                         // 스토리 화면 이동
                     } label: {
@@ -66,7 +67,7 @@ struct HomeStoryBar: View {
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
-                        lineWidth: 1
+                        lineWidth: 0.7
                     )
             )
 
