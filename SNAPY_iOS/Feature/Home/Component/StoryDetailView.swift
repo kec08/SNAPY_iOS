@@ -17,8 +17,6 @@ struct StoryDetailView: View {
     @State private var currentImageIndex: Int = 0
     @State private var progress: CGFloat = 0.0
     @State private var isPaused: Bool = false
-    @State private var scale: CGFloat = 1.0
-    @State private var zoomAnchor: UnitPoint = .center
     @State private var hideUI: Bool = false
     @State private var isLiked: Bool = false
     @State private var timer: Timer?
@@ -59,18 +57,8 @@ struct StoryDetailView: View {
                     }
                 }
                 .offset(x: -CGFloat(currentUserIndex) * (geo.size.width + pageGap) + dragX)
-                .scaleEffect(max(scale, 0.5), anchor: zoomAnchor)
-                .gesture(pinchGesture(in: geo.size))
 
-                // 좌우 탭 영역 (인스타: 왼쪽 25% 이전, 오른쪽 75% 다음)
-                HStack(spacing: 0) {
-                    Color.white.opacity(0.001)
-                        .onTapGesture { goToPrevious() }
-                        .frame(width: geo.size.width * 0.25)
 
-                    Color.white.opacity(0.001)
-                        .onTapGesture { goToNext() }
-                }
             }
             .offset(y: dragY)
             .opacity(1.0 - Double(max(dragY, 0)) / 600.0)
@@ -99,6 +87,14 @@ struct StoryDetailView: View {
 
         ZStack {
             storyImageContent(imageName: images[safeImageIndex], size: size)
+                .contentShape(Rectangle())
+                .onTapGesture { location in
+                    if location.x < size.width * 0.25 {
+                        goToPrevious()
+                    } else {
+                        goToNext()
+                    }
+                }
 
             if !hideUI {
                 VStack(spacing: 0) {
@@ -123,13 +119,13 @@ struct StoryDetailView: View {
                                             )
                                     }
                                 }
-                                .frame(height: 2.5)
+                                .frame(height: 8)
                             }
                         }
                         .padding(.horizontal, 12)
 
                         // 프로필 정보
-                        HStack(spacing: 10) {
+                        HStack(spacing: 12) {
                             profileImageView(name: story.profileImage)
                                 .frame(width: 40, height: 40)
                                 .clipShape(Circle())
@@ -141,12 +137,14 @@ struct StoryDetailView: View {
 
                                 Text(story.username)
                                     .font(.system(size: 12, weight: .medium))
-                                    .foregroundColor(.textWhite)
+                                    .foregroundColor(.customGray200)
                             }
 
                             Text("6시간")
-                                .font(.system(size: 12))
-                                .foregroundColor(.customGray100)
+                                .font(.system(size: 13))
+                                .foregroundColor(.customGray200)
+                                .padding(.leading, 4)
+                            
 
                             Spacer()
                         }
@@ -155,6 +153,16 @@ struct StoryDetailView: View {
                     .padding(.top, 16)
 
                     Spacer()
+
+                    // 하단 그라데이션
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.3)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 100)
+                    .allowsHitTesting(false)
+                    .padding(.bottom, -60)
 
                     // 하단 버튼
                     if userIndex == currentUserIndex {
@@ -177,8 +185,8 @@ struct StoryDetailView: View {
                                     .foregroundColor(.white)
                             }
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 50)
+                        .padding(.horizontal, 22)
+                        .padding(.bottom, 30)
                     }
                 }
             }
@@ -315,41 +323,12 @@ struct StoryDetailView: View {
             .onEnded { _ in
                 isPaused = false
                 hideUI = false
-                if scale != 1.0 {
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        scale = 1.0
-                    }
-                }
-            }
-    }
-
-    private func pinchGesture(in size: CGSize) -> some Gesture {
-        MagnifyGesture()
-            .onChanged { value in
-                isPaused = true
-                hideUI = true
-                scale = value.magnification
-
-                let loc = value.startLocation
-                zoomAnchor = UnitPoint(
-                    x: loc.x / size.width,
-                    y: loc.y / size.height
-                )
-            }
-            .onEnded { _ in
-                withAnimation(.easeOut(duration: 0.25)) {
-                    scale = 1.0
-                }
-                isPaused = false
-                hideUI = false
             }
     }
 
     private func combinedDragGesture(screenWidth: CGFloat) -> some Gesture {
         DragGesture(minimumDistance: 30)
             .onChanged { value in
-                guard scale <= 1.05 else { return }
-
                 let hDrag = abs(value.translation.width)
                 let vDrag = abs(value.translation.height)
 
@@ -371,8 +350,6 @@ struct StoryDetailView: View {
                 }
             }
             .onEnded { value in
-                guard scale <= 1.05 else { return }
-
                 if isDraggingV {
                     if dragY > 120 {
                         withAnimation(.easeOut(duration: 0.3)) {
