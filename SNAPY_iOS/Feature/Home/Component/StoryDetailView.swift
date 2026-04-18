@@ -13,29 +13,26 @@ struct StoryDetailView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    // 현재 유저 스토리 인덱스
     @State private var currentUserIndex: Int = 0
-    // 현재 사진 인덱스
     @State private var currentImageIndex: Int = 0
-    // 타이머 진행률 (0.0 ~ 1.0)
     @State private var progress: CGFloat = 0.0
-    // 타이머 일시정지
     @State private var isPaused: Bool = false
-    // 핀치 줌 스케일
     @State private var scale: CGFloat = 1.0
-    @State private var lastScale: CGFloat = 1.0
-    // 드래그로 유저 전환
-    @State private var dragOffset: CGFloat = 0.0
-    // UI 숨기기 (꾹 누를 때)
+    @State private var zoomAnchor: UnitPoint = .center
     @State private var hideUI: Bool = false
-    // 좋아요
     @State private var isLiked: Bool = false
-
-    // 타이머
     @State private var timer: Timer?
+
+    // 좌우 드래그
+    @State private var dragX: CGFloat = 0.0
+    @State private var isDraggingH: Bool = false
+    // 아래 드래그 dismiss
+    @State private var dragY: CGFloat = 0.0
+    @State private var isDraggingV: Bool = false
 
     private let autoAdvanceInterval: TimeInterval = 10.0
     private let timerTickInterval: TimeInterval = 0.05
+    private let pageGap: CGFloat = 6
 
     var currentStory: StoryItem {
         stories[currentUserIndex]
@@ -50,50 +47,38 @@ struct StoryDetailView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                // 스토리 이미지
-                storyImageView(size: geo.size)
-                    .scaleEffect(scale)
-                    .gesture(pinchGesture)
-
-                // UI 오버레이
-                if !hideUI {
-                    VStack(spacing: 0) {
-                        // 상단 영역
-                        topOverlay
-                            .padding(.top, geo.safeAreaInsets.top)
-
-                        Spacer()
-
-                        // 하단 버튼
-                        bottomBar
-                            .padding(.bottom, geo.safeAreaInsets.bottom + 20)
+                // 페이지 슬라이드
+                HStack(spacing: pageGap) {
+                    ForEach(0..<stories.count, id: \.self) { userIndex in
+                        storyPage(
+                            for: userIndex,
+                            imageIndex: userIndex == currentUserIndex ? currentImageIndex : 0,
+                            size: geo.size
+                        )
+                        .cornerRadius(isDraggingH ? 16 : 0)
                     }
                 }
+                .offset(x: -CGFloat(currentUserIndex) * (geo.size.width + pageGap) + dragX)
+                .scaleEffect(max(scale, 0.5), anchor: zoomAnchor)
+                .gesture(pinchGesture(in: geo.size))
 
-                // 좌우 탭 영역
+                // 좌우 탭 영역 (인스타: 왼쪽 25% 이전, 오른쪽 75% 다음)
                 HStack(spacing: 0) {
-                    // 왼쪽 탭 → 이전
-                    Color.clear
-                        .contentShape(Rectangle())
+                    Color.white.opacity(0.001)
                         .onTapGesture { goToPrevious() }
-                        .frame(width: geo.size.width * 0.3)
+                        .frame(width: geo.size.width * 0.25)
 
-                    Spacer()
-
-                    // 오른쪽 탭 → 다음
-                    Color.clear
-                        .contentShape(Rectangle())
+                    Color.white.opacity(0.001)
                         .onTapGesture { goToNext() }
-                        .frame(width: geo.size.width * 0.3)
                 }
             }
+            .offset(y: dragY)
+            .opacity(1.0 - Double(max(dragY, 0)) / 600.0)
             .ignoresSafeArea()
-            // 꾹 누르기 제스처
             .simultaneousGesture(longPressGesture)
-            // 유저 전환 드래그
-            .gesture(horizontalDragGesture)
-            .offset(x: dragOffset)
+            .simultaneousGesture(combinedDragGesture(screenWidth: geo.size.width))
         }
+        .background(Color.black.opacity(1.0 - Double(max(dragY, 0)) / 400.0))
         .statusBarHidden()
         .onAppear {
             currentUserIndex = initialIndex
@@ -104,11 +89,108 @@ struct StoryDetailView: View {
         }
     }
 
-    // MARK: - 스토리 이미지
+    // MARK: - 개별 스토리 페이지
 
     @ViewBuilder
-    private func storyImageView(size: CGSize) -> some View {
-        let imageName = currentImages[currentImageIndex]
+    private func storyPage(for userIndex: Int, imageIndex: Int, size: CGSize) -> some View {
+        let story = stories[userIndex]
+        let images = story.images
+        let safeImageIndex = min(imageIndex, images.count - 1)
+
+        ZStack {
+            storyImageContent(imageName: images[safeImageIndex], size: size)
+
+            if !hideUI {
+                VStack(spacing: 0) {
+                    // 상단
+                    VStack(spacing: 8) {
+                        // 프로그레스 바
+                        HStack(spacing: 4) {
+                            ForEach(0..<images.count, id: \.self) { idx in
+                                GeometryReader { barGeo in
+                                    ZStack(alignment: .leading) {
+                                        RoundedRectangle(cornerRadius: 2)
+                                            .fill(Color.white.opacity(0.3))
+                                            .frame(height: 2.5)
+
+                                        RoundedRectangle(cornerRadius: 2)
+                                            .fill(Color.white)
+                                            .frame(
+                                                width: userIndex == currentUserIndex
+                                                    ? barWidth(for: idx, totalWidth: barGeo.size.width)
+                                                    : 0,
+                                                height: 2.5
+                                            )
+                                    }
+                                }
+                                .frame(height: 2.5)
+                            }
+                        }
+                        .padding(.horizontal, 12)
+
+                        // 프로필 정보
+                        HStack(spacing: 10) {
+                            profileImageView(name: story.profileImage)
+                                .frame(width: 40, height: 40)
+                                .clipShape(Circle())
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(story.displayName)
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(.textWhite)
+
+                                Text(story.username)
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(.textWhite)
+                            }
+
+                            Text("6시간")
+                                .font(.system(size: 12))
+                                .foregroundColor(.customGray100)
+
+                            Spacer()
+                        }
+                        .padding(.horizontal, 14)
+                    }
+                    .padding(.top, 16)
+
+                    Spacer()
+
+                    // 하단 버튼
+                    if userIndex == currentUserIndex {
+                        HStack(spacing: 20) {
+                            Spacer()
+
+                            Button {
+                                isLiked.toggle()
+                            } label: {
+                                Image(systemName: isLiked ? "heart.fill" : "heart")
+                                    .font(.system(size: 28))
+                                    .foregroundColor(isLiked ? .red : .white)
+                            }
+
+                            Button {
+                                // 공유
+                            } label: {
+                                Image(systemName: "paperplane")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 50)
+                    }
+                }
+            }
+        }
+        .frame(width: size.width, height: size.height)
+        .clipped()
+    }
+
+    // MARK: - 이미지 컨텐츠
+
+    @ViewBuilder
+    private func storyImageContent(imageName: String, size: CGSize) -> some View {
         if imageName.isImageURL, let url = URL(string: imageName) {
             AsyncImage(url: url) { phase in
                 switch phase {
@@ -131,66 +213,9 @@ struct StoryDetailView: View {
         }
     }
 
-    // MARK: - 상단 오버레이
-
-    private var topOverlay: some View {
-        VStack(spacing: 10) {
-            // 프로그레스 바
-            HStack(spacing: 4) {
-                ForEach(0..<currentImages.count, id: \.self) { index in
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            // 배경 바
-                            RoundedRectangle(cornerRadius: 2)
-                                .fill(Color.white.opacity(0.3))
-                                .frame(height: 2.5)
-
-                            // 진행 바
-                            RoundedRectangle(cornerRadius: 2)
-                                .fill(Color.white)
-                                .frame(
-                                    width: barWidth(for: index, totalWidth: geo.size.width),
-                                    height: 2.5
-                                )
-                        }
-                    }
-                    .frame(height: 2.5)
-                }
-            }
-            .padding(.horizontal, 12)
-            .padding(.top, 10)
-
-            // 프로필 정보
-            HStack(spacing: 12) {
-                // 프로필 이미지
-                profileImage
-                    .frame(width: 40, height: 40)
-                    .clipShape(Circle())
-
-                // 이름 + 아이디 (세로)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(currentStory.displayName)
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(.white)
-
-                    Text(currentStory.username)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
-                }
-
-                Text("6시간")
-                    .font(.system(size: 12))
-                    .foregroundColor(.white.opacity(0.5))
-
-                Spacer()
-            }
-            .padding(.horizontal, 14)
-        }
-    }
-
     @ViewBuilder
-    private var profileImage: some View {
-        if currentStory.profileImage.isImageURL, let url = URL(string: currentStory.profileImage) {
+    private func profileImageView(name: String) -> some View {
+        if name.isImageURL, let url = URL(string: name) {
             AsyncImage(url: url) { phase in
                 switch phase {
                 case .success(let image):
@@ -200,48 +225,21 @@ struct StoryDetailView: View {
                 }
             }
         } else {
-            Image(currentStory.profileImage)
+            Image(name)
                 .resizable()
                 .scaledToFill()
         }
     }
 
-    // MARK: - 하단 바
-
-    private var bottomBar: some View {
-        HStack(spacing: 20) {
-            Spacer()
-
-            // 하트 버튼
-            Button {
-                isLiked.toggle()
-            } label: {
-                Image(systemName: isLiked ? "heart.fill" : "heart")
-                    .font(.system(size: 28))
-                    .foregroundColor(isLiked ? .red : .white)
-            }
-
-            // 공유 버튼
-            Button {
-                // 공유 액션
-            } label: {
-                Image(systemName: "paperplane")
-                    .font(.system(size: 24))
-                    .foregroundColor(.white)
-            }
-        }
-        .padding(.horizontal, 20)
-    }
-
-    // MARK: - 프로그레스 바 너비 계산
+    // MARK: - 프로그레스 바
 
     private func barWidth(for index: Int, totalWidth: CGFloat) -> CGFloat {
         if index < currentImageIndex {
-            return totalWidth // 이미 본 것
+            return totalWidth
         } else if index == currentImageIndex {
-            return totalWidth * progress // 현재 진행 중
+            return totalWidth * progress
         } else {
-            return 0 // 아직 안 본 것
+            return 0
         }
     }
 
@@ -253,9 +251,8 @@ struct StoryDetailView: View {
         timer = Timer.scheduledTimer(withTimeInterval: timerTickInterval, repeats: true) { _ in
             Task { @MainActor in
                 guard !isPaused else { return }
-
                 progress += timerTickInterval / autoAdvanceInterval
-                if progress >= 1.0 {
+                if progress >= 0.7 {
                     goToNext()
                 }
             }
@@ -267,44 +264,16 @@ struct StoryDetailView: View {
         timer = nil
     }
 
-    // MARK: - 이전/다음 네비게이션
+    // MARK: - 네비게이션
 
     private func goToNext() {
         if currentImageIndex < currentImages.count - 1 {
-            // 같은 유저의 다음 사진
             currentImageIndex += 1
             progress = 0
         } else if currentUserIndex < stories.count - 1 {
-            // 다음 유저 스토리
-            currentUserIndex += 1
-            currentImageIndex = 0
-            progress = 0
-            isLiked = false
-        } else {
-            // 마지막 → 닫기
-            dismiss()
-        }
-    }
-
-    private func goToPrevious() {
-        if currentImageIndex > 0 {
-            // 같은 유저의 이전 사진
-            currentImageIndex -= 1
-            progress = 0
-        } else if currentUserIndex > 0 {
-            // 이전 유저 스토리의 마지막 사진
-            currentUserIndex -= 1
-            currentImageIndex = stories[currentUserIndex].images.count - 1
-            progress = 0
-            isLiked = false
-        }
-    }
-
-    // MARK: - 유저 전환 (드래그)
-
-    private func goToNextUser() {
-        if currentUserIndex < stories.count - 1 {
-            currentUserIndex += 1
+            withAnimation(.easeInOut(duration: 0.35)) {
+                currentUserIndex += 1
+            }
             currentImageIndex = 0
             progress = 0
             isLiked = false
@@ -314,10 +283,15 @@ struct StoryDetailView: View {
         }
     }
 
-    private func goToPreviousUser() {
-        if currentUserIndex > 0 {
-            currentUserIndex -= 1
-            currentImageIndex = 0
+    private func goToPrevious() {
+        if currentImageIndex > 0 {
+            currentImageIndex -= 1
+            progress = 0
+        } else if currentUserIndex > 0 {
+            withAnimation(.easeInOut(duration: 0.35)) {
+                currentUserIndex -= 1
+            }
+            currentImageIndex = stories[currentUserIndex].images.count - 1
             progress = 0
             isLiked = false
             startTimer()
@@ -341,63 +315,111 @@ struct StoryDetailView: View {
             .onEnded { _ in
                 isPaused = false
                 hideUI = false
-                // 줌 해제
                 if scale != 1.0 {
                     withAnimation(.easeOut(duration: 0.2)) {
                         scale = 1.0
-                        lastScale = 1.0
                     }
                 }
             }
     }
 
-    private var pinchGesture: some Gesture {
+    private func pinchGesture(in size: CGSize) -> some Gesture {
         MagnifyGesture()
             .onChanged { value in
                 isPaused = true
                 hideUI = true
-                scale = lastScale * value.magnification
+                scale = value.magnification
+
+                let loc = value.startLocation
+                zoomAnchor = UnitPoint(
+                    x: loc.x / size.width,
+                    y: loc.y / size.height
+                )
             }
             .onEnded { _ in
-                lastScale = scale
-                if scale < 1.0 {
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        scale = 1.0
-                        lastScale = 1.0
-                    }
+                withAnimation(.easeOut(duration: 0.25)) {
+                    scale = 1.0
                 }
                 isPaused = false
                 hideUI = false
             }
     }
 
-    private var horizontalDragGesture: some Gesture {
+    private func combinedDragGesture(screenWidth: CGFloat) -> some Gesture {
         DragGesture(minimumDistance: 30)
             .onChanged { value in
-                // 줌 중에는 드래그 무시
-                guard scale <= 1.0 else { return }
-                dragOffset = value.translation.width
-            }
-            .onEnded { value in
-                guard scale <= 1.0 else {
-                    dragOffset = 0
-                    return
-                }
+                guard scale <= 1.05 else { return }
 
-                let threshold: CGFloat = 80
-                withAnimation(.easeOut(duration: 0.25)) {
-                    if value.translation.width < -threshold {
-                        // 왼쪽으로 스와이프 → 다음 유저
-                        dragOffset = 0
-                        goToNextUser()
-                    } else if value.translation.width > threshold {
-                        // 오른쪽으로 스와이프 → 이전 유저
-                        dragOffset = 0
-                        goToPreviousUser()
-                    } else {
-                        dragOffset = 0
+                let hDrag = abs(value.translation.width)
+                let vDrag = abs(value.translation.height)
+
+                // 방향 잠금
+                if !isDraggingH && !isDraggingV {
+                    if vDrag > hDrag && value.translation.height > 0 {
+                        isDraggingV = true
+                    } else if hDrag > vDrag {
+                        isDraggingH = true
                     }
                 }
+
+                if isDraggingV {
+                    dragY = max(value.translation.height, 0)
+                    isPaused = true
+                } else if isDraggingH {
+                    dragX = value.translation.width
+                    isPaused = true
+                }
+            }
+            .onEnded { value in
+                guard scale <= 1.05 else { return }
+
+                if isDraggingV {
+                    if dragY > 120 {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            dragY = UIScreen.main.bounds.height
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            dismiss()
+                        }
+                    } else {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                            dragY = 0
+                        }
+                        isPaused = false
+                    }
+                } else if isDraggingH {
+                    let threshold: CGFloat = screenWidth * 0.25
+
+                    if value.translation.width < -threshold && currentUserIndex < stories.count - 1 {
+                        withAnimation(.easeOut(duration: 0.35)) {
+                            currentUserIndex += 1
+                            dragX = 0
+                        }
+                        currentImageIndex = 0
+                        progress = 0
+                        isLiked = false
+                        isPaused = false
+                        startTimer()
+                    } else if value.translation.width > threshold && currentUserIndex > 0 {
+                        withAnimation(.easeOut(duration: 0.35)) {
+                            currentUserIndex -= 1
+                            dragX = 0
+                        }
+                        currentImageIndex = stories[currentUserIndex].images.count - 1
+                        progress = 0
+                        isLiked = false
+                        isPaused = false
+                        startTimer()
+                    } else {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                            dragX = 0
+                        }
+                        isPaused = false
+                    }
+                }
+
+                isDraggingH = false
+                isDraggingV = false
             }
     }
 }
