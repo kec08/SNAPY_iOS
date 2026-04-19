@@ -10,6 +10,7 @@ import SwiftUI
 struct StoryDetailView: View {
     let stories: [StoryItem]
     let initialIndex: Int
+    var onStorySeen: ((Int) -> Void)?   // storyId 전달
 
     @Environment(\.dismiss) private var dismiss
 
@@ -71,6 +72,8 @@ struct StoryDetailView: View {
         .onAppear {
             currentUserIndex = initialIndex
             startTimer()
+            // 현재 스토리를 본 것으로 마킹
+            onStorySeen?(stories[initialIndex].storyId)
         }
         .onDisappear {
             stopTimer()
@@ -170,7 +173,7 @@ struct StoryDetailView: View {
                             Spacer()
 
                             Button {
-                                isLiked.toggle()
+                                toggleLikeAPI()
                             } label: {
                                 Image(systemName: isLiked ? "heart.fill" : "heart")
                                     .font(.system(size: 28))
@@ -285,6 +288,7 @@ struct StoryDetailView: View {
             currentImageIndex = 0
             progress = 0
             isLiked = false
+            onStorySeen?(stories[currentUserIndex].storyId)
             startTimer()
         } else {
             dismiss()
@@ -303,6 +307,44 @@ struct StoryDetailView: View {
             progress = 0
             isLiked = false
             startTimer()
+        }
+    }
+
+    // MARK: - 좋아요 API
+
+    private func toggleLikeAPI() {
+        let story = currentStory
+        let photos = story.photos
+        guard currentImageIndex < photos.count else {
+            isLiked.toggle()
+            return
+        }
+        let photo = photos[currentImageIndex]
+        guard let type = photo.albumType else {
+            isLiked.toggle()
+            return
+        }
+
+        // 즉시 UI 반영 (낙관적 업데이트)
+        isLiked.toggle()
+
+        Task {
+            do {
+                let result = try await StoryService.shared.toggleLike(
+                    storyId: story.storyId,
+                    type: type
+                )
+                // 서버 결과와 동기화
+                await MainActor.run {
+                    isLiked = result.liked
+                }
+            } catch {
+                print("[StoryDetail] 좋아요 실패: \(error)")
+                // 실패 시 롤백
+                await MainActor.run {
+                    isLiked.toggle()
+                }
+            }
         }
     }
 
@@ -406,8 +448,18 @@ struct StoryDetailView: View {
 #Preview("StoryDetail") {
     StoryDetailView(
         stories: [
-            StoryItem(profileImage: "Profile_img", bannerImage: "Mock_img1", displayName: "은찬", username: "silver_c_Id", images: ["Mock_img1", "Mock_img2", "Mock_img3"], isSeen: false),
-            StoryItem(profileImage: "Mock_img1", bannerImage: "Mock_img2", displayName: "민수", username: "user_02", images: ["Mock_img2", "Mock_img4"], isSeen: false),
+            StoryItem(
+                storyId: 1,
+                profileImage: "Profile_img",
+                bannerImage: "Mock_img1",
+                displayName: "은찬",
+                username: "silver_c_Id",
+                photos: [
+                    StoryPhotoSet(type: "MORNING", frontImageUrl: "Mock_img1", backImageUrl: "Mock_img1", createdAt: nil),
+                    StoryPhotoSet(type: "LUNCH", frontImageUrl: "Mock_img2", backImageUrl: "Mock_img2", createdAt: nil),
+                ],
+                isSeen: false
+            ),
         ],
         initialIndex: 0
     )

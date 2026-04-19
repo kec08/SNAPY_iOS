@@ -14,6 +14,7 @@ private struct StoryPresentation: Identifiable {
 
 struct HomeStoryBar: View {
     let stories: [StoryItem]
+    var onStorySeen: ((Int) -> Void)?   // storyId를 전달해서 본 것으로 마킹
     @State private var storyPresentation: StoryPresentation?
 
     private var sortedStories: [StoryItem] {
@@ -37,7 +38,8 @@ struct HomeStoryBar: View {
         .fullScreenCover(item: $storyPresentation) { presentation in
             StoryDetailView(
                 stories: sortedStories,
-                initialIndex: presentation.index
+                initialIndex: presentation.index,
+                onStorySeen: onStorySeen
             )
         }
     }
@@ -51,9 +53,7 @@ struct HomeStoryBar: View {
         VStack(spacing: 6) {
             ZStack {
                 // 배너 배경
-                Image(story.bannerImage)
-                    .resizable()
-                    .scaledToFill()
+                storyImageView(name: story.bannerImage)
                     .frame(width: 60, height: 100)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
@@ -63,9 +63,7 @@ struct HomeStoryBar: View {
                     .frame(width: 60, height: 100)
 
                 // 프로필 사진
-                Image(story.profileImage)
-                    .resizable()
-                    .scaledToFill()
+                storyImageView(name: story.profileImage)
                     .frame(width: 36, height: 36)
                     .clipShape(Circle())
                     .overlay(
@@ -95,15 +93,35 @@ struct HomeStoryBar: View {
                 .padding(.top, 5)
         }
     }
+
+    /// URL이면 AsyncImage, 아니면 로컬 Image
+    @ViewBuilder
+    private func storyImageView(name: String) -> some View {
+        if name.isImageURL, let url = URL(string: name) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .success(let image):
+                    image.resizable().scaledToFill()
+                default:
+                    Color.customGray500
+                }
+            }
+        } else if !name.isEmpty {
+            Image(name)
+                .resizable()
+                .scaledToFill()
+        } else {
+            Color.customGray500
+        }
+    }
 }
 
 struct HomeFeed_Previews: PreviewProvider {
     static var previews: some View {
         HomeStoryBar(
             stories: [
-                StoryItem(profileImage: "Profile_img", bannerImage: "Mock_img1", displayName: "은찬", username: "eunchan", images: ["Mock_img1", "Mock_img2"], isSeen: false),
-                StoryItem(profileImage: "Profile_img", bannerImage: "Mock_img2", displayName: "민수", username: "user_02", images: ["Mock_img2"], isSeen: true),
-                StoryItem(profileImage: "Profile_img", bannerImage: "Mock_img3", displayName: "지현", username: "user_03", images: ["Mock_img3", "Mock_img4"], isSeen: false),
+                StoryItem(storyId: 1, profileImage: "Profile_img", bannerImage: "Mock_img1", displayName: "은찬", username: "eunchan", photos: [], isSeen: false),
+                StoryItem(storyId: 2, profileImage: "Profile_img", bannerImage: "Mock_img2", displayName: "민수", username: "user_02", photos: [], isSeen: true),
             ]
         )
         .background(Color.black)

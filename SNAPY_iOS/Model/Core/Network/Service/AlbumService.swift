@@ -92,6 +92,10 @@ final class AlbumService {
 
     func fetchToday() async throws -> DailyAlbumData {
         let response = try await requestWithRefresh(.fetchToday)
+        print("[AlbumService] fetchToday 응답 코드 \(response.statusCode)")
+        if let body = String(data: response.data, encoding: .utf8) {
+            print("[AlbumService] fetchToday 응답 본문 \(body)")
+        }
         guard (200..<300).contains(response.statusCode) else {
             let msg = extractErrorMessage(from: response.data, statusCode: response.statusCode)
             throw AlbumError.serverError(msg)
@@ -105,6 +109,7 @@ final class AlbumService {
         } catch let err as AlbumError {
             throw err
         } catch {
+            print("[AlbumService] fetchToday 디코딩 실패: \(error)")
             throw AlbumError.decodingFailed
         }
     }
