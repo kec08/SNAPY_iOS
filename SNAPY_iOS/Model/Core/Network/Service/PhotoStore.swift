@@ -102,7 +102,17 @@ final class PhotoStore: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    private init() {}
+    /// 마지막으로 게시한 날짜 ("yyyy-MM-dd"). UserDefaults에 영속화.
+    @Published private(set) var lastPublishedDate: String? {
+        didSet {
+            UserDefaults.standard.set(lastPublishedDate, forKey: Self.lastPublishedDateKey)
+        }
+    }
+    private static let lastPublishedDateKey = "PhotoStore.lastPublishedDate"
+
+    private init() {
+        self.lastPublishedDate = UserDefaults.standard.string(forKey: Self.lastPublishedDateKey)
+    }
 
     // MARK: - 조회
 
@@ -112,8 +122,11 @@ final class PhotoStore: ObservableObject {
         do {
             let data = try await AlbumService.shared.fetchToday()
             todayAlbum = data
+            let types = data.photos.map { $0.type }
+            print("[PhotoStore] loadToday 성공 - albumId=\(data.albumId), photoCount=\(data.photoCount), types=\(types)")
         } catch {
             errorMessage = error.localizedDescription
+            print("[PhotoStore] loadToday 실패: \(error)")
             // today 가 없으면 nil 처리
             todayAlbum = nil
         }
@@ -240,8 +253,18 @@ final class PhotoStore: ObservableObject {
         guard let type = type else {
             throw AlbumError.serverError("앨범이 가득 찼습니다 (5/5)")
         }
-        _ = try await AlbumService.shared.upload(front: front, back: back, type: type)
+        let uploadResult = try await AlbumService.shared.upload(front: front, back: back, type: type)
         await loadToday()
+
+        // 앨범 업로드 후 자동으로 publish → 스토리에 공개
+        do {
+            _ = try await AlbumService.shared.publish(albumId: uploadResult.albumId)
+            markPublishedToday()
+            print("[PhotoStore] 자동 publish 성공 (albumId=\(uploadResult.albumId))")
+        } catch {
+            // publish 실패해도 사진 저장은 이미 완료된 상태
+            print("[PhotoStore] 자동 publish 실패: \(error)")
+        }
     }
 
     // MARK: - 슬롯 자동 결정
@@ -270,10 +293,39 @@ final class PhotoStore: ObservableObject {
         return nil
     }
 
+    // MARK: - 게시 가능 여부 (하루 1회 제한)
+
+    /// 오늘 이미 게시했는지 여부.
+    var hasPublishedToday: Bool {
+        guard let last = lastPublishedDate else { return false }
+        return last == Self.todayDateString()
+    }
+
+    /// 지금 게시할 수 있으면 nil, 이미 했으면 친절한 안내 메시지 반환.
+    func cannotPublishMessage() -> String? {
+        guard hasPublishedToday else { return nil }
+        return "오늘은 이미 게시했어요!\n내일 다시 만나요 🐧"
+    }
+
+    /// 게시 성공 시 호출 — 오늘 날짜를 마킹.
+    func markPublishedToday() {
+        lastPublishedDate = Self.todayDateString()
+    }
+
+    private static func todayDateString() -> String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "ko_KR")
+        return f.string(from: Date())
+    }
+
     // MARK: - 촬영 가능 여부
 
     /// 지금 사진을 찍을 수 있으면 nil, 없으면 안내 메시지 반환
     func cannotTakePhotoMessage() -> String? {
+        let usedTypes = Set(todayAlbum?.photos.map { $0.type } ?? [])
+        print("[PhotoStore] cannotTakePhotoMessage - todayAlbum=\(todayAlbum != nil), usedTypes=\(usedTypes)")
+
         // 슬롯이 남아있으면 촬영 가능
         if nextAvailableType(at: Date()) != nil { return nil }
 

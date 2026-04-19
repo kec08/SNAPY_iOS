@@ -21,7 +21,12 @@ struct HomeView: View {
                         HomeHeader()
 
                         // 스토리
-                        HomeStoryBar(stories: viewModel.stories)
+                        HomeStoryBar(
+                            stories: viewModel.stories,
+                            onStorySeen: { storyId in
+                                viewModel.markStorySeen(storyId: storyId)
+                            }
+                        )
 
                         // 피드
                         LazyVStack(spacing: 30) {
@@ -39,9 +44,14 @@ struct HomeView: View {
                     }
                 }
 
-                // 게시 플로팅 버튼 → 페이지 단위로 이동
+                // 홈 화면 보일 때마다 스토리 새로고침
+                .onAppear {
+                    Task { await viewModel.loadStories() }
+                }
+
+                // 게시 버튼
                 NavigationLink {
-                    PublishPreviewView()
+                    PublishPreviewView(homeViewModel: viewModel)
                 } label: {
                     Image(systemName: "paperplane.fill")
                         .font(.system(size: 20))

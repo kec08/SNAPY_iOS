@@ -12,13 +12,14 @@ extension Date {
     return formatter.string(from: self)
   }
 
-  /// "아침" / "점심" / "저녁"
+  /// "아침" / "점심" / "저녁" / "추가"
   var timeSlotName: String {
     let hour = Calendar.current.component(.hour, from: self)
     switch hour {
-    case 6..<12:  return "아침"
-    case 12..<18: return "점심"
-    default:      return "저녁"
+    case 6..<11:  return "아침"
+    case 12..<16: return "점심"
+    case 17..<24: return "저녁"
+    default:      return "추가"   // 0-6, 11-12, 16-17
     }
   }
 

@@ -15,6 +15,9 @@ enum ProfileAPI {
     case fetchUserProfile(handle: String)                // GET  /api/users/{handle}
     case updateProfileImage(image: UIImage)               // PATCH /api/users/me/profile-image
     case updateBackgroundImage(image: UIImage)             // PATCH /api/users/me/background-image
+    case fetchSettings                                   // GET  /api/users/me/settings
+    case updateFeedVisibility(Visibility)                 // PATCH /api/users/me/settings/feed-visibility
+    case updatePastAlbumVisibility(Visibility)            // PATCH /api/users/me/settings/past-album-visibility
 }
 
 extension ProfileAPI: TargetType {
@@ -33,21 +36,28 @@ extension ProfileAPI: TargetType {
             return "/api/users/me/profile-image"
         case .updateBackgroundImage:
             return "/api/users/me/background-image"
+        case .fetchSettings:
+            return "/api/users/me/settings"
+        case .updateFeedVisibility:
+            return "/api/users/me/settings/feed-visibility"
+        case .updatePastAlbumVisibility:
+            return "/api/users/me/settings/past-album-visibility"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .fetchMyProfile, .fetchUserProfile:
+        case .fetchMyProfile, .fetchUserProfile, .fetchSettings:
             return .get
-        case .updateProfileImage, .updateBackgroundImage:
+        case .updateProfileImage, .updateBackgroundImage,
+             .updateFeedVisibility, .updatePastAlbumVisibility:
             return .patch
         }
     }
 
     var task: Moya.Task {
         switch self {
-        case .fetchMyProfile, .fetchUserProfile:
+        case .fetchMyProfile, .fetchUserProfile, .fetchSettings:
             return .requestPlain
 
         case .updateProfileImage(let image), .updateBackgroundImage(let image):
@@ -59,6 +69,13 @@ extension ProfileAPI: TargetType {
                 mimeType: "image/jpeg"
             )
             return .uploadMultipart([formData])
+
+        case .updateFeedVisibility(let v):
+            let body = UpdateVisibilityRequest(visibility: v.rawValue)
+            return .requestJSONEncodable(body)
+        case .updatePastAlbumVisibility(let v):
+            let body = UpdateVisibilityRequest(visibility: v.rawValue)
+            return .requestJSONEncodable(body)
         }
     }
 

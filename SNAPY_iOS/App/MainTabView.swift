@@ -86,10 +86,14 @@ struct MainTabView: View {
     }
 
     private func tryOpenCamera() {
-        if let message = photoStore.cannotTakePhotoMessage() {
-            showToast(message)
-        } else {
-            showCamera = true
+        Task {
+            // 최신 todayAlbum을 서버에서 가져온 뒤 슬롯 체크
+            await photoStore.loadToday()
+            if let message = photoStore.cannotTakePhotoMessage() {
+                showToast(message)
+            } else {
+                showCamera = true
+            }
         }
     }
 

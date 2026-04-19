@@ -41,16 +41,16 @@ struct ProfileView: View {
                     HStack(spacing: 8) {
                         ShareLink(item: "SNAPY 프로필: @\(viewModel.handle)\nhttps://snapy.app/@\(viewModel.handle)") {
                             Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 18, weight: .semibold))
+                                .font(.system(size: 20, weight: .semibold))
                                 .foregroundStyle(Color.primary)
                         }
                         .buttonStyle(.glass)
 
-                        Button {
-                            // 설정
+                        NavigationLink {
+                            SettingsView()
                         } label: {
                             Image(systemName: "gearshape")
-                                .font(.system(size: 18, weight: .semibold))
+                                .font(.system(size: 20, weight: .semibold))
                                 .foregroundStyle(Color.primary)
                         }
                         .buttonStyle(.glass)

@@ -139,6 +139,9 @@ struct RootView: View {
                 screen = .login
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .didLogout)) { _ in
+            screen = .login
+        }
     }
 }
 

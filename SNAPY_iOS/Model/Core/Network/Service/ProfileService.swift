@@ -80,6 +80,38 @@ final class ProfileService {
         return data.backgroundImageUrl
     }
 
+    // MARK: - 설정 조회
+
+    func fetchSettings() async throws -> UserSettingData {
+        let response = try await requestWithRefresh(.fetchSettings)
+        guard (200..<300).contains(response.statusCode) else {
+            throw ProfileError.serverError(extractMessage(from: response))
+        }
+        let decoded = try JSONDecoder().decode(UserSettingResponse.self, from: response.data)
+        guard decoded.success, let data = decoded.data else {
+            throw ProfileError.serverError(decoded.message)
+        }
+        return data
+    }
+
+    // MARK: - 피드 & 스토리 공개 범위 변경
+
+    func updateFeedVisibility(_ visibility: Visibility) async throws {
+        let response = try await requestWithRefresh(.updateFeedVisibility(visibility))
+        guard (200..<300).contains(response.statusCode) else {
+            throw ProfileError.serverError(extractMessage(from: response))
+        }
+    }
+
+    // MARK: - 과거 앨범 공개 범위 변경
+
+    func updatePastAlbumVisibility(_ visibility: Visibility) async throws {
+        let response = try await requestWithRefresh(.updatePastAlbumVisibility(visibility))
+        guard (200..<300).contains(response.statusCode) else {
+            throw ProfileError.serverError(extractMessage(from: response))
+        }
+    }
+
     // MARK: - 401 재시도
 
     private func requestWithRefresh(_ target: ProfileAPI) async throws -> Response {

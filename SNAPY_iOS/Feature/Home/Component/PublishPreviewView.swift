@@ -10,9 +10,37 @@ import SwiftUI
 struct PublishPreviewView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var photoStore = PhotoStore.shared
+    @ObservedObject var homeViewModel: HomeViewModel
+
+    @State private var isPublishing = false
+    @State private var errorMessage: String?
+    @State private var showConfirmDialog = false
 
     private var todayPhotos: [PhotoData] {
         photoStore.todayAlbum?.photos ?? []
+    }
+
+    private var todayAlbumId: Int? {
+        photoStore.todayAlbum?.albumId
+    }
+
+    /// 현재 시각 기준 아직 지나지 않은 식사 슬롯 이름들.
+    /// 게시하면 이 슬롯들의 사진은 더 이상 추가할 수 없으므로 사용자에게 안내한다.
+    private var upcomingMealSlots: [String] {
+        let hour = Calendar.current.component(.hour, from: Date())
+        var result: [String] = []
+        if hour < 6  { result.append("아침") }
+        if hour < 12 { result.append("점심") }
+        if hour < 17 { result.append("저녁") }
+        return result
+    }
+
+    /// 확인 다이얼로그에 띄울 안내 문구.
+    private var upcomingSlotWarningMessage: String {
+        let names = upcomingMealSlots
+        guard !names.isEmpty else { return "" }
+        let joined = names.joined(separator: ", ")
+        return "지금 게시하면 \(joined) 게시물은 올라가지 않아요.\n그래도 게시할까요?"
     }
 
     var body: some View {
@@ -34,6 +62,13 @@ struct PublishPreviewView: View {
         .toolbar(.hidden, for: .navigationBar)
         .task {
             await photoStore.loadToday()
+        }
+        .alert("아직 남은 시간대가 있어요",
+               isPresented: $showConfirmDialog) {
+            Button("취소", role: .cancel) { }
+            Button("게시할게요") { performPublish() }
+        } message: {
+            Text(upcomingSlotWarningMessage)
         }
     }
 
@@ -98,22 +133,85 @@ struct PublishPreviewView: View {
 
             Spacer()
 
-            // 게시하기 버튼 (기능은 추후)
+            // 이미 게시한 날엔 안내문구, 그 외엔 에러 메시지(있다면)
+            if photoStore.hasPublishedToday {
+                Text(photoStore.cannotPublishMessage() ?? "")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.customGray300)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 10)
+            } else if let errorMessage {
+                Text(errorMessage)
+                    .font(.system(size: 13))
+                    .foregroundColor(.customRed)
+                    .padding(.bottom, 6)
+            }
+
+            // 게시하기 버튼
             Button {
-                // TODO: 게시 로직 연결
+                publishAlbum()
             } label: {
                 HStack(spacing: 8) {
-                    Image(systemName: "paperplane")
-                        .font(.system(size: 20, weight: .medium))
-                    Text("게시하기")
-                        .font(.system(size: 22, weight: .semibold))
+                    if isPublishing {
+                        ProgressView()
+                            .tint(.textWhite)
+                    } else {
+                        Image(systemName: "paperplane")
+                            .font(.system(size: 20, weight: .medium))
+                        Text(photoStore.hasPublishedToday ? "오늘 게시 완료" : "게시하기")
+                            .font(.system(size: 22, weight: .semibold))
+                    }
                 }
-                .foregroundColor(.textWhite)
+                .foregroundColor(photoStore.hasPublishedToday ? .customGray300 : .textWhite)
                 .frame(maxWidth: .infinity)
                 .frame(height: 52)
             }
+            .disabled(isPublishing || todayAlbumId == nil || photoStore.hasPublishedToday)
             .padding(.horizontal, 24)
             .padding(.bottom, 50)
+        }
+    }
+
+    // MARK: - 게시 동작
+
+    /// 버튼 탭 핸들러: 1) 일일 제한 체크 → 2) 미게시 슬롯이 있으면 확인 다이얼로그 → 3) 바로 게시
+    private func publishAlbum() {
+        if let blockMsg = photoStore.cannotPublishMessage() {
+            errorMessage = blockMsg
+            return
+        }
+        guard todayAlbumId != nil, !isPublishing else { return }
+
+        if upcomingMealSlots.isEmpty {
+            performPublish()
+        } else {
+            showConfirmDialog = true
+        }
+    }
+
+    /// 실제 publish API 호출.
+    private func performPublish() {
+        guard let albumId = todayAlbumId, !isPublishing else { return }
+        isPublishing = true
+        errorMessage = nil
+
+        let photosToPost = todayPhotos
+
+        Task {
+            do {
+                _ = try await AlbumService.shared.publish(albumId: albumId)
+                photoStore.markPublishedToday()
+                homeViewModel.prependPublishedPost(photos: photosToPost)
+                isPublishing = false
+                dismiss()
+            } catch let error as AlbumError {
+                errorMessage = error.errorDescription
+                isPublishing = false
+            } catch {
+                errorMessage = error.localizedDescription
+                isPublishing = false
+            }
         }
     }
 
@@ -201,6 +299,6 @@ private struct PublishPhotoCard: View {
 
 #Preview("PublishPreviewView") {
     NavigationStack {
-        PublishPreviewView()
+        PublishPreviewView(homeViewModel: HomeViewModel())
     }
 }

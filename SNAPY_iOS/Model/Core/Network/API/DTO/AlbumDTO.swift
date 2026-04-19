@@ -107,9 +107,17 @@ struct AlbumUploadData: Codable {
     let photoCount: Int
 }
 
+/// 게시(publish) 응답 data
+struct AlbumPublishData: Codable {
+    let albumId: Int
+    let status: String          // "PUBLISHED"
+    let publishedAt: String     // "2026-04-13T15:51:17.6160497"
+}
+
 // MARK: - typealias
 
-typealias AlbumUploadResponse = BaseResponse<AlbumUploadData>
-typealias TodayAlbumResponse  = BaseResponse<DailyAlbumData>
-typealias AlbumListResponse   = BaseResponse<[AlbumListItemData]>
-typealias AlbumDetailResponse = BaseResponse<[AlbumListItemData]>
+typealias AlbumUploadResponse  = BaseResponse<AlbumUploadData>
+typealias TodayAlbumResponse   = BaseResponse<DailyAlbumData>
+typealias AlbumListResponse    = BaseResponse<[AlbumListItemData]>
+typealias AlbumDetailResponse  = BaseResponse<[AlbumListItemData]>
+typealias AlbumPublishResponse = BaseResponse<AlbumPublishData>

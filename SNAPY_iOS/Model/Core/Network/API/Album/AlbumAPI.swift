@@ -16,6 +16,7 @@ enum AlbumAPI {
     case fetchByMonth(month: Int)
     case fetchCalendar
     case fetchDetail(albumId: Int)
+    case publish(albumId: Int)
 }
 
 extension AlbumAPI: TargetType {
@@ -36,12 +37,14 @@ extension AlbumAPI: TargetType {
             return "/api/albums/calendar"
         case .fetchDetail(let albumId):
             return "/api/albums/\(albumId)"
+        case .publish(let albumId):
+            return "/api/albums/\(albumId)/publish"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .upload:
+        case .upload, .publish:
             return .post
         case .fetchToday, .fetchByMonth, .fetchCalendar, .fetchDetail:
             return .get
@@ -80,7 +83,7 @@ extension AlbumAPI: TargetType {
                 encoding: URLEncoding.queryString
             )
 
-        case .fetchToday, .fetchCalendar, .fetchDetail:
+        case .fetchToday, .fetchCalendar, .fetchDetail, .publish:
             return .requestPlain
         }
     }
