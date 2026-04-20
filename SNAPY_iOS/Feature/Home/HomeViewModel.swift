@@ -11,13 +11,21 @@ import Combine
 
 // MARK: - 홈 피드 모델
 
+/// 피드에 표시할 사진 한 장 (front + back)
+struct FeedPhoto: Identifiable {
+    let id = UUID()
+    let frontImageUrl: String?   // 전면 카메라 (PIP)
+    let backImageUrl: String?    // 후면 카메라 (배경)
+    let assetName: String?       // 로컬 에셋 이름 (mock용)
+}
+
 struct HomeFeedPost: Identifiable {
     let id = UUID()
     let profileImage: String        // asset 이름 또는 URL (http로 시작하면 URL로 인식)
     let displayName: String
     let handle: String
     let date: String
-    let images: [String]            // asset 이름 또는 URL 혼용 가능
+    let photos: [FeedPhoto]         // front+back 쌍 배열
     var isLiked: Bool = false
     var likeCount: Int = 0
     var commentCount: Int = 0
@@ -136,7 +144,12 @@ final class HomeViewModel: ObservableObject {
                 displayName: "은찬",
                 handle: "silver_c_Id",
                 date: "4월 15일",
-                images: ["Mock_img1", "Mock_img2", "Mock_img3", "Mock_img4"],
+                photos: [
+                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img1"),
+                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img2"),
+                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img3"),
+                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img4"),
+                ],
                 likeCount: 12,
                 commentCount: 3,
                 isStorySeen: false
@@ -146,7 +159,10 @@ final class HomeViewModel: ObservableObject {
                 displayName: "은찬",
                 handle: "silver_c_Id",
                 date: "4월 14일",
-                images: ["Mock_img2", "Mock_img3"],
+                photos: [
+                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img2"),
+                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img3"),
+                ],
                 likeCount: 5,
                 commentCount: 1,
                 isStorySeen: true
@@ -156,7 +172,11 @@ final class HomeViewModel: ObservableObject {
                 displayName: "은찬",
                 handle: "silver_c_Id",
                 date: "4월 13일",
-                images: ["Mock_img3", "Mock_img4", "Mock_img5"],
+                photos: [
+                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img3"),
+                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img4"),
+                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img5"),
+                ],
                 likeCount: 24,
                 commentCount: 7,
                 isStorySeen: false
@@ -179,8 +199,13 @@ final class HomeViewModel: ObservableObject {
                               displayName: String = "은찬",
                               handle: String = "silver_c_Id",
                               profileImage: String = "Profile_img") {
-        let urls = photos.compactMap { $0.backImageUrl }.filter { !$0.isEmpty }
-        guard !urls.isEmpty else { return }
+        let feedPhotos = photos.compactMap { photo -> FeedPhoto? in
+            guard photo.backImageUrl != nil || photo.frontImageUrl != nil else { return nil }
+            return FeedPhoto(frontImageUrl: photo.frontImageUrl,
+                             backImageUrl: photo.backImageUrl,
+                             assetName: nil)
+        }
+        guard !feedPhotos.isEmpty else { return }
 
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
@@ -192,7 +217,7 @@ final class HomeViewModel: ObservableObject {
             displayName: displayName,
             handle: handle,
             date: dateText,
-            images: urls,
+            photos: feedPhotos,
             likeCount: 0,
             commentCount: 0,
             isStorySeen: false

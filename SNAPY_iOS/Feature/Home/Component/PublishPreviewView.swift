@@ -20,6 +20,11 @@ struct PublishPreviewView: View {
         photoStore.todayAlbum?.photos ?? []
     }
 
+    private var isAlreadyPublished: Bool {
+        guard let albumId = todayAlbumId else { return false }
+        return photoStore.hasPublished(albumId: albumId)
+    }
+
     private var todayAlbumId: Int? {
         photoStore.todayAlbum?.albumId
     }
@@ -133,9 +138,9 @@ struct PublishPreviewView: View {
 
             Spacer()
 
-            // 이미 게시한 날엔 안내문구, 그 외엔 에러 메시지(있다면)
-            if photoStore.hasPublishedToday {
-                Text(photoStore.cannotPublishMessage() ?? "")
+            // 이미 게시한 앨범이면 안내문구, 그 외엔 에러 메시지(있다면)
+            if isAlreadyPublished {
+                Text("오늘은 이미 게시했어요!\n내일 다시 만나요 🐧")
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.customGray300)
                     .multilineTextAlignment(.center)
@@ -159,15 +164,15 @@ struct PublishPreviewView: View {
                     } else {
                         Image(systemName: "paperplane")
                             .font(.system(size: 20, weight: .medium))
-                        Text(photoStore.hasPublishedToday ? "오늘 게시 완료" : "게시하기")
+                        Text(isAlreadyPublished ? "오늘 게시 완료" : "게시하기")
                             .font(.system(size: 22, weight: .semibold))
                     }
                 }
-                .foregroundColor(photoStore.hasPublishedToday ? .customGray300 : .textWhite)
+                .foregroundColor(isAlreadyPublished ? .customGray300 : .textWhite)
                 .frame(maxWidth: .infinity)
                 .frame(height: 52)
             }
-            .disabled(isPublishing || todayAlbumId == nil || photoStore.hasPublishedToday)
+            .disabled(isPublishing || todayAlbumId == nil || isAlreadyPublished)
             .padding(.horizontal, 24)
             .padding(.bottom, 50)
         }
@@ -175,13 +180,15 @@ struct PublishPreviewView: View {
 
     // MARK: - 게시 동작
 
-    /// 버튼 탭 핸들러: 1) 일일 제한 체크 → 2) 미게시 슬롯이 있으면 확인 다이얼로그 → 3) 바로 게시
+    /// 버튼 탭 핸들러: 1) 이미 게시한 앨범인지 체크 → 2) 미게시 슬롯 확인 → 3) 게시
     private func publishAlbum() {
-        if let blockMsg = photoStore.cannotPublishMessage() {
-            errorMessage = blockMsg
+        guard let albumId = todayAlbumId, !isPublishing else { return }
+
+        // 이미 게시한 앨범이면 차단
+        if photoStore.hasPublished(albumId: albumId) {
+            errorMessage = "오늘은 이미 게시했어요!\n내일 다시 만나요 🐧"
             return
         }
-        guard todayAlbumId != nil, !isPublishing else { return }
 
         if upcomingMealSlots.isEmpty {
             performPublish()
@@ -201,11 +208,15 @@ struct PublishPreviewView: View {
         Task {
             do {
                 _ = try await AlbumService.shared.publish(albumId: albumId)
-                photoStore.markPublishedToday()
+                photoStore.markPublished(albumId: albumId)
                 homeViewModel.prependPublishedPost(photos: photosToPost)
                 isPublishing = false
                 dismiss()
             } catch let error as AlbumError {
+                // 서버에서 "이미 게시됨" 409 → 로컬에도 마킹
+                if let desc = error.errorDescription, desc.contains("이미") {
+                    photoStore.markPublished(albumId: albumId)
+                }
                 errorMessage = error.errorDescription
                 isPublishing = false
             } catch {
