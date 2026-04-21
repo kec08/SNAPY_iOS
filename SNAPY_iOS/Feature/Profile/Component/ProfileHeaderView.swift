@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import Kingfisher
 
 struct ProfileHeaderView: View {
     @ObservedObject var viewModel: ProfileViewModel
@@ -29,17 +30,14 @@ struct ProfileHeaderView: View {
                             .scaledToFill()
                             .frame(height: 200)
                             .clipped()
-                    } else if let url = viewModel.bannerImageUrl {
-                        AsyncImage(url: URL(string: url)) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image.resizable().scaledToFill()
-                            default:
-                                Color.customDarkGray
-                            }
-                        }
-                        .frame(height: 200)
-                        .clipped()
+                    } else if let url = viewModel.bannerImageUrl, let imgUrl = URL(string: url) {
+                        KFImage(imgUrl)
+                            .resizable()
+                            .placeholder { Color.customDarkGray }
+                            .fade(duration: 0.2)
+                            .scaledToFill()
+                            .frame(height: 200)
+                            .clipped()
                     } else {
                         Color.customDarkGray
                             .frame(height: 200)
@@ -60,15 +58,12 @@ struct ProfileHeaderView: View {
                                 Image(uiImage: profileImage)
                                     .resizable()
                                     .scaledToFill()
-                            } else if let url = viewModel.profileImageUrl {
-                                AsyncImage(url: URL(string: url)) { phase in
-                                    switch phase {
-                                    case .success(let image):
-                                        image.resizable().scaledToFill()
-                                    default:
-                                        Color.customDarkGray
-                                    }
-                                }
+                            } else if let url = viewModel.profileImageUrl, let imgUrl = URL(string: url) {
+                                KFImage(imgUrl)
+                                    .resizable()
+                                    .placeholder { Color.customDarkGray }
+                                    .fade(duration: 0.2)
+                                    .scaledToFill()
                             } else {
                                 Color.customDarkGray
                             }

@@ -45,11 +45,45 @@ struct StoryItem: Identifiable {
     let displayName: String
     let username: String       // handle
     let photos: [StoryPhotoSet]  // 서버의 사진 세트 (front/back + type)
+    let createdAt: String?     // ISO8601 서버 시각
     let isSeen: Bool
 
     /// 하위 호환: 기존 images 접근이 필요한 곳에서 backImageUrl 배열로 변환
     var images: [String] {
         photos.compactMap { $0.backImageUrl }
+    }
+
+    /// createdAt → "40분 전", "3시간 전" 등 상대 시간 텍스트
+    var relativeTimeText: String {
+        guard let createdAt, !createdAt.isEmpty else { return "" }
+
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        guard let date = iso.date(from: createdAt)
+                ?? ISO8601DateFormatter().date(from: createdAt)
+                ?? Self.parseFlexible(createdAt) else {
+            return ""
+        }
+
+        let seconds = Int(Date().timeIntervalSince(date))
+        if seconds < 60 { return "방금 전" }
+        let minutes = seconds / 60
+        if minutes < 60 { return "\(minutes)분 전" }
+        let hours = minutes / 60
+        if hours < 24 { return "\(hours)시간 전" }
+        let days = hours / 24
+        return "\(days)일 전"
+    }
+
+    private static func parseFlexible(_ str: String) -> Date? {
+        let fmt = DateFormatter()
+        fmt.locale = Locale(identifier: "en_US_POSIX")
+        fmt.timeZone = TimeZone(identifier: "Asia/Seoul")
+        for format in ["yyyy-MM-dd'T'HH:mm:ss.SSSSSS", "yyyy-MM-dd'T'HH:mm:ss"] {
+            fmt.dateFormat = format
+            if let d = fmt.date(from: str) { return d }
+        }
+        return nil
     }
 }
 
@@ -95,6 +129,7 @@ final class HomeViewModel: ObservableObject {
                                 displayName: detail.username,
                                 username: detail.handle,
                                 photos: detail.photos,
+                                createdAt: detail.createdAt ?? story.createdAt,
                                 isSeen: self.seenStoryIds.contains(story.storyId)
                             )
                         } catch {
@@ -130,6 +165,7 @@ final class HomeViewModel: ObservableObject {
                 displayName: old.displayName,
                 username: old.username,
                 photos: old.photos,
+                createdAt: old.createdAt,
                 isSeen: true
             )
         }

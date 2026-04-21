@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct FriendProfileView: View {
     @Environment(\.dismiss) private var dismiss
@@ -53,15 +54,14 @@ struct FriendProfileView: View {
                 VStack(spacing: 0) {
                     // MARK: 배너
                     Button { showBannerViewer = true } label: {
-                        if let url = bannerImageUrl {
-                            AsyncImage(url: URL(string: url)) { phase in
-                                switch phase {
-                                case .success(let img): img.resizable().scaledToFill()
-                                default: Image("Banner_img").resizable().scaledToFill()
-                                }
-                            }
-                            .frame(height: 200)
-                            .clipped()
+                        if let url = bannerImageUrl, let imgUrl = URL(string: url) {
+                            KFImage(imgUrl)
+                                .resizable()
+                                .placeholder { Image("Banner_img").resizable().scaledToFill() }
+                                .fade(duration: 0.2)
+                                .scaledToFill()
+                                .frame(height: 200)
+                                .clipped()
                         } else {
                             Image("Banner_img")
                                 .resizable()
@@ -76,13 +76,12 @@ struct FriendProfileView: View {
                         HStack(alignment: .center) {
                             Button { showProfileViewer = true } label: {
                                 Group {
-                                    if let url = profileImageUrl {
-                                        AsyncImage(url: URL(string: url)) { phase in
-                                            switch phase {
-                                            case .success(let img): img.resizable().scaledToFill()
-                                            default: Image("Profile_img").resizable().scaledToFill()
-                                            }
-                                        }
+                                    if let url = profileImageUrl, let imgUrl = URL(string: url) {
+                                        KFImage(imgUrl)
+                                            .resizable()
+                                            .placeholder { Image("Profile_img").resizable().scaledToFill() }
+                                            .fade(duration: 0.2)
+                                            .scaledToFill()
                                     } else {
                                         Image("Profile_img")
                                             .resizable()

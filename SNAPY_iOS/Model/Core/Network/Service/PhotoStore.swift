@@ -278,17 +278,52 @@ final class PhotoStore: ObservableObject {
 
     // MARK: - 게시 가능 여부
 
-    /// 게시 성공 후 로컬 마킹 (같은 세션 내 중복 방지)
+    /// 게시 성공 후 로컬 마킹 (오늘 날짜 기준, UserDefaults 영구 저장)
+    /// 날짜가 바뀌면 자동으로 리셋됨
     @Published private(set) var publishedAlbumIds: Set<Int> = []
 
-    /// 이 앨범을 이미 게시했는지 (로컬 세션 캐시)
+    private let publishedKey = "publishedAlbumIds"
+    private let publishedDateKey = "publishedAlbumDate"
+
+    /// 이 앨범을 이미 게시했는지
     func hasPublished(albumId: Int) -> Bool {
-        publishedAlbumIds.contains(albumId)
+        loadPublishedIfNeeded()
+        return publishedAlbumIds.contains(albumId)
     }
 
     /// 게시 성공 시 호출
     func markPublished(albumId: Int) {
+        loadPublishedIfNeeded()
         publishedAlbumIds.insert(albumId)
+        savePublished()
+    }
+
+    /// UserDefaults에서 오늘 날짜 게시 기록 로드 (날짜 다르면 초기화)
+    private func loadPublishedIfNeeded() {
+        let today = todayString()
+        let savedDate = UserDefaults.standard.string(forKey: publishedDateKey) ?? ""
+        if savedDate != today {
+            // 날짜 바뀜 → 초기화
+            publishedAlbumIds = []
+            UserDefaults.standard.set(today, forKey: publishedDateKey)
+            UserDefaults.standard.set([Int](), forKey: publishedKey)
+        } else if publishedAlbumIds.isEmpty {
+            // 메모리 비어있으면 UserDefaults에서 복원
+            let saved = UserDefaults.standard.array(forKey: publishedKey) as? [Int] ?? []
+            publishedAlbumIds = Set(saved)
+        }
+    }
+
+    private func savePublished() {
+        UserDefaults.standard.set(Array(publishedAlbumIds), forKey: publishedKey)
+        UserDefaults.standard.set(todayString(), forKey: publishedDateKey)
+    }
+
+    private func todayString() -> String {
+        let fmt = DateFormatter()
+        fmt.dateFormat = "yyyy-MM-dd"
+        fmt.timeZone = TimeZone(identifier: "Asia/Seoul")
+        return fmt.string(from: Date())
     }
 
     // MARK: - 촬영 가능 여부

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct PublishPreviewView: View {
     @Environment(\.dismiss) private var dismiss
@@ -253,56 +254,33 @@ private struct PublishPhotoCard: View {
         GeometryReader { geo in
             ZStack(alignment: .topLeading) {
                 // 후면 (메인)
-                AsyncImage(url: URL(string: photo.backImageUrl ?? "")) { phase in
-                    switch phase {
-                    case .empty:
+                KFImage(URL(string: photo.backImageUrl ?? ""))
+                    .resizable()
+                    .placeholder {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white.opacity(0.08))
                             .overlay(ProgressView().tint(.white))
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: geo.size.width, height: geo.size.height)
-                            .clipped()
-                    case .failure:
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white.opacity(0.08))
-                            .overlay(
-                                Image(systemName: "photo")
-                                    .foregroundColor(.customGray300)
-                            )
-                    @unknown default:
-                        Color.clear
                     }
-                }
-                .frame(width: geo.size.width, height: geo.size.height)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .fade(duration: 0.2)
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
 
                 // 전면 (PIP)
-                AsyncImage(url: URL(string: photo.frontImageUrl ?? "")) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    case .empty:
-                        Color.white.opacity(0.1).overlay(ProgressView().tint(.white))
-                    case .failure:
-                        Color.white.opacity(0.1).overlay(
-                            Image(systemName: "photo").foregroundColor(.customGray300)
-                        )
-                    @unknown default:
-                        Color.clear
-                    }
-                }
-                .frame(width: geo.size.width * 0.32, height: geo.size.width * 0.42)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.black.opacity(0.4), lineWidth: 1)
-                )
-                .padding(12)
+                KFImage(URL(string: photo.frontImageUrl ?? ""))
+                    .resizable()
+                    .placeholder { Color.white.opacity(0.1) }
+                    .fade(duration: 0.2)
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: geo.size.width * 0.32, height: geo.size.width * 0.42)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.black.opacity(0.4), lineWidth: 1)
+                    )
+                    .padding(12)
             }
         }
     }

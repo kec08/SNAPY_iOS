@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct HomeFeedCard: View {
     let post: HomeFeedPost
@@ -138,16 +139,11 @@ struct HomeFeedCard: View {
     @ViewBuilder
     private var profileImageView: some View {
         if post.profileImage.isImageURL, let url = URL(string: post.profileImage) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().scaledToFill()
-                case .failure, .empty:
-                    Color.customGray500
-                @unknown default:
-                    Color.customGray500
-                }
-            }
+            KFImage(url)
+                .resizable()
+                .placeholder { Color.customGray500 }
+                .fade(duration: 0.2)
+                .scaledToFill()
         } else {
             Image(post.profileImage)
                 .resizable()
@@ -160,22 +156,13 @@ struct HomeFeedCard: View {
         ZStack(alignment: .topLeading) {
             // 배경: back 이미지 (또는 에셋)
             if let backUrl = photo.backImageUrl, let url = URL(string: backUrl) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable().scaledToFill()
-                    case .failure:
-                        Color.customGray500.overlay(
-                            Image(systemName: "photo").foregroundColor(.customGray300)
-                        )
-                    case .empty:
-                        Color.customGray500.overlay(ProgressView().tint(.white))
-                    @unknown default:
-                        Color.customGray500
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
+                KFImage(url)
+                    .resizable()
+                    .placeholder { Color.customGray500 }
+                    .fade(duration: 0.2)
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
             } else if let asset = photo.assetName {
                 Image(asset)
                     .resizable()
@@ -188,26 +175,21 @@ struct HomeFeedCard: View {
 
             // PIP: front 이미지
             if let frontUrl = photo.frontImageUrl, let url = URL(string: frontUrl) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable().scaledToFill()
-                    case .failure, .empty:
-                        EmptyView()
-                    @unknown default:
-                        EmptyView()
-                    }
-                }
-                .frame(width: 100, height: 130)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.black.opacity(0.3), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-                .padding(.top, 12)
-                .padding(.leading, 12)
+                KFImage(url)
+                    .resizable()
+                    .placeholder { Color.clear }
+                    .fade(duration: 0.2)
+                    .scaledToFill()
+                    .frame(width: 100, height: 130)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.black.opacity(0.3), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                    .padding(.top, 12)
+                    .padding(.leading, 12)
             }
         }
     }

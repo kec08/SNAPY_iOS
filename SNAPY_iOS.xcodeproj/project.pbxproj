@@ -62,6 +62,7 @@
 		BC706F6E2F9527A60093C0B8 /* SettingsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F6D2F9527A40093C0B8 /* SettingsDTO.swift */; };
 		BC706F702F9527F30093C0B8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F6F2F9527F20093C0B8 /* SettingsView.swift */; };
 		BC706F722F95280D0093C0B8 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F712F95280A0093C0B8 /* SettingsViewModel.swift */; };
+		BCAAFE082F97486A00A6B597 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = BCAAFE072F97486A00A6B597 /* Kingfisher */; };
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
 		BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */; };
@@ -241,6 +242,7 @@
 				BCD8158B2F68DF9B0028AE50 /* CombineMoya in Frameworks */,
 				BCD815912F68DF9B0028AE50 /* RxMoya in Frameworks */,
 				BCD8158F2F68DF9B0028AE50 /* ReactiveMoya in Frameworks */,
+				BCAAFE082F97486A00A6B597 /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -721,6 +723,7 @@
 				BCD8158C2F68DF9B0028AE50 /* Moya */,
 				BCD8158E2F68DF9B0028AE50 /* ReactiveMoya */,
 				BCD815902F68DF9B0028AE50 /* RxMoya */,
+				BCAAFE072F97486A00A6B597 /* Kingfisher */,
 			);
 			productName = SNAPY_iOS;
 			productReference = BC5AFEBE2F6866FF00273744 /* SNAPY_iOS.app */;
@@ -806,6 +809,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				BCD815892F68DF9B0028AE50 /* XCRemoteSwiftPackageReference "Moya" */,
+				BCAAFE062F97486A00A6B597 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BC5AFEBF2F6866FF00273744 /* Products */;
@@ -1305,6 +1309,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		BCAAFE062F97486A00A6B597 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.8.1;
+			};
+		};
 		BCD815892F68DF9B0028AE50 /* XCRemoteSwiftPackageReference "Moya" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Moya/Moya";
@@ -1316,6 +1328,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		BCAAFE072F97486A00A6B597 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BCAAFE062F97486A00A6B597 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
 		BCD8158A2F68DF9B0028AE50 /* CombineMoya */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BCD815892F68DF9B0028AE50 /* XCRemoteSwiftPackageReference "Moya" */;

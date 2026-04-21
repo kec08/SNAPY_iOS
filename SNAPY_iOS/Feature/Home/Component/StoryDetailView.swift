@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct StoryDetailView: View {
     let stories: [StoryItem]
@@ -144,10 +145,12 @@ struct StoryDetailView: View {
                                     .foregroundColor(.customGray200)
                             }
 
-                            Text("6시간")
-                                .font(.system(size: 13))
-                                .foregroundColor(.customGray200)
-                                .padding(.leading, 4)
+                            if !story.relativeTimeText.isEmpty {
+                                Text(story.relativeTimeText)
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.customGray200)
+                                    .padding(.leading, 4)
+                            }
                             
 
                             Spacer()
@@ -206,18 +209,13 @@ struct StoryDetailView: View {
         ZStack(alignment: .topLeading) {
             // 배경: back 이미지
             if let backUrl = photo?.backImageUrl, let url = URL(string: backUrl) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable().scaledToFill()
-                    case .failure, .empty:
-                        Color.customGray500
-                    @unknown default:
-                        Color.customGray500
-                    }
-                }
-                .frame(width: size.width, height: size.height)
-                .clipped()
+                KFImage(url)
+                    .resizable()
+                    .placeholder { Color.customGray500 }
+                    .fade(duration: 0.2)
+                    .scaledToFill()
+                    .frame(width: size.width, height: size.height)
+                    .clipped()
             } else {
                 Color.customGray500
                     .frame(width: size.width, height: size.height)
@@ -225,26 +223,21 @@ struct StoryDetailView: View {
 
             // PIP: front 이미지
             if let frontUrl = photo?.frontImageUrl, let url = URL(string: frontUrl) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable().scaledToFill()
-                    case .failure, .empty:
-                        EmptyView()
-                    @unknown default:
-                        EmptyView()
-                    }
-                }
-                .frame(width: 130, height: 180)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(Color.black.opacity(0.3), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-                .padding(.top, 80)
-                .padding(.leading, 14)
+                KFImage(url)
+                    .resizable()
+                    .placeholder { Color.customGray500 }
+                    .fade(duration: 0.2)
+                    .scaledToFill()
+                    .frame(width: 130, height: 180)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.black.opacity(0.3), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                    .padding(.top, 80)
+                    .padding(.leading, 14)
             }
         }
     }
@@ -252,27 +245,11 @@ struct StoryDetailView: View {
     @ViewBuilder
     private func profileImageView(name: String) -> some View {
         if name.isImageURL, let url = URL(string: name) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().scaledToFill()
-                        .transition(.opacity.animation(.easeIn(duration: 0.2)))
-                case .failure:
-                    Image(systemName: "person.fill")
-                        .foregroundColor(.customGray300)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.customGray500)
-                case .empty:
-                    Color.customGray500
-                        .overlay(
-                            ProgressView()
-                                .tint(.white)
-                                .scaleEffect(0.5)
-                        )
-                @unknown default:
-                    Color.customGray500
-                }
-            }
+            KFImage(url)
+                .resizable()
+                .placeholder { Color.customGray500 }
+                .fade(duration: 0.2)
+                .scaledToFill()
         } else {
             Image(name)
                 .resizable()
@@ -496,6 +473,7 @@ struct StoryDetailView: View {
                     StoryPhotoSet(type: "MORNING", frontImageUrl: "Mock_img1", backImageUrl: "Mock_img1", createdAt: nil),
                     StoryPhotoSet(type: "LUNCH", frontImageUrl: "Mock_img2", backImageUrl: "Mock_img2", createdAt: nil),
                 ],
+                createdAt: nil,
                 isSeen: false
             ),
         ],
