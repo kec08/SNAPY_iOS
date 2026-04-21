@@ -147,6 +147,7 @@ struct PublishPreviewView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 10)
+                    .lineSpacing(4)
             } else if let errorMessage {
                 Text(errorMessage)
                     .font(.system(size: 13))

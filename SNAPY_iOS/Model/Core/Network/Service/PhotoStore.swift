@@ -122,6 +122,8 @@ final class PhotoStore: ObservableObject {
             todayAlbum = nil
         }
         isLoading = false
+        // 게시 상태도 로드 (body 렌더 중 @Published 변경 방지)
+        if !publishedLoaded { loadPublishedState() }
     }
 
     func loadMonth(_ month: Int) async {
@@ -281,37 +283,37 @@ final class PhotoStore: ObservableObject {
     /// 게시 성공 후 로컬 마킹 (오늘 날짜 기준, UserDefaults 영구 저장)
     /// 날짜가 바뀌면 자동으로 리셋됨
     @Published private(set) var publishedAlbumIds: Set<Int> = []
+    private var publishedLoaded = false
 
     private let publishedKey = "publishedAlbumIds"
     private let publishedDateKey = "publishedAlbumDate"
 
-    /// 이 앨범을 이미 게시했는지
+    /// 앱 시작 시 또는 loadToday() 후 호출하여 게시 상태를 미리 로드
+    func loadPublishedState() {
+        let today = todayString()
+        let savedDate = UserDefaults.standard.string(forKey: publishedDateKey) ?? ""
+        if savedDate != today {
+            publishedAlbumIds = []
+            UserDefaults.standard.set(today, forKey: publishedDateKey)
+            UserDefaults.standard.set([Int](), forKey: publishedKey)
+        } else {
+            let saved = UserDefaults.standard.array(forKey: publishedKey) as? [Int] ?? []
+            publishedAlbumIds = Set(saved)
+        }
+        publishedLoaded = true
+    }
+
+    /// 이 앨범을 이미 게시했는지 
     func hasPublished(albumId: Int) -> Bool {
-        loadPublishedIfNeeded()
+        if !publishedLoaded { loadPublishedState() }
         return publishedAlbumIds.contains(albumId)
     }
 
     /// 게시 성공 시 호출
     func markPublished(albumId: Int) {
-        loadPublishedIfNeeded()
+        if !publishedLoaded { loadPublishedState() }
         publishedAlbumIds.insert(albumId)
         savePublished()
-    }
-
-    /// UserDefaults에서 오늘 날짜 게시 기록 로드 (날짜 다르면 초기화)
-    private func loadPublishedIfNeeded() {
-        let today = todayString()
-        let savedDate = UserDefaults.standard.string(forKey: publishedDateKey) ?? ""
-        if savedDate != today {
-            // 날짜 바뀜 → 초기화
-            publishedAlbumIds = []
-            UserDefaults.standard.set(today, forKey: publishedDateKey)
-            UserDefaults.standard.set([Int](), forKey: publishedKey)
-        } else if publishedAlbumIds.isEmpty {
-            // 메모리 비어있으면 UserDefaults에서 복원
-            let saved = UserDefaults.standard.array(forKey: publishedKey) as? [Int] ?? []
-            publishedAlbumIds = Set(saved)
-        }
     }
 
     private func savePublished() {
