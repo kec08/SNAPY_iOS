@@ -72,7 +72,7 @@ struct MainTabView: View {
                 selectedTab = 0
             }
         }
-        .sheet(isPresented: $showCamera, onDismiss: {
+        .fullScreenCover(isPresented: $showCamera, onDismiss: {
             cameraVM.resetCamera()
         }) {
             CameraView()

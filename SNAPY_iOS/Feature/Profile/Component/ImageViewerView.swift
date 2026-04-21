@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ImageViewerView: View {
     let image: UIImage?
@@ -31,15 +32,11 @@ struct ImageViewerView: View {
                         .resizable()
                         .scaledToFill()
                 } else if let url = imageUrl, let imgUrl = URL(string: url) {
-                    AsyncImage(url: imgUrl) { phase in
-                        switch phase {
-                        case .success(let img):
-                            img.resizable().scaledToFill()
-                        default:
-                            Color.customDarkGray
-                                .overlay(ProgressView().tint(.white))
-                        }
-                    }
+                    KFImage(imgUrl)
+                        .resizable()
+                        .placeholder { Color.customDarkGray.overlay(ProgressView().tint(.white)) }
+                        .fade(duration: 0.2)
+                        .scaledToFill()
                 } else {
                     Image(assetName)
                         .resizable()

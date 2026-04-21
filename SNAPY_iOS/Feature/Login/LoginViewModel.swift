@@ -54,10 +54,16 @@ final class AuthViewModel: ObservableObject {
     }
 
     func login() async {
-        guard isLoginValid else { return }
+        guard isLoginValid else {
+            await MainActor.run {
+                errorMessage = "이메일과 비밀번호를 입력해주세요."
+            }
+            return
+        }
         await MainActor.run {
             isLoading = true
             errorMessage = nil
+            isLoggedIn = false
         }
 
         do {
@@ -75,9 +81,14 @@ final class AuthViewModel: ObservableObject {
                 }
                 isLoading = false
             }
+        } catch let authError as AuthError {
+            await MainActor.run {
+                errorMessage = authError.localizedDescription
+                isLoading = false
+            }
         } catch {
             await MainActor.run {
-                errorMessage = error.localizedDescription
+                errorMessage = "로그인에 실패했습니다. 다시 시도해주세요."
                 isLoading = false
             }
         }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct HomeFeedCard: View {
     let post: HomeFeedPost
@@ -62,9 +63,9 @@ struct HomeFeedCard: View {
 
             // 사진 슬라이더
             TabView(selection: $currentPage) {
-                ForEach(Array(post.images.enumerated()), id: \.offset) { index, imageName in
-                    feedImageView(for: imageName)
-                        .frame(maxWidth: .infinity)
+                ForEach(Array(post.photos.enumerated()), id: \.offset) { index, photo in
+                    feedPhotoView(for: photo)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .clipped()
                         .tag(index)
                 }
@@ -73,9 +74,9 @@ struct HomeFeedCard: View {
             .frame(height: 480)
 
             // 페이지 인디케이터
-            if post.images.count > 1 {
+            if post.photos.count > 1 {
                 HStack(spacing: 5) {
-                    ForEach(0..<post.images.count, id: \.self) { index in
+                    ForEach(0..<post.photos.count, id: \.self) { index in
                         Circle()
                             .fill(index == currentPage ? Color.MainYellow : Color.customGray300)
                             .frame(width: 6, height: 6)
@@ -138,16 +139,11 @@ struct HomeFeedCard: View {
     @ViewBuilder
     private var profileImageView: some View {
         if post.profileImage.isImageURL, let url = URL(string: post.profileImage) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().scaledToFill()
-                case .failure, .empty:
-                    Color.customGray500
-                @unknown default:
-                    Color.customGray500
-                }
-            }
+            KFImage(url)
+                .resizable()
+                .placeholder { Color.customGray500 }
+                .fade(duration: 0.2)
+                .scaledToFill()
         } else {
             Image(post.profileImage)
                 .resizable()
@@ -156,26 +152,45 @@ struct HomeFeedCard: View {
     }
 
     @ViewBuilder
-    private func feedImageView(for source: String) -> some View {
-        if source.isImageURL, let url = URL(string: source) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().scaledToFit()
-                case .failure:
-                    Color.customGray500.overlay(
-                        Image(systemName: "photo").foregroundColor(.customGray300)
-                    )
-                case .empty:
-                    Color.customGray500.overlay(ProgressView().tint(.white))
-                @unknown default:
-                    Color.customGray500
-                }
+    private func feedPhotoView(for photo: FeedPhoto) -> some View {
+        ZStack(alignment: .topLeading) {
+            // 배경: back 이미지 (또는 에셋)
+            if let backUrl = photo.backImageUrl, let url = URL(string: backUrl) {
+                KFImage(url)
+                    .resizable()
+                    .placeholder { Color.customGray500 }
+                    .fade(duration: 0.2)
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+            } else if let asset = photo.assetName {
+                Image(asset)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+            } else {
+                Color.customGray500
             }
-        } else {
-            Image(source)
-                .resizable()
-                .scaledToFit()
+
+            // PIP: front 이미지
+            if let frontUrl = photo.frontImageUrl, let url = URL(string: frontUrl) {
+                KFImage(url)
+                    .resizable()
+                    .placeholder { Color.clear }
+                    .fade(duration: 0.2)
+                    .scaledToFill()
+                    .frame(width: 100, height: 130)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.black.opacity(0.3), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                    .padding(.top, 12)
+                    .padding(.leading, 12)
+            }
         }
     }
 }
@@ -230,7 +245,11 @@ struct ImageCommentSection: View {
                 displayName: "김은찬",
                 handle: "silver_c_Id",
                 date: "4월 15일",
-                images: ["Mock_img1", "Mock_img2", "Mock_img3"],
+                photos: [
+                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img1"),
+                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img2"),
+                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img3"),
+                ],
                 likeCount: 12,
                 commentCount: 3,
                 isStorySeen: false

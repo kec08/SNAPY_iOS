@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct StoryDetailView: View {
     let stories: [StoryItem]
@@ -37,8 +38,8 @@ struct StoryDetailView: View {
         stories[currentUserIndex]
     }
 
-    var currentImages: [String] {
-        currentStory.images
+    var currentPhotos: [StoryPhotoSet] {
+        currentStory.photos
     }
 
     var body: some View {
@@ -85,11 +86,11 @@ struct StoryDetailView: View {
     @ViewBuilder
     private func storyPage(for userIndex: Int, imageIndex: Int, size: CGSize) -> some View {
         let story = stories[userIndex]
-        let images = story.images
-        let safeImageIndex = min(imageIndex, images.count - 1)
+        let photos = story.photos
+        let safeImageIndex = min(imageIndex, max(photos.count - 1, 0))
 
         ZStack {
-            storyImageContent(imageName: images[safeImageIndex], size: size)
+            storyPhotoContent(photo: photos.isEmpty ? nil : photos[safeImageIndex], size: size)
                 .contentShape(Rectangle())
                 .onTapGesture { location in
                     if location.x < size.width * 0.25 {
@@ -105,7 +106,7 @@ struct StoryDetailView: View {
                     VStack(spacing: 8) {
                         // 프로그레스 바
                         HStack(spacing: 4) {
-                            ForEach(0..<images.count, id: \.self) { idx in
+                            ForEach(0..<photos.count, id: \.self) { idx in
                                 GeometryReader { barGeo in
                                     ZStack(alignment: .leading) {
                                         RoundedRectangle(cornerRadius: 2)
@@ -131,6 +132,7 @@ struct StoryDetailView: View {
                         HStack(spacing: 12) {
                             profileImageView(name: story.profileImage)
                                 .frame(width: 40, height: 40)
+                                .clipped()
                                 .clipShape(Circle())
 
                             VStack(alignment: .leading, spacing: 2) {
@@ -143,10 +145,12 @@ struct StoryDetailView: View {
                                     .foregroundColor(.customGray200)
                             }
 
-                            Text("6시간")
-                                .font(.system(size: 13))
-                                .foregroundColor(.customGray200)
-                                .padding(.leading, 4)
+                            if !story.relativeTimeText.isEmpty {
+                                Text(story.relativeTimeText)
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.customGray200)
+                                    .padding(.leading, 4)
+                            }
                             
 
                             Spacer()
@@ -198,43 +202,54 @@ struct StoryDetailView: View {
         .clipped()
     }
 
-    // MARK: - 이미지 컨텐츠
+    // MARK: - 이미지 컨텐츠 (back 배경 + front PIP)
 
     @ViewBuilder
-    private func storyImageContent(imageName: String, size: CGSize) -> some View {
-        if imageName.isImageURL, let url = URL(string: imageName) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().scaledToFill()
-                case .failure, .empty:
-                    Color.customGray500
-                @unknown default:
-                    Color.customGray500
-                }
+    private func storyPhotoContent(photo: StoryPhotoSet?, size: CGSize) -> some View {
+        ZStack(alignment: .topLeading) {
+            // 배경: back 이미지
+            if let backUrl = photo?.backImageUrl, let url = URL(string: backUrl) {
+                KFImage(url)
+                    .resizable()
+                    .placeholder { Color.customGray500 }
+                    .fade(duration: 0.2)
+                    .scaledToFill()
+                    .frame(width: size.width, height: size.height)
+                    .clipped()
+            } else {
+                Color.customGray500
+                    .frame(width: size.width, height: size.height)
             }
-            .frame(width: size.width, height: size.height)
-            .clipped()
-        } else {
-            Image(imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(width: size.width, height: size.height)
-                .clipped()
+
+            // PIP: front 이미지
+            if let frontUrl = photo?.frontImageUrl, let url = URL(string: frontUrl) {
+                KFImage(url)
+                    .resizable()
+                    .placeholder { Color.customGray500 }
+                    .fade(duration: 0.2)
+                    .scaledToFill()
+                    .frame(width: 130, height: 180)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.black.opacity(0.3), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                    .padding(.top, 80)
+                    .padding(.leading, 14)
+            }
         }
     }
 
     @ViewBuilder
     private func profileImageView(name: String) -> some View {
         if name.isImageURL, let url = URL(string: name) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().scaledToFill()
-                default:
-                    Color.customGray500
-                }
-            }
+            KFImage(url)
+                .resizable()
+                .placeholder { Color.customGray500 }
+                .fade(duration: 0.2)
+                .scaledToFill()
         } else {
             Image(name)
                 .resizable()
@@ -278,7 +293,7 @@ struct StoryDetailView: View {
     // MARK: - 네비게이션
 
     private func goToNext() {
-        if currentImageIndex < currentImages.count - 1 {
+        if currentImageIndex < currentPhotos.count - 1 {
             currentImageIndex += 1
             progress = 0
         } else if currentUserIndex < stories.count - 1 {
@@ -303,7 +318,7 @@ struct StoryDetailView: View {
             withAnimation(.easeInOut(duration: 0.35)) {
                 currentUserIndex -= 1
             }
-            currentImageIndex = stories[currentUserIndex].images.count - 1
+            currentImageIndex = stories[currentUserIndex].photos.count - 1
             progress = 0
             isLiked = false
             startTimer()
@@ -424,7 +439,7 @@ struct StoryDetailView: View {
                             currentUserIndex -= 1
                             dragX = 0
                         }
-                        currentImageIndex = stories[currentUserIndex].images.count - 1
+                        currentImageIndex = stories[currentUserIndex].photos.count - 1
                         progress = 0
                         isLiked = false
                         isPaused = false
@@ -458,6 +473,7 @@ struct StoryDetailView: View {
                     StoryPhotoSet(type: "MORNING", frontImageUrl: "Mock_img1", backImageUrl: "Mock_img1", createdAt: nil),
                     StoryPhotoSet(type: "LUNCH", frontImageUrl: "Mock_img2", backImageUrl: "Mock_img2", createdAt: nil),
                 ],
+                createdAt: nil,
                 isSeen: false
             ),
         ],

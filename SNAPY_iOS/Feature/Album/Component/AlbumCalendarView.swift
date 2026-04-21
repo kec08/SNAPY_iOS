@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct AlbumCalendarView: View {
     @Environment(\.dismiss) private var dismiss
@@ -142,31 +143,14 @@ struct AlbumCalendarView: View {
         } label: {
             ZStack {
                 if let url = thumbnail {
-                    AsyncImage(url: URL(string: url)) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 50, height: 70)
-                        case .failure:
-                            Color(white: 0.15)
-                                .overlay(
-                                    Image(systemName: "photo")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.gray)
-                                )
-                        case .empty:
-                            Color(white: 0.15)
-                                .overlay(ProgressView().scaleEffect(0.5))
-                        @unknown default:
-                            Color(white: 0.15)
-                        }
-                    }
-                    .id(url)
-                    .frame(width: 50, height: 70)
-                    .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    KFImage(URL(string: url))
+                        .resizable()
+                        .placeholder { Color(white: 0.15) }
+                        .fade(duration: 0.2)
+                        .scaledToFill()
+                        .frame(width: 50, height: 70)
+                        .clipped()
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                     .overlay {
                         Text("\(day)")
                             .font(.system(size: 14, weight: isToday ? .bold : .semibold))

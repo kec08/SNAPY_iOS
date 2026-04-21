@@ -62,6 +62,7 @@
 		BC706F6E2F9527A60093C0B8 /* SettingsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F6D2F9527A40093C0B8 /* SettingsDTO.swift */; };
 		BC706F702F9527F30093C0B8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F6F2F9527F20093C0B8 /* SettingsView.swift */; };
 		BC706F722F95280D0093C0B8 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F712F95280A0093C0B8 /* SettingsViewModel.swift */; };
+		BCAAFE082F97486A00A6B597 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = BCAAFE072F97486A00A6B597 /* Kingfisher */; };
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
 		BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */; };
@@ -180,6 +181,7 @@
 		BC706F6D2F9527A40093C0B8 /* SettingsDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDTO.swift; sourceTree = "<group>"; };
 		BC706F6F2F9527F20093C0B8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		BC706F712F95280A0093C0B8 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		BC706F772F95A71B0093C0B8 /* SNAPY_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SNAPY_iOS.entitlements; sourceTree = "<group>"; };
 		BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginView.swift; sourceTree = "<group>"; };
 		BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyTextField.swift; sourceTree = "<group>"; };
 		BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailView.swift; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 				BCD8158B2F68DF9B0028AE50 /* CombineMoya in Frameworks */,
 				BCD815912F68DF9B0028AE50 /* RxMoya in Frameworks */,
 				BCD8158F2F68DF9B0028AE50 /* ReactiveMoya in Frameworks */,
+				BCAAFE082F97486A00A6B597 /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -519,6 +522,7 @@
 		BCD815972F69285F0028AE50 /* SNAPY_iOS */ = {
 			isa = PBXGroup;
 			children = (
+				BC706F772F95A71B0093C0B8 /* SNAPY_iOS.entitlements */,
 				BCD815922F69285F0028AE50 /* App */,
 				BCD815932F69285F0028AE50 /* Feature */,
 				BCD815942F69285F0028AE50 /* Assets.xcassets */,
@@ -719,6 +723,7 @@
 				BCD8158C2F68DF9B0028AE50 /* Moya */,
 				BCD8158E2F68DF9B0028AE50 /* ReactiveMoya */,
 				BCD815902F68DF9B0028AE50 /* RxMoya */,
+				BCAAFE072F97486A00A6B597 /* Kingfisher */,
 			);
 			productName = SNAPY_iOS;
 			productReference = BC5AFEBE2F6866FF00273744 /* SNAPY_iOS.app */;
@@ -804,6 +809,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				BCD815892F68DF9B0028AE50 /* XCRemoteSwiftPackageReference "Moya" */,
+				BCAAFE062F97486A00A6B597 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BC5AFEBF2F6866FF00273744 /* Products */;
@@ -1096,6 +1102,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SNAPY_iOS/SNAPY_iOS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1138,6 +1145,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SNAPY_iOS/SNAPY_iOS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1301,6 +1309,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		BCAAFE062F97486A00A6B597 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.8.1;
+			};
+		};
 		BCD815892F68DF9B0028AE50 /* XCRemoteSwiftPackageReference "Moya" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Moya/Moya";
@@ -1312,6 +1328,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		BCAAFE072F97486A00A6B597 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BCAAFE062F97486A00A6B597 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
 		BCD8158A2F68DF9B0028AE50 /* CombineMoya */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BCD815892F68DF9B0028AE50 /* XCRemoteSwiftPackageReference "Moya" */;

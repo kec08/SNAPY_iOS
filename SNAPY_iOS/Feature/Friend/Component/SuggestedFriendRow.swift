@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct SuggestedFriendRow: View {
     let friend: SuggestedFriend
@@ -19,17 +20,13 @@ struct SuggestedFriendRow: View {
         HStack(spacing: 14) {
             // 프로필 사진
             if let url = friend.profileImageUrl, let imgUrl = URL(string: url) {
-                AsyncImage(url: imgUrl, transaction: Transaction(animation: nil)) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable().scaledToFill()
-                    default:
-                        Color.customDarkGray
-                    }
-                }
-                .id(url)
-                .frame(width: 56, height: 56)
-                .clipShape(Circle())
+                KFImage(imgUrl)
+                    .resizable()
+                    .placeholder { Color.customDarkGray }
+                    .fade(duration: 0.2)
+                    .scaledToFill()
+                    .frame(width: 56, height: 56)
+                    .clipShape(Circle())
             } else {
                 Image("Profile_img")
                     .resizable()

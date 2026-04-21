@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 private struct StoryPresentation: Identifiable {
     let id = UUID()
@@ -55,6 +56,7 @@ struct HomeStoryBar: View {
                 // 배너 배경
                 storyImageView(name: story.bannerImage)
                     .frame(width: 60, height: 100)
+                    .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 // 어두운 오버레이
@@ -65,6 +67,7 @@ struct HomeStoryBar: View {
                 // 프로필 사진
                 storyImageView(name: story.profileImage)
                     .frame(width: 36, height: 36)
+                    .clipped()
                     .clipShape(Circle())
                     .overlay(
                         Circle()
@@ -94,18 +97,15 @@ struct HomeStoryBar: View {
         }
     }
 
-    /// URL이면 AsyncImage, 아니면 로컬 Image
+    /// URL이면 KFImage(캐싱), 아니면 로컬 Image
     @ViewBuilder
     private func storyImageView(name: String) -> some View {
         if name.isImageURL, let url = URL(string: name) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().scaledToFill()
-                default:
-                    Color.customGray500
-                }
-            }
+            KFImage(url)
+                .resizable()
+                .placeholder { Color.customGray500 }
+                .fade(duration: 0.2)
+                .scaledToFill()
         } else if !name.isEmpty {
             Image(name)
                 .resizable()
@@ -120,8 +120,8 @@ struct HomeFeed_Previews: PreviewProvider {
     static var previews: some View {
         HomeStoryBar(
             stories: [
-                StoryItem(storyId: 1, profileImage: "Profile_img", bannerImage: "Mock_img1", displayName: "은찬", username: "eunchan", photos: [], isSeen: false),
-                StoryItem(storyId: 2, profileImage: "Profile_img", bannerImage: "Mock_img2", displayName: "민수", username: "user_02", photos: [], isSeen: true),
+                StoryItem(storyId: 1, profileImage: "Profile_img", bannerImage: "Mock_img1", displayName: "은찬", username: "eunchan", photos: [], createdAt: nil, isSeen: false),
+                StoryItem(storyId: 2, profileImage: "Profile_img", bannerImage: "Mock_img2", displayName: "민수", username: "user_02", photos: [], createdAt: nil, isSeen: true),
             ]
         )
         .background(Color.black)

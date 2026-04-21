@@ -51,7 +51,7 @@ struct CameraView: View {
     private var cameraContentView: some View {
         VStack(spacing: 0) {
             ZStack {
-                Text("추억이 남을 사진을 찍어보세요!")
+                Text("가장 나다운 모습을 찍어보세요!")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
