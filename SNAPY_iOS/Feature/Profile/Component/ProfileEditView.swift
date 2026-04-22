@@ -7,7 +7,6 @@
 
 import SwiftUI
 import PhotosUI
-import Kingfisher
 
 struct ProfileEditView: View {
     @ObservedObject var viewModel: ProfileViewModel
@@ -27,12 +26,13 @@ struct ProfileEditView: View {
                                     Image(uiImage: profileImage)
                                         .resizable()
                                         .scaledToFill()
-                                } else if let url = viewModel.profileImageUrl, let imgUrl = URL(string: url) {
-                                    KFImage(imgUrl)
-                                        .resizable()
-                                        .placeholder { Color.customDarkGray.overlay(ProgressView().tint(.white)) }
-                                        .fade(duration: 0.2)
-                                        .scaledToFill()
+                                } else if let url = viewModel.profileImageUrl {
+                                    AsyncImage(url: URL(string: url)) { phase in
+                                        switch phase {
+                                        case .success(let img): img.resizable().scaledToFill()
+                                        default: Color.customDarkGray.overlay(ProgressView().tint(.white))
+                                        }
+                                    }
                                 } else {
                                     Image("Profile_img")
                                         .resizable()
@@ -72,12 +72,13 @@ struct ProfileEditView: View {
                                     Image(uiImage: bannerImage)
                                         .resizable()
                                         .scaledToFill()
-                                } else if let url = viewModel.bannerImageUrl, let imgUrl = URL(string: url) {
-                                    KFImage(imgUrl)
-                                        .resizable()
-                                        .placeholder { Color.customDarkGray.overlay(ProgressView().tint(.white)) }
-                                        .fade(duration: 0.2)
-                                        .scaledToFill()
+                                } else if let url = viewModel.bannerImageUrl {
+                                    AsyncImage(url: URL(string: url)) { phase in
+                                        switch phase {
+                                        case .success(let img): img.resizable().scaledToFill()
+                                        default: Color.customDarkGray.overlay(ProgressView().tint(.white))
+                                        }
+                                    }
                                 } else {
                                     Image("Banner_img")
                                         .resizable()

@@ -410,7 +410,7 @@ struct StoryDetailView: View {
                 if isDraggingV {
                     if dragY > 120 {
                         withAnimation(.easeOut(duration: 0.3)) {
-                            dragY = UIScreen.main.bounds.height
+                            dragY = 1000
                         }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             dismiss()

@@ -145,6 +145,26 @@ final class AlbumService {
 
     // MARK: - 월간 앨범 목록
 
+    /// GET /api/albums — 전체 앨범 목록 조회 (파라미터 없음)
+    func fetchAll() async throws -> [AlbumListItemData] {
+        let response = try await requestWithRefresh(.fetchAll)
+        guard (200..<300).contains(response.statusCode) else {
+            let msg = extractErrorMessage(from: response.data, statusCode: response.statusCode)
+            throw AlbumError.serverError(msg)
+        }
+        do {
+            let decoded = try JSONDecoder().decode(AlbumListResponse.self, from: response.data)
+            guard decoded.success, let data = decoded.data else {
+                throw AlbumError.serverError(decoded.message)
+            }
+            return data
+        } catch let err as AlbumError {
+            throw err
+        } catch {
+            throw AlbumError.decodingFailed
+        }
+    }
+
     func fetchAlbums(month: Int) async throws -> [AlbumListItemData] {
         let response = try await requestWithRefresh(.fetchByMonth(month: month))
         guard (200..<300).contains(response.statusCode) else {

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ProfileFeedGrid: View {
     let posts: [FeedPost]
@@ -46,11 +47,22 @@ struct ProfileFeedGrid: View {
                     profileAsset: profileAsset
                 )) {
                     Color.clear
-                        .aspectRatio(134/160, contentMode: .fit)
+                        .aspectRatio(3.0/4.0, contentMode: .fit)
                         .overlay(
-                            Image(post.thumbnailImage)
-                                .resizable()
-                                .scaledToFill()
+                            Group {
+                                if post.thumbnailImage.hasPrefix("http"),
+                                   let url = URL(string: post.thumbnailImage) {
+                                    KFImage(url)
+                                        .resizable()
+                                        .placeholder { Color(white: 0.15) }
+                                        .fade(duration: 0.2)
+                                        .scaledToFill()
+                                } else {
+                                    Image(post.thumbnailImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                }
+                            }
                         )
                         .clipped()
                 }
@@ -106,8 +118,11 @@ struct FeedDetailCard: View {
 
     @State private var currentPage = 0
     @State private var isLiked = false
-    @State private var likeCount = 12
-    @State private var commentCount = 3
+    @State private var likeCount = 0
+    @State private var commentCount = 0
+    @State private var showComments = false
+    @State private var heartAnimations: [HeartAnimation] = []
+    @State private var heartTapCount: Int = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -140,32 +155,82 @@ struct FeedDetailCard: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
 
-            // 사진 슬라이더
-            TabView(selection: $currentPage) {
-                ForEach(Array(post.images.enumerated()), id: \.offset) { index, imageName in
-                    Image(imageName)
+            // 사진 슬라이더 (back 배경 + front 드래그 PIP + 더블탭 하트)
+            ZStack {
+                TabView(selection: $currentPage) {
+                    ForEach(Array(post.photos.enumerated()), id: \.offset) { index, photo in
+                        GeometryReader { geo in
+                            ZStack(alignment: .topLeading) {
+                                // back 이미지
+                                if let backUrl = photo.backImageUrl, let url = URL(string: backUrl) {
+                                    KFImage(url)
+                                        .resizable()
+                                        .placeholder { Color(white: 0.15) }
+                                        .fade(duration: 0.2)
+                                        .scaledToFill()
+                                        .frame(width: geo.size.width, height: geo.size.height)
+                                        .clipped()
+                                } else {
+                                    Color(white: 0.15)
+                                }
+
+                                // front 드래그 가능 PIP
+                                if let frontUrl = photo.frontImageUrl, let url = URL(string: frontUrl) {
+                                    DraggablePIP(
+                                        containerSize: geo.size,
+                                        pipWidth: 120,
+                                        pipHeight: 160,
+                                        padding: 12
+                                    ) {
+                                        KFImage(url)
+                                            .resizable()
+                                            .placeholder { Color(white: 0.2) }
+                                            .fade(duration: 0.2)
+                                            .scaledToFill()
+                                    }
+                                }
+                            }
+                        }
+                        .tag(index)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+
+                // 더블탭 하트 애니메이션
+                ForEach(heartAnimations) { heart in
+                    Image("Heart_img")
                         .resizable()
                         .scaledToFit()
-                        .frame(maxWidth: .infinity)
-                        .clipped()
-                        .tag(index)
+                        .frame(width: heart.size, height: heart.size)
+                        .rotationEffect(.degrees(heart.rotation))
+                        .scaleEffect(heart.scale)
+                        .opacity(heart.opacity)
+                        .position(heart.position)
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(height: 480)
+            .frame(height: 540)
+            .contentShape(Rectangle())
+            .onTapGesture(count: 2) { location in
+                triggerHeartAnimation(at: location)
+                if !isLiked {
+                    isLiked = true
+                    likeCount += 1
+                }
+            }
 
-            // 페이지 인디케이터
-            if post.images.count > 1 {
-                HStack(spacing: 5) {
-                    ForEach(0..<post.images.count, id: \.self) { index in
+            // 페이지 인디케이터 (1개여도 간격 유지)
+            HStack(spacing: 5) {
+                if post.photos.count > 1 {
+                    ForEach(0..<post.photos.count, id: \.self) { index in
                         Circle()
                             .fill(index == currentPage ? Color.MainYellow : Color.customGray300)
                             .frame(width: 6, height: 6)
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
             }
+            .frame(maxWidth: .infinity)
+            .frame(height: 6)
+            .padding(.vertical, 14)
 
             // 액션 버튼
             HStack(spacing: 14) {
@@ -185,7 +250,7 @@ struct FeedDetailCard: View {
 
                 HStack(spacing: 8) {
                     Button {
-                        // 댓글
+                        showComments = true
                     } label: {
                         Image(systemName: "bubble.right")
                             .font(.system(size: 24))
@@ -214,6 +279,40 @@ struct FeedDetailCard: View {
                 .padding(.horizontal, 14)
                 .padding(.bottom, 12)
         }
+        .sheet(isPresented: $showComments) {
+            CommentSheetView(postId: UUID())
+                .presentationDetents([.fraction(0.75)])
+                .presentationDragIndicator(.hidden)
+        }
+    }
+
+    // MARK: - 더블탭 하트
+
+    private func triggerHeartAnimation(at location: CGPoint) {
+        heartTapCount += 1
+        let size: CGFloat = 60 + CGFloat(heartTapCount - 1) * 2
+        let heart = HeartAnimation(position: location, size: min(size, 120))
+        heartAnimations.append(heart)
+
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+            if let idx = heartAnimations.firstIndex(where: { $0.id == heart.id }) {
+                heartAnimations[idx].scale = 1.2
+                heartAnimations[idx].opacity = 1.0
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            withAnimation(.easeOut(duration: 0.3)) {
+                if let idx = heartAnimations.firstIndex(where: { $0.id == heart.id }) {
+                    heartAnimations[idx].scale = 1.6
+                    heartAnimations[idx].opacity = 0
+                }
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            heartAnimations.removeAll { $0.id == heart.id }
+        }
     }
 
     @ViewBuilder
@@ -236,34 +335,13 @@ struct FeedDetailCard: View {
         ScrollView {
             ProfileFeedGrid(
                 posts: [
-                    FeedPost(thumbnailImage: "Mock_img1", images: ["Mock_img1"], date: "2026. 4. 1."),
-                    FeedPost(thumbnailImage: "Mock_img2", images: ["Mock_img2"], date: "2026. 4. 2."),
-                    FeedPost(thumbnailImage: "Mock_img3", images: ["Mock_img3"], date: "2026. 4. 3."),
-                    FeedPost(thumbnailImage: "Mock_img4", images: ["Mock_img4"], date: "2026. 4. 4."),
-                    FeedPost(thumbnailImage: "Mock_img5", images: ["Mock_img5"], date: "2026. 4. 5."),
+                    FeedPost(id: 1, thumbnailImage: "Mock_img1", photos: [], date: "2026.04.01"),
+                    FeedPost(id: 2, thumbnailImage: "Mock_img2", photos: [], date: "2026.04.02"),
                 ],
                 displayName: "김은찬",
                 handle: "silver_c.ld"
             )
         }
         .background(Color.backgroundBlack)
-    }
-}
-
-#Preview("FeedDetailView") {
-    let samplePosts = [
-        FeedPost(thumbnailImage: "Mock_img1", images: ["Mock_img1", "Mock_img2"], date: "2026. 4. 1."),
-        FeedPost(thumbnailImage: "Mock_img2", images: ["Mock_img2", "Mock_img3"], date: "2026. 4. 2."),
-        FeedPost(thumbnailImage: "Mock_img3", images: ["Mock_img3"], date: "2026. 4. 3."),
-    ]
-    return NavigationStack {
-        FeedDetailView(
-            posts: samplePosts,
-            initialPostId: samplePosts[0].id,
-            displayName: "김은찬",
-            handle: "silver_c.ld",
-            profileImage: nil,
-            profileAsset: "Profile_img"
-        )
     }
 }
