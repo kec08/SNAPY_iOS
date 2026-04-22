@@ -10,12 +10,21 @@ import SwiftUI
 import PhotosUI
 import Combine
 
-// 피드 목데이터
+// 피드 게시물
 struct FeedPost: Identifiable {
-    let id = UUID()
-    let thumbnailImage: String  // 에셋 이미지 이름
-    let images: [String]        // 상세 이미지들 (1~5장)
+    let id: Int                 // albumId
+    let thumbnailImage: String  // 에셋 또는 URL
+    let photos: [PhotoData]     // 상세 사진들 (front + back)
     let date: String
+}
+
+// 이전 달 요약 (대표 사진 1장 + 월 표시)
+struct PastMonthSummary: Identifiable {
+    let id: Int                 // month 값
+    let month: Int              // 1~12
+    let year: Int
+    let thumbnailUrl: String?   // 대표 썸네일
+    var displayText: String { "\(month)월" }
 }
 
 // 방명록 엔트리
@@ -114,13 +123,10 @@ final class ProfileViewModel: ObservableObject {
         guestbookEntries.insert(GuestbookEntry(image: image), at: 0)
     }
 
-    // 피드 목데이터
-    @Published var feedPosts: [FeedPost] = [
-        FeedPost(thumbnailImage: "Mock_img1", images: ["Mock_img2", "Mock_img3"], date: "2026.04.01"),
-        FeedPost(thumbnailImage: "Mock_img2", images: ["Mock_img4", "Mock_img5"], date: "2026.03.28"),
-        FeedPost(thumbnailImage: "Mock_img3", images: ["Mock_img2", "Mock_img1", "Banner_img"], date: "2026.03.25"),
-        FeedPost(thumbnailImage: "Mock_img4", images: ["Mock_img3", "Mock_img4"], date: "2026.03.20"),
-    ]
+    // 피드 (이번 달)
+    @Published var feedPosts: [FeedPost] = []
+    // 이전 달 요약 카드들
+    @Published var pastMonths: [PastMonthSummary] = []
 
     // MARK: - 프로필 로드 (서버)
 
@@ -147,6 +153,143 @@ final class ProfileViewModel: ObservableObject {
             errorMessage = error.localizedDescription
         }
         isLoading = false
+
+        // 피드 로드 (전체 앨범 → 상세 조회)
+        await loadFeed()
+    }
+
+    // MARK: - 피드 로드 (이번 달 상세 + 이전 달 요약)
+
+    func loadFeed() async {
+        let now = Date()
+        let cal = Calendar.current
+        let currentMonth = cal.component(.month, from: now)
+        let currentYear = cal.component(.year, from: now)
+
+        // 이번 달 앨범 상세 로드
+        await loadCurrentMonthFeed(month: currentMonth)
+
+        // 이전 달 요약 카드 (calendar에서 월별 그룹핑)
+        do {
+            let allAlbums = try await AlbumService.shared.fetchCalendar()
+            print("[ProfileVM] 전체 앨범 \(allAlbums.count)개 조회")
+
+            // 이전 달별로 그룹핑 (이번 달 제외)
+            var monthGroups: [String: [AlbumListItemData]] = [:]
+            for album in allAlbums {
+                let parts = album.albumDate.split(separator: "-")
+                guard parts.count >= 2 else { continue }
+                let yearMonth = "\(parts[0])-\(parts[1])"
+                let albumMonth = Int(parts[1]) ?? 0
+                let albumYear = Int(parts[0]) ?? 0
+                if albumYear == currentYear && albumMonth == currentMonth { continue }
+                monthGroups[yearMonth, default: []].append(album)
+            }
+
+            // 최신순 정렬
+            let sortedKeys = monthGroups.keys.sorted(by: >)
+            var summaries: [PastMonthSummary] = []
+            for key in sortedKeys {
+                let parts = key.split(separator: "-")
+                guard parts.count == 2,
+                      let year = Int(parts[0]),
+                      let month = Int(parts[1]),
+                      let albums = monthGroups[key],
+                      let latest = albums.sorted(by: { $0.albumDate > $1.albumDate }).first else { continue }
+                summaries.append(PastMonthSummary(
+                    id: year * 100 + month,
+                    month: month,
+                    year: year,
+                    thumbnailUrl: latest.thumbnailUrl
+                ))
+            }
+            // TODO: 이전 달 데이터가 없을 때 확인용 임시 mock (나중에 제거)
+            if summaries.isEmpty {
+                let firstThumb = allAlbums.first?.thumbnailUrl
+                summaries.append(PastMonthSummary(id: 202603, month: 3, year: 2026, thumbnailUrl: firstThumb))
+            }
+            pastMonths = summaries
+            postCount = allAlbums.count
+        } catch {
+            print("[ProfileVM] 이전 달 로드 실패: \(error)")
+        }
+    }
+
+    /// 특정 월의 앨범을 상세 조회하여 feedPosts에 세팅
+    func loadCurrentMonthFeed(month: Int) async {
+        do {
+            let albums = try await AlbumService.shared.fetchAlbums(month: month)
+            print("[ProfileVM] \(month)월 앨범 \(albums.count)개 조회")
+            let sorted = albums.sorted { $0.albumDate > $1.albumDate }
+
+            let posts: [FeedPost] = await withTaskGroup(of: FeedPost?.self) { group in
+                for album in sorted {
+                    group.addTask {
+                        do {
+                            let detail = try await AlbumService.shared.fetchAlbumAsDaily(albumId: album.albumId)
+                            guard !detail.photos.isEmpty else { return nil }
+                            let thumbnail = detail.photos.first?.backImageUrl ?? ""
+                            return await FeedPost(
+                                id: album.albumId,
+                                thumbnailImage: thumbnail,
+                                photos: detail.photos,
+                                date: Self.formatAlbumDate(album.albumDate)
+                            )
+                        } catch {
+                            print("[ProfileVM] 앨범 상세 실패 (id=\(album.albumId)): \(error)")
+                            return nil
+                        }
+                    }
+                }
+                var results: [FeedPost] = []
+                for await post in group {
+                    if let post { results.append(post) }
+                }
+                return results.sorted { $0.date > $1.date }
+            }
+            feedPosts = posts
+            print("[ProfileVM] \(month)월 피드 \(posts.count)개 로드 완료")
+        } catch {
+            print("[ProfileVM] \(month)월 피드 로드 실패: \(error)")
+        }
+    }
+
+    /// 이전 달 다시보기 → 해당 월 피드 로드
+    func loadMonthFeed(month: Int) async -> [FeedPost] {
+        do {
+            let albums = try await AlbumService.shared.fetchAlbums(month: month)
+            let sorted = albums.sorted { $0.albumDate > $1.albumDate }
+
+            return await withTaskGroup(of: FeedPost?.self) { group in
+                for album in sorted {
+                    group.addTask {
+                        do {
+                            let detail = try await AlbumService.shared.fetchAlbumAsDaily(albumId: album.albumId)
+                            guard !detail.photos.isEmpty else { return nil }
+                            let thumbnail = detail.photos.first?.backImageUrl ?? ""
+                            return await FeedPost(
+                                id: album.albumId,
+                                thumbnailImage: thumbnail,
+                                photos: detail.photos,
+                                date: Self.formatAlbumDate(album.albumDate)
+                            )
+                        } catch { return nil }
+                    }
+                }
+                var results: [FeedPost] = []
+                for await post in group {
+                    if let post { results.append(post) }
+                }
+                return results.sorted { $0.date > $1.date }
+            }
+        } catch {
+            return []
+        }
+    }
+
+    /// "2026-04-20" → "2026.04.20"
+    private static func formatAlbumDate(_ dateStr: String) -> String {
+        dateStr.replacingOccurrences(of: "-", with: ".")
     }
 
     // MARK: - 수정 모드

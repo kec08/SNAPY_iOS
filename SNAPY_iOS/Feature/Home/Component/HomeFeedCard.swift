@@ -14,6 +14,8 @@ struct HomeFeedCard: View {
 
     @State private var currentPage = 0
     @State private var showComments = false
+    @State private var heartAnimations: [HeartAnimation] = []
+    @State private var heartTapCount: Int = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -63,16 +65,37 @@ struct HomeFeedCard: View {
             .padding(.vertical, 10)
 
             // 사진 슬라이더
-            TabView(selection: $currentPage) {
-                ForEach(Array(post.photos.enumerated()), id: \.offset) { index, photo in
-                    feedPhotoView(for: photo)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .clipped()
-                        .tag(index)
+            ZStack {
+                TabView(selection: $currentPage) {
+                    ForEach(Array(post.photos.enumerated()), id: \.offset) { index, photo in
+                        feedPhotoView(for: photo)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .clipped()
+                            .tag(index)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+
+                // 더블탭 하트 애니메이션들
+                ForEach(heartAnimations) { heart in
+                    Image("Heart_img")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: heart.size, height: heart.size)
+                        .rotationEffect(.degrees(heart.rotation))
+                        .scaleEffect(heart.scale)
+                        .opacity(heart.opacity)
+                        .position(heart.position)
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(height: 480)
+            .contentShape(Rectangle())
+            .onTapGesture(count: 2) { location in
+                triggerHeartAnimation(at: location)
+                if !post.isLiked {
+                    onLike()
+                }
+            }
 
             // 페이지 인디케이터
             if post.photos.count > 1 {
@@ -137,6 +160,38 @@ struct HomeFeedCard: View {
             CommentSheetView(postId: post.id)
                 .presentationDetents([.large])
                 .presentationDragIndicator(.hidden)
+        }
+    }
+
+    // MARK: - 더블탭 하트
+
+    private func triggerHeartAnimation(at location: CGPoint) {
+        heartTapCount += 1
+        let size: CGFloat = 60 + CGFloat(heartTapCount - 1) * 2
+        let heart = HeartAnimation(position: location, size: min(size, 120))
+        heartAnimations.append(heart)
+
+        // 커지면서 나타남
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+            if let idx = heartAnimations.firstIndex(where: { $0.id == heart.id }) {
+                heartAnimations[idx].scale = 1.2
+                heartAnimations[idx].opacity = 1.0
+            }
+        }
+
+        // 잠시 후 사라짐
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            withAnimation(.easeOut(duration: 0.3)) {
+                if let idx = heartAnimations.firstIndex(where: { $0.id == heart.id }) {
+                    heartAnimations[idx].scale = 1.6
+                    heartAnimations[idx].opacity = 0
+                }
+            }
+        }
+
+        // 완전 제거
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            heartAnimations.removeAll { $0.id == heart.id }
         }
     }
 
@@ -239,6 +294,17 @@ struct ImageCommentSection: View {
             }
         }
     }
+}
+
+// MARK: - 하트 애니메이션 모델
+
+struct HeartAnimation: Identifiable {
+    let id = UUID()
+    let position: CGPoint
+    let rotation: Double = Double.random(in: -30...30)
+    var size: CGFloat = 60
+    var scale: CGFloat = 0.0
+    var opacity: Double = 0.0
 }
 
 // MARK: - Preview

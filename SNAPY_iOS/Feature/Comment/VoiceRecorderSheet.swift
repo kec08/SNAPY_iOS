@@ -34,7 +34,7 @@ struct VoiceRecorderSheet: View {
                 Spacer()
 
                 // 캐릭터 이미지
-                Image("listen_img")
+                Image("Listen_img")
                     .resizable()
                     .scaledToFit()
                     .frame(height: 70)

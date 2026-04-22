@@ -216,10 +216,10 @@ struct FriendProfileView: View {
                             // 피드 (목 데이터)
                             ProfileFeedGrid(
                                 posts: [
-                                    FeedPost(thumbnailImage: "Mock_img1", images: ["Mock_img1"], date: "2026.04.01"),
-                                    FeedPost(thumbnailImage: "Mock_img2", images: ["Mock_img2"], date: "2026.03.28"),
-                                    FeedPost(thumbnailImage: "Mock_img3", images: ["Mock_img3"], date: "2026.03.25"),
-                                    FeedPost(thumbnailImage: "Mock_img4", images: ["Mock_img4"], date: "2026.03.20"),
+                                    FeedPost(id: 1, thumbnailImage: "Mock_img1", photos: [], date: "2026.04.01"),
+                                    FeedPost(id: 2, thumbnailImage: "Mock_img2", photos: [], date: "2026.03.28"),
+                                    FeedPost(id: 3, thumbnailImage: "Mock_img3", photos: [], date: "2026.03.25"),
+                                    FeedPost(id: 4, thumbnailImage: "Mock_img4", photos: [], date: "2026.03.20"),
                                 ],
                                 displayName: name,
                                 handle: handle
