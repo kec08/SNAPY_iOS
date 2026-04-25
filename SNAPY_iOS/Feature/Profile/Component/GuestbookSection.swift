@@ -7,9 +7,11 @@
 
 import SwiftUI
 import PhotosUI
+import Kingfisher
 
 struct GuestbookSection: View {
     @ObservedObject var viewModel: ProfileViewModel
+    var isMyProfile: Bool = true
     @State private var showFullView = false
 
     // 갤러리 → 미리보기 작성 흐름
@@ -19,47 +21,52 @@ struct GuestbookSection: View {
     @State private var showAddView = false
     @State private var requestNewImageAfterDismiss = false
 
-    private let thumbWidth: CGFloat = 55
+    private let thumbWidth: CGFloat = 52
     private var thumbHeight: CGFloat { thumbWidth * 16 / 9 }
 
     var body: some View {
         HStack(spacing: 12) {
-            // + 추가 버튼
-            Button {
-                showPicker = true
-            } label: {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color(white: 0.14))
-                        .frame(width: thumbWidth, height: thumbHeight)
-                    Image(systemName: "plus")
-                        .font(.system(size: 22, weight: .semibold))
-                        .foregroundColor(.textWhite)
+            // + 추가 버튼 (다른 사람 프로필 + 아직 작성 안 했을 때만)
+            if !isMyProfile && !viewModel.hasMyGuestbook {
+                Button {
+                    showPicker = true
+                } label: {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(white: 0.14))
+                            .frame(width: thumbWidth, height: thumbHeight)
+                        Image(systemName: "plus")
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundColor(.textWhite)
+                    }
                 }
             }
 
             // 가로 썸네일
-            HStack(spacing: 12) {
-                ForEach(Array(viewModel.guestbookEntries.prefix(4))) { entry in
-                    Button {
-                        showFullView = true
-                    } label: {
-                        guestbookCell(for: entry)
-                    }
+            let maxCount = isMyProfile ? 5 : 4
+            ForEach(Array(viewModel.guestbookEntries.prefix(maxCount))) { entry in
+                Button {
+                    showFullView = true
+                } label: {
+                    guestbookCell(for: entry)
                 }
             }
-            .padding(.trailing, 4)
 
-            // 전체보기 화살표
-            Button {
-                showFullView = true
-            } label: {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.textWhite)
-                    .frame(width: 20, height: thumbHeight)
+            // 전체보기 화살표 (내 프로필 5개 초과, 친구 프로필 4개 초과)
+            if viewModel.guestbookEntries.count > (isMyProfile ? 5 : 4) {
+                Button {
+                    showFullView = true
+                } label: {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.textWhite)
+                }
+                .padding(.leading, 4)
             }
+            Spacer(minLength: 0)
         }
+        .padding(.horizontal, 22)
+        .fixedSize(horizontal: false, vertical: true)
         .photosPicker(isPresented: $showPicker, selection: $pickerItem, matching: .images)
         .onChange(of: pickerItem) { _, newItem in
             guard let newItem else { return }
@@ -94,7 +101,7 @@ struct GuestbookSection: View {
             }
         }
         .navigationDestination(isPresented: $showFullView) {
-            GuestbookFullView(viewModel: viewModel)
+            GuestbookFullView(viewModel: viewModel, isMyProfile: isMyProfile)
         }
     }
 
@@ -123,6 +130,12 @@ struct GuestbookSection: View {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
+        } else if let url = entry.imageUrl, let imgUrl = URL(string: url) {
+            KFImage(imgUrl)
+                .resizable()
+                .placeholder { Color(white: 0.2) }
+                .fade(duration: 0.2)
+                .scaledToFill()
         } else if let name = entry.assetName {
             Image(name)
                 .resizable()
@@ -134,9 +147,10 @@ struct GuestbookSection: View {
 
     @ViewBuilder
     private func authorAvatar(for entry: GuestbookEntry) -> some View {
-        if let image = entry.authorProfileImage {
-            Image(uiImage: image)
+        if let url = entry.authorProfileUrl, let imgUrl = URL(string: url) {
+            KFImage(imgUrl)
                 .resizable()
+                .placeholder { Color.customDarkGray }
                 .scaledToFill()
         } else if let name = entry.authorProfileAsset {
             Image(name)

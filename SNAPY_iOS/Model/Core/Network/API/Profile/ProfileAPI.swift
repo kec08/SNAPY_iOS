@@ -18,6 +18,8 @@ enum ProfileAPI {
     case fetchSettings                                   // GET  /api/users/me/settings
     case updateFeedVisibility(Visibility)                 // PATCH /api/users/me/settings/feed-visibility
     case updatePastAlbumVisibility(Visibility)            // PATCH /api/users/me/settings/past-album-visibility
+    case fetchGuestbook(handle: String)                  // GET  /api/users/{handle}/guestbook
+    case postGuestbook(handle: String, image: UIImage)   // POST /api/users/{handle}/guestbook
 }
 
 extension ProfileAPI: TargetType {
@@ -42,13 +44,19 @@ extension ProfileAPI: TargetType {
             return "/api/users/me/settings/feed-visibility"
         case .updatePastAlbumVisibility:
             return "/api/users/me/settings/past-album-visibility"
+        case .fetchGuestbook(let handle):
+            return "/api/users/\(handle)/guestbook"
+        case .postGuestbook(let handle, _):
+            return "/api/users/\(handle)/guestbook"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .fetchMyProfile, .fetchUserProfile, .fetchSettings:
+        case .fetchMyProfile, .fetchUserProfile, .fetchSettings, .fetchGuestbook:
             return .get
+        case .postGuestbook:
+            return .post
         case .updateProfileImage, .updateBackgroundImage,
              .updateFeedVisibility, .updatePastAlbumVisibility:
             return .patch
@@ -57,8 +65,20 @@ extension ProfileAPI: TargetType {
 
     var task: Moya.Task {
         switch self {
-        case .fetchMyProfile, .fetchUserProfile, .fetchSettings:
+        case .fetchMyProfile, .fetchUserProfile, .fetchSettings, .fetchGuestbook:
             return .requestPlain
+
+        case .postGuestbook(let handle, let image):
+            let imageData = image.jpegData(compressionQuality: 0.85) ?? Data()
+            print("[ProfileAPI] 방명록 POST - handle: \(handle)")
+            print("[ProfileAPI] 방명록 POST - imageData size: \(imageData.count) bytes")
+            let formData = Moya.MultipartFormData(
+                provider: .data(imageData),
+                name: "image",
+                fileName: "image.jpg",
+                mimeType: "image/jpeg"
+            )
+            return .uploadMultipart([formData])
 
         case .updateProfileImage(let image), .updateBackgroundImage(let image):
             let imageData = image.jpegData(compressionQuality: 0.85) ?? Data()
@@ -83,7 +103,7 @@ extension ProfileAPI: TargetType {
         var h: [String: String] = [:]
 
         switch self {
-        case .updateProfileImage, .updateBackgroundImage:
+        case .updateProfileImage, .updateBackgroundImage, .postGuestbook:
             break // multipart Content-Type 은 Moya 가 자동 설정
         default:
             h["Content-Type"] = "application/json"

@@ -7,9 +7,11 @@
 
 import SwiftUI
 import PhotosUI
+import Kingfisher
 
 struct GuestbookFullView: View {
     @ObservedObject var viewModel: ProfileViewModel
+    var isMyProfile: Bool = true
     @Environment(\.dismiss) private var dismiss
 
     // 갤러리 → 미리보기 작성 흐름
@@ -34,7 +36,8 @@ struct GuestbookFullView: View {
                 .padding(.horizontal, 20)
             }
 
-            // 하단 우측 플로팅 연필 버튼: 즉시 갤러리 표시
+            // 하단 우측 플로팅 연필 버튼 (다른 사람 프로필 + 미작성)
+            if !isMyProfile && !viewModel.hasMyGuestbook {
             Button {
                 showPicker = true
             } label: {
@@ -53,6 +56,7 @@ struct GuestbookFullView: View {
             }
             .padding(.trailing, 20)
             .padding(.bottom, 32)
+            } // if !isMyProfile
         }
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -139,6 +143,12 @@ struct GuestbookFullView: View {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
+        } else if let url = entry.imageUrl, let imgUrl = URL(string: url) {
+            KFImage(imgUrl)
+                .resizable()
+                .placeholder { Color(white: 0.2) }
+                .fade(duration: 0.2)
+                .scaledToFill()
         } else if let name = entry.assetName {
             Image(name)
                 .resizable()
@@ -150,9 +160,10 @@ struct GuestbookFullView: View {
 
     @ViewBuilder
     private func authorAvatar(for entry: GuestbookEntry) -> some View {
-        if let image = entry.authorProfileImage {
-            Image(uiImage: image)
+        if let url = entry.authorProfileUrl, let imgUrl = URL(string: url) {
+            KFImage(imgUrl)
                 .resizable()
+                .placeholder { Color.customDarkGray }
                 .scaledToFill()
         } else if let name = entry.authorProfileAsset {
             Image(name)
