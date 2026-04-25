@@ -281,7 +281,7 @@ struct FeedDetailCard: View {
         }
         .sheet(isPresented: $showComments) {
             CommentSheetView(postId: UUID())
-                .presentationDetents([.fraction(0.75)])
+                .presentationDetents([.large])
                 .presentationDragIndicator(.hidden)
         }
     }

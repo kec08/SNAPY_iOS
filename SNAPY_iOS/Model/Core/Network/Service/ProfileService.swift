@@ -112,6 +112,38 @@ final class ProfileService {
         }
     }
 
+    // MARK: - 방명록 조회
+
+    func fetchGuestbook(handle: String) async throws -> [GuestbookResponseData] {
+        let response = try await requestWithRefresh(.fetchGuestbook(handle: handle))
+        guard (200..<300).contains(response.statusCode) else {
+            throw ProfileError.serverError(extractMessage(from: response))
+        }
+        let decoded = try JSONDecoder().decode(GuestbookListResponse.self, from: response.data)
+        guard decoded.success, let data = decoded.data else {
+            throw ProfileError.serverError(decoded.message)
+        }
+        return data
+    }
+
+    // MARK: - 방명록 작성
+
+    func postGuestbook(handle: String, image: UIImage) async throws -> GuestbookCreateResponseData {
+        let response = try await requestWithRefresh(.postGuestbook(handle: handle, image: image))
+        print("[ProfileService] 방명록 작성 응답 코드 \(response.statusCode)")
+        if let body = String(data: response.data, encoding: .utf8) {
+            print("[ProfileService] 방명록 작성 응답 \(body)")
+        }
+        guard (200..<300).contains(response.statusCode) else {
+            throw ProfileError.serverError(extractMessage(from: response))
+        }
+        let decoded = try JSONDecoder().decode(GuestbookCreateResponse.self, from: response.data)
+        guard decoded.success, let data = decoded.data else {
+            throw ProfileError.serverError(decoded.message)
+        }
+        return data
+    }
+
     // MARK: - 401 재시도
 
     private func requestWithRefresh(_ target: ProfileAPI) async throws -> Response {

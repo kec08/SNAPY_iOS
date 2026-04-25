@@ -32,6 +32,7 @@ struct FriendProfileView: View {
     @State private var currentFriend: Bool
     @State private var showBannerViewer = false
     @State private var showProfileViewer = false
+    @StateObject private var guestbookVM = ProfileViewModel()
 
     init(name: String, handle: String, profileImageUrl: String?, bannerImageUrl: String? = nil, isFriend: Bool = false, mutualFriendsText: String? = nil, contactText: String? = nil) {
         self.handle = handle
@@ -206,7 +207,7 @@ struct FriendProfileView: View {
                         // 친구인 경우: 방명록 + 피드
                         VStack(spacing: 20) {
                             // 방명록 (목 데이터)
-                            GuestbookSection(viewModel: ProfileViewModel())
+                            GuestbookSection(viewModel: guestbookVM, isMyProfile: false)
                                 .padding(.top, 20)
 
                             Divider()
@@ -312,6 +313,10 @@ struct FriendProfileView: View {
                 }
             }
             isLoading = false
+
+            // 방명록 로드 (상대방 handle로)
+            guestbookVM.handle = handle
+            await guestbookVM.loadGuestbook()
         }
         .sheet(isPresented: $showFriendSheet) {
             FriendRelationSheet(

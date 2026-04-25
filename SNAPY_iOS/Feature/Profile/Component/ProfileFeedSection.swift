@@ -10,6 +10,7 @@ import Kingfisher
 
 struct ProfileFeedSection: View {
     @ObservedObject var viewModel: ProfileViewModel
+    var scrollProxy: ScrollViewProxy?
 
     @State private var expandedMonths: Set<Int> = []  // 펼쳐진 달 id
     @State private var monthPosts: [Int: [FeedPost]] = [:]  // 달 id → 로드된 피드
@@ -95,6 +96,7 @@ struct ProfileFeedSection: View {
                             .frame(height: 80)
                     }
                 }
+                .id("pastMonth_\(summary.id)")
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
@@ -141,6 +143,19 @@ struct ProfileFeedSection: View {
                         let posts = await viewModel.loadMonthFeed(month: summary.month)
                         monthPosts[summary.id] = posts
                         loadingMonths.remove(summary.id)
+                        // 로드 완료 후 해당 영역으로 스크롤
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                scrollProxy?.scrollTo("pastMonth_\(summary.id)", anchor: .top)
+                            }
+                        }
+                    }
+                } else {
+                    // 이미 로드됨 → 바로 스크롤
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            scrollProxy?.scrollTo("pastMonth_\(summary.id)", anchor: .top)
+                        }
                     }
                 }
             }

@@ -30,23 +30,41 @@ struct PastMonthSummary: Identifiable {
 // 방명록 엔트리
 struct GuestbookEntry: Identifiable {
     let id = UUID()
-    let assetName: String?            // 사진 (목)
-    let image: UIImage?               // 사진 (사용자 추가)
+    let imageUrl: String?             // 서버 URL
+    let assetName: String?            // 사진 (에셋, mock)
+    let image: UIImage?               // 사진 (사용자 추가, 로컬)
+    let authorProfileUrl: String?     // 작성자 프사 URL
     let authorProfileAsset: String?   // 작성자 프사 (에셋)
-    let authorProfileImage: UIImage?  // 작성자 프사 (UIImage)
+    let authorHandle: String?         // 작성자 handle
 
-    init(assetName: String, authorProfileAsset: String = "Profile_img") {
-        self.assetName = assetName
+    // 서버 데이터
+    init(imageUrl: String, authorProfileUrl: String?, authorHandle: String?) {
+        self.imageUrl = imageUrl
+        self.assetName = nil
         self.image = nil
-        self.authorProfileAsset = authorProfileAsset
-        self.authorProfileImage = nil
+        self.authorProfileUrl = authorProfileUrl
+        self.authorProfileAsset = nil
+        self.authorHandle = authorHandle
     }
 
-    init(image: UIImage, authorProfileImage: UIImage? = nil, authorProfileAsset: String? = "Profile_img") {
+    // 로컬 에셋 (mock)
+    init(assetName: String, authorProfileAsset: String = "Profile_img") {
+        self.imageUrl = nil
+        self.assetName = assetName
+        self.image = nil
+        self.authorProfileUrl = nil
+        self.authorProfileAsset = authorProfileAsset
+        self.authorHandle = nil
+    }
+
+    // 로컬 UIImage (방금 촬영/선택)
+    init(image: UIImage) {
+        self.imageUrl = nil
         self.assetName = nil
         self.image = image
-        self.authorProfileAsset = authorProfileImage == nil ? authorProfileAsset : nil
-        self.authorProfileImage = authorProfileImage
+        self.authorProfileUrl = nil
+        self.authorProfileAsset = "Profile_img"
+        self.authorHandle = nil
     }
 }
 
@@ -108,19 +126,60 @@ final class ProfileViewModel: ObservableObject {
         bannerImage = Self.loadImageFromDisk(Self.bannerCachePath)
     }
 
-    // 방명록 목데이터
-    @Published var guestbookEntries: [GuestbookEntry] = [
-        GuestbookEntry(assetName: "Mock_img1"),
-        GuestbookEntry(assetName: "Mock_img2"),
-        GuestbookEntry(assetName: "Mock_img3"),
-        GuestbookEntry(assetName: "Mock_img4"),
-        GuestbookEntry(assetName: "Mock_img5"),
-        GuestbookEntry(assetName: "Mock_img6"),
-    ]
+    // 방명록
+    @Published var guestbookEntries: [GuestbookEntry] = []
 
-    // 방명록 추가 (사용자가 본인 방명록을 임시로 남길 수 있도록)
+    /// 내가 이미 방명록을 작성했는지 (authorHandle에 내 handle이 있으면 true)
+    var hasMyGuestbook: Bool {
+        let myHandle = UserDefaults.standard.string(forKey: "myHandle") ?? ""
+        return guestbookEntries.contains { $0.authorHandle == myHandle }
+    }
+
+    // 방명록 로드 (서버)
+    func loadGuestbook() async {
+        do {
+            let data = try await ProfileService.shared.fetchGuestbook(handle: handle)
+            guestbookEntries = data.compactMap { entry in
+                guard let imageUrl = entry.imageUrl else { return nil }
+                return GuestbookEntry(
+                    imageUrl: imageUrl,
+                    authorProfileUrl: entry.author.profileImageUrl,
+                    authorHandle: entry.author.handle
+                )
+            }
+            // TODO: 화살표 확인용 임시 mock (나중에 제거)
+            if guestbookEntries.count < 6 {
+                let mockCount = 6 - guestbookEntries.count
+                for i in 0..<mockCount {
+                    guestbookEntries.append(GuestbookEntry(assetName: "Mock_img\(i + 1)"))
+                }
+            }
+            print("[ProfileVM] 방명록 \(guestbookEntries.count)개 로드")
+        } catch {
+            print("[ProfileVM] 방명록 로드 실패: \(error)")
+        }
+    }
+
+    // 방명록 작성 (이미지 업로드 → 서버)
     func addGuestbookImage(_ image: UIImage) {
+        print("[ProfileVM] 방명록 이미지 크기: \(image.size), jpeg: \(image.jpegData(compressionQuality: 0.85)?.count ?? 0) bytes")
+        // 로컬에 즉시 추가 (낙관적)
         guestbookEntries.insert(GuestbookEntry(image: image), at: 0)
+
+        Task {
+            do {
+                let result = try await ProfileService.shared.postGuestbook(handle: handle, image: image)
+                print("[ProfileVM] 방명록 작성 성공: \(result.imageUrl ?? "")")
+                // 서버 반영 후 새로고침
+                await loadGuestbook()
+            } catch {
+                print("[ProfileVM] 방명록 작성 실패: \(error)")
+                // 실패 시 로컬 추가 롤백
+                if let idx = guestbookEntries.firstIndex(where: { $0.image != nil }) {
+                    guestbookEntries.remove(at: idx)
+                }
+            }
+        }
     }
 
     // 피드 (이번 달)
@@ -154,8 +213,10 @@ final class ProfileViewModel: ObservableObject {
         }
         isLoading = false
 
-        // 피드 로드 (전체 앨범 → 상세 조회)
-        await loadFeed()
+        // 피드 + 방명록 병렬 로드
+        async let feedTask: () = loadFeed()
+        async let guestbookTask: () = loadGuestbook()
+        _ = await (feedTask, guestbookTask)
     }
 
     // MARK: - 피드 로드 (이번 달 상세 + 이전 달 요약)

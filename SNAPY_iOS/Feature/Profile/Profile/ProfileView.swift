@@ -15,19 +15,22 @@ struct ProfileView: View {
             ZStack {
                 Color.backgroundBlack.ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: 30) {
-                        ProfileHeaderView(viewModel: viewModel)
+                ScrollViewReader { scrollProxy in
+                    ScrollView {
+                        VStack(spacing: 30) {
+                            ProfileHeaderView(viewModel: viewModel)
 
-                        GuestbookSection(viewModel: viewModel)
+                            GuestbookSection(viewModel: viewModel)
 
-                            Divider()
-                                .background(Color.Gray500)
+                                Divider()
+                                    .background(Color.Gray500)
 
-                        // 이번 달 피드 그리드 + 이전 달 카드 통합
-                        ProfileFeedSection(
-                            viewModel: viewModel
-                        )
+                            // 이번 달 피드 그리드 + 이전 달 카드 통합
+                            ProfileFeedSection(
+                                viewModel: viewModel,
+                                scrollProxy: scrollProxy
+                            )
+                        }
                     }
                 }
                 .ignoresSafeArea(edges: .top)

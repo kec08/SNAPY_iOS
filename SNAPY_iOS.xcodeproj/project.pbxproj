@@ -62,6 +62,7 @@
 		BC706F6E2F9527A60093C0B8 /* SettingsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F6D2F9527A40093C0B8 /* SettingsDTO.swift */; };
 		BC706F702F9527F30093C0B8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F6F2F9527F20093C0B8 /* SettingsView.swift */; };
 		BC706F722F95280D0093C0B8 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F712F95280A0093C0B8 /* SettingsViewModel.swift */; };
+		BCAA007F2F9A381E00A6B597 /* GuestbookDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAA007E2F9A381C00A6B597 /* GuestbookDTO.swift */; };
 		BCAAFE082F97486A00A6B597 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = BCAAFE072F97486A00A6B597 /* Kingfisher */; };
 		BCAAFF0C2F9890FF00A6B597 /* CommentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAAFF0B2F9890F700A6B597 /* CommentModels.swift */; };
 		BCAAFF0E2F98911100A6B597 /* CommentSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAAFF0D2F98911000A6B597 /* CommentSheetView.swift */; };
@@ -188,6 +189,7 @@
 		BC706F6F2F9527F20093C0B8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		BC706F712F95280A0093C0B8 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		BC706F772F95A71B0093C0B8 /* SNAPY_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SNAPY_iOS.entitlements; sourceTree = "<group>"; };
+		BCAA007E2F9A381C00A6B597 /* GuestbookDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestbookDTO.swift; sourceTree = "<group>"; };
 		BCAAFF0B2F9890F700A6B597 /* CommentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentModels.swift; sourceTree = "<group>"; };
 		BCAAFF0D2F98911000A6B597 /* CommentSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentSheetView.swift; sourceTree = "<group>"; };
 		BCAAFF0F2F98911C00A6B597 /* VoiceRecorderSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRecorderSheet.swift; sourceTree = "<group>"; };
@@ -295,6 +297,7 @@
 		BC1DC2DA2F68CF730016A4CD /* DTO */ = {
 			isa = PBXGroup;
 			children = (
+				BCAA007E2F9A381C00A6B597 /* GuestbookDTO.swift */,
 				BC706F6D2F9527A40093C0B8 /* SettingsDTO.swift */,
 				BC706F682F93E8B70093C0B8 /* StoryDTO.swift */,
 				BC706E5E2F8DC0E10093C0B8 /* FriendDTO.swift */,
@@ -887,6 +890,7 @@
 				BC6676CD2F840615009CBF8D /* ProfileEditView.swift in Sources */,
 				BC1DC2F12F68CF730016A4CD /* Color+Extensions.swift in Sources */,
 				BCCAD60C2F6B062F00ED71E0 /* PasswordView.swift in Sources */,
+				BCAA007F2F9A381E00A6B597 /* GuestbookDTO.swift in Sources */,
 				BCD815AF2F69346D0028AE50 /* MainTabView.swift in Sources */,
 				BC706E5F2F8DC0E20093C0B8 /* FriendDTO.swift in Sources */,
 				BC706E682F8DFDD70093C0B8 /* ContactSyncView.swift in Sources */,
