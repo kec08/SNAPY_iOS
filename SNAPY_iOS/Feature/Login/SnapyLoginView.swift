@@ -33,7 +33,7 @@ struct SnapyLoginView: View {
                 .padding(.horizontal, 24)
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("로그인하여 친구들의 SNAPY를\n확인해보세요!")
+                    Text("로그인하여 친구들의 SNAPY를 확인해보세요!")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(Color.textWhite)
                         .lineSpacing(12)

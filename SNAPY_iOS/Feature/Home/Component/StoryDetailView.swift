@@ -173,15 +173,20 @@ struct StoryDetailView: View {
 
                     // 하단 버튼
                     if userIndex == currentUserIndex {
+                        let myHandle = UserDefaults.standard.string(forKey: "myHandle") ?? ""
+                        let isMyStory = story.username == myHandle
+
                         HStack(spacing: 20) {
                             Spacer()
 
-                            Button {
-                                toggleLikeAPI()
-                            } label: {
-                                Image(systemName: isLiked ? "heart.fill" : "heart")
-                                    .font(.system(size: 28))
-                                    .foregroundColor(isLiked ? .red : .white)
+                            if !isMyStory {
+                                Button {
+                                    toggleLikeAPI()
+                                } label: {
+                                    Image(systemName: isLiked ? "heart.fill" : "heart")
+                                        .font(.system(size: 28))
+                                        .foregroundColor(isLiked ? .red : .white)
+                                }
                             }
 
                             Button {

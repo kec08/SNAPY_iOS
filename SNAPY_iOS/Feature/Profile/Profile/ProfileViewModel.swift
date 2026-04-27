@@ -147,13 +147,6 @@ final class ProfileViewModel: ObservableObject {
                     authorHandle: entry.author.handle
                 )
             }
-            // TODO: 화살표 확인용 임시 mock (나중에 제거)
-            if guestbookEntries.count < 6 {
-                let mockCount = 6 - guestbookEntries.count
-                for i in 0..<mockCount {
-                    guestbookEntries.append(GuestbookEntry(assetName: "Mock_img\(i + 1)"))
-                }
-            }
             print("[ProfileVM] 방명록 \(guestbookEntries.count)개 로드")
         } catch {
             print("[ProfileVM] 방명록 로드 실패: \(error)")
@@ -263,11 +256,6 @@ final class ProfileViewModel: ObservableObject {
                     year: year,
                     thumbnailUrl: latest.thumbnailUrl
                 ))
-            }
-            // TODO: 이전 달 데이터가 없을 때 확인용 임시 mock (나중에 제거)
-            if summaries.isEmpty {
-                let firstThumb = allAlbums.first?.thumbnailUrl
-                summaries.append(PastMonthSummary(id: 202603, month: 3, year: 2026, thumbnailUrl: firstThumb))
             }
             pastMonths = summaries
             postCount = allAlbums.count
