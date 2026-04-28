@@ -63,6 +63,9 @@
 		BC706F702F9527F30093C0B8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F6F2F9527F20093C0B8 /* SettingsView.swift */; };
 		BC706F722F95280D0093C0B8 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F712F95280A0093C0B8 /* SettingsViewModel.swift */; };
 		BCAA007F2F9A381E00A6B597 /* GuestbookDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAA007E2F9A381C00A6B597 /* GuestbookDTO.swift */; };
+		BCA00F012FA0000100FEED01 /* FeedDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F002FA0000100FEED01 /* FeedDTO.swift */; };
+		BCA00F032FA0000100FEED02 /* FeedAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F022FA0000100FEED02 /* FeedAPI.swift */; };
+		BCA00F052FA0000100FEED03 /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F042FA0000100FEED03 /* FeedService.swift */; };
 		BCAAFE082F97486A00A6B597 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = BCAAFE072F97486A00A6B597 /* Kingfisher */; };
 		BCAAFF0C2F9890FF00A6B597 /* CommentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAAFF0B2F9890F700A6B597 /* CommentModels.swift */; };
 		BCAAFF0E2F98911100A6B597 /* CommentSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAAFF0D2F98911000A6B597 /* CommentSheetView.swift */; };
@@ -190,6 +193,9 @@
 		BC706F712F95280A0093C0B8 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		BC706F772F95A71B0093C0B8 /* SNAPY_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SNAPY_iOS.entitlements; sourceTree = "<group>"; };
 		BCAA007E2F9A381C00A6B597 /* GuestbookDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestbookDTO.swift; sourceTree = "<group>"; };
+		BCA00F002FA0000100FEED01 /* FeedDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDTO.swift; sourceTree = "<group>"; };
+		BCA00F022FA0000100FEED02 /* FeedAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedAPI.swift; sourceTree = "<group>"; };
+		BCA00F042FA0000100FEED03 /* FeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedService.swift; sourceTree = "<group>"; };
 		BCAAFF0B2F9890F700A6B597 /* CommentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentModels.swift; sourceTree = "<group>"; };
 		BCAAFF0D2F98911000A6B597 /* CommentSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentSheetView.swift; sourceTree = "<group>"; };
 		BCAAFF0F2F98911C00A6B597 /* VoiceRecorderSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRecorderSheet.swift; sourceTree = "<group>"; };
@@ -297,6 +303,7 @@
 		BC1DC2DA2F68CF730016A4CD /* DTO */ = {
 			isa = PBXGroup;
 			children = (
+				BCA00F002FA0000100FEED01 /* FeedDTO.swift */,
 				BCAA007E2F9A381C00A6B597 /* GuestbookDTO.swift */,
 				BC706F6D2F9527A40093C0B8 /* SettingsDTO.swift */,
 				BC706F682F93E8B70093C0B8 /* StoryDTO.swift */,
@@ -319,6 +326,7 @@
 		BC1DC2E12F68CF730016A4CD /* API */ = {
 			isa = PBXGroup;
 			children = (
+				BCA00F062FA0000100FEED04 /* Feed */,
 				BC706F6A2F93E8DE0093C0B8 /* Story */,
 				BC706E602F8DC1010093C0B8 /* Friend */,
 				BC706E4B2F8BF9C70093C0B8 /* Profile */,
@@ -333,6 +341,7 @@
 		BC1DC2E82F68CF730016A4CD /* Service */ = {
 			isa = PBXGroup;
 			children = (
+				BCA00F042FA0000100FEED03 /* FeedService.swift */,
 				BC706F662F93E88A0093C0B8 /* StoryService.swift */,
 				BC706E632F8DC1330093C0B8 /* FriendService.swift */,
 				BC706E4E2F8BF9FF0093C0B8 /* ProfileService.swift */,
@@ -439,6 +448,14 @@
 				BC706E672F8DFDD60093C0B8 /* ContactSyncView.swift */,
 			);
 			path = Contact;
+			sourceTree = "<group>";
+		};
+		BCA00F062FA0000100FEED04 /* Feed */ = {
+			isa = PBXGroup;
+			children = (
+				BCA00F022FA0000100FEED02 /* FeedAPI.swift */,
+			);
+			path = Feed;
 			sourceTree = "<group>";
 		};
 		BC706F6A2F93E8DE0093C0B8 /* Story */ = {
@@ -971,6 +988,9 @@
 				BCD8162B2F6936740028AE50 /* User.swift in Sources */,
 				BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */,
 				BC1DC2FC2F68CF730016A4CD /* Date+Extensions.swift in Sources */,
+				BCA00F012FA0000100FEED01 /* FeedDTO.swift in Sources */,
+				BCA00F032FA0000100FEED02 /* FeedAPI.swift in Sources */,
+				BCA00F052FA0000100FEED03 /* FeedService.swift in Sources */,
 				BC706F692F93E8B80093C0B8 /* StoryDTO.swift in Sources */,
 				BC1DC2FE2F68CF730016A4CD /* ImagePicker.swift in Sources */,
 				BC64737D2F86B42C00FA15EA /* MoyaProvider.swift in Sources */,

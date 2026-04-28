@@ -10,6 +10,13 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
 
+    // 스토리 전체화면 표시용 (피드에서 탭 — 해당 유저 스토리만)
+    @State private var singleStoryItem: StoryItem? = nil
+    // 프로필 네비게이션용
+    @State private var profileNavHandle: String? = nil
+    @State private var profileNavName: String = ""
+    @State private var profileNavImage: String? = nil
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottomTrailing) {
@@ -33,20 +40,45 @@ struct HomeView: View {
                             ForEach(viewModel.feedPosts) { post in
                                 HomeFeedCard(
                                     post: post,
-                                    onLike: { viewModel.toggleLike(for: post) }
+                                    onLike: { viewModel.toggleLike(for: post) },
+                                    onProfileImageTap: {
+                                        handleProfileImageTap(post: post)
+                                    },
+                                    onNameTap: {
+                                        navigateToProfile(post: post)
+                                    }
                                 )
+                                .onAppear {
+                                    // 마지막 포스트 근처에서 다음 페이지 로드
+                                    if post.id == viewModel.feedPosts.last?.id {
+                                        Task { await viewModel.loadMoreFeed() }
+                                    }
+                                }
                             }
                         }
 
+                        // 로딩 인디케이터
+                        if viewModel.isLoadingFeed {
+                            ProgressView()
+                                .tint(.white)
+                                .padding(.vertical, 20)
+                        }
+
                         // 피드 끝 메시지
-                        HomeFeedEndView()
-                            .padding(.vertical, 40)
+                        if !viewModel.hasMoreFeed {
+                            HomeFeedEndView()
+                                .padding(.vertical, 40)
+                        }
                     }
                 }
 
-                // 홈 화면 보일 때마다 스토리 새로고침
+                // 홈 화면 보일 때마다 스토리 + 피드 새로고침
                 .onAppear {
-                    Task { await viewModel.loadStories() }
+                    Task {
+                        async let stories: () = viewModel.loadStories()
+                        async let feed: () = viewModel.loadFeed()
+                        _ = await (stories, feed)
+                    }
                 }
 
                 // 게시 버튼
@@ -63,7 +95,48 @@ struct HomeView: View {
                 .padding(.trailing, 14)
                 .padding(.bottom, 24)
             }
+            // 프로필 네비게이션
+            .navigationDestination(isPresented: Binding(
+                get: { profileNavHandle != nil },
+                set: { if !$0 { profileNavHandle = nil } }
+            )) {
+                if let handle = profileNavHandle {
+                    FriendProfileView(
+                        name: profileNavName,
+                        handle: handle,
+                        profileImageUrl: profileNavImage
+                    )
+                }
+            }
+            // 피드에서 탭한 유저의 스토리만 표시
+            .fullScreenCover(item: $singleStoryItem) { story in
+                StoryDetailView(
+                    stories: [story],
+                    initialIndex: 0,
+                    onStorySeen: { storyId in
+                        viewModel.markStorySeen(storyId: storyId)
+                    }
+                )
+            }
         }
+    }
+
+    // MARK: - 프로필 사진 탭 (스토리 있으면 스토리, 없으면 프로필)
+
+    private func handleProfileImageTap(post: HomeFeedPost) {
+        if let story = viewModel.stories.first(where: { $0.username == post.handle }) {
+            singleStoryItem = story
+        } else {
+            navigateToProfile(post: post)
+        }
+    }
+
+    // MARK: - 이름 탭 (무조건 프로필)
+
+    private func navigateToProfile(post: HomeFeedPost) {
+        profileNavName = post.displayName
+        profileNavImage = post.profileImage.isEmpty ? nil : post.profileImage
+        profileNavHandle = post.handle
     }
 }
 

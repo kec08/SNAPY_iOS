@@ -11,6 +11,8 @@ import Kingfisher
 struct HomeFeedCard: View {
     let post: HomeFeedPost
     var onLike: () -> Void
+    var onProfileImageTap: (() -> Void)? = nil
+    var onNameTap: (() -> Void)? = nil
 
     @State private var currentPage = 0
     @State private var showComments = false
@@ -23,36 +25,44 @@ struct HomeFeedCard: View {
             HStack(spacing: 14) {
                 // 프로필 사진
                 Button {
-                    // 스토리 화면 이동
+                    onProfileImageTap?()
                 } label: {
                     profileImageView
                         .frame(width: 36, height: 36)
                         .clipShape(Circle())
                         .padding(3)
                         .overlay(
-                            Circle()
-                                .stroke(
-                                    post.isStorySeen
-                                        ? AnyShapeStyle(Color.customGray500)
-                                        : AnyShapeStyle(
-                                            LinearGradient(
-                                                colors: [Color(hex: "FFC83D"), Color(hex: "FF9F1C")],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                        ),
-                                    lineWidth: 0.7
-                                )
+                            Group {
+                                if post.hasStory {
+                                    Circle()
+                                        .stroke(
+                                            post.isStorySeen
+                                                ? AnyShapeStyle(Color.customGray500)
+                                                : AnyShapeStyle(
+                                                    LinearGradient(
+                                                        colors: [Color(hex: "FFC83D"), Color(hex: "FF9F1C")],
+                                                        startPoint: .topLeading,
+                                                        endPoint: .bottomTrailing
+                                                    )
+                                                ),
+                                            lineWidth: 2
+                                        )
+                                }
+                            }
                         )
                 }
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(post.displayName)
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(.white)
-                    Text(post.handle)
-                        .font(.system(size: 12))
-                        .foregroundColor(.customGray300)
+                Button {
+                    onNameTap?()
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(post.displayName)
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.white)
+                        Text(post.handle)
+                            .font(.system(size: 12))
+                            .foregroundColor(.customGray300)
+                    }
                 }
 
                 Spacer()
@@ -205,10 +215,14 @@ struct HomeFeedCard: View {
                 .placeholder { Color.customGray500 }
                 .fade(duration: 0.2)
                 .scaledToFill()
-        } else {
+        } else if !post.profileImage.isEmpty {
             Image(post.profileImage)
                 .resizable()
                 .scaledToFill()
+        } else {
+            Image(systemName: "person.circle.fill")
+                .resizable()
+                .foregroundColor(.customGray300)
         }
     }
 

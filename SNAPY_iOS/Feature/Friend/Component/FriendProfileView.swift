@@ -138,35 +138,21 @@ struct FriendProfileView: View {
 
                         // MARK: 버튼 영역 (친구 / 비친구 분기)
                         if currentFriend {
-                            // 친구인 경우: [친구] + [방명록 작성]
-                            HStack(spacing: 12) {
-                                Button {
-                                    showFriendSheet = true
-                                } label: {
-                                    HStack(spacing: 6) {
-                                        Image(systemName: "person.2.fill")
-                                            .font(.system(size: 13))
-                                        Text("친구")
-                                            .font(.system(size: 14, weight: .semibold))
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 36)
-                                    .foregroundColor(.mainYellow)
-                                    .background(.customDarkGray)
-                                    .cornerRadius(8)
-                                }
-
-                                Button {
-                                    // 방명록 작성 (추후 연결)
-                                } label: {
-                                    Text("방명록 작성")
+                            // 친구인 경우: [친구] 버튼만
+                            Button {
+                                showFriendSheet = true
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "person.2.fill")
+                                        .font(.system(size: 13))
+                                    Text("친구")
                                         .font(.system(size: 14, weight: .semibold))
-                                        .frame(maxWidth: .infinity)
-                                        .frame(height: 36)
-                                        .foregroundColor(.textWhite)
-                                        .background(.customDarkGray)
-                                        .cornerRadius(8)
                                 }
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 36)
+                                .foregroundColor(.mainYellow)
+                                .background(.customDarkGray)
+                                .cornerRadius(8)
                             }
                         } else {
                             // 비친구: [친구 추가] / [요청됨]
@@ -250,6 +236,14 @@ struct FriendProfileView: View {
             .ignoresSafeArea(edges: .top)
         }
         .navigationBarBackButtonHidden(true)
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width > 80 && abs(value.translation.height) < 100 {
+                        dismiss()
+                    }
+                }
+        )
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {

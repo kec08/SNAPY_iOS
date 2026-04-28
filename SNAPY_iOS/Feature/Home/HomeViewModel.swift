@@ -11,7 +11,7 @@ import Combine
 
 // MARK: - 홈 피드 모델
 
-/// 피드에 표시할 사진 한 장 (front + back)
+/// 피드에 표시할 사진 한 장
 struct FeedPhoto: Identifiable {
     let id = UUID()
     let frontImageUrl: String?   // 전면 카메라 (PIP)
@@ -29,7 +29,8 @@ struct HomeFeedPost: Identifiable {
     var isLiked: Bool = false
     var likeCount: Int = 0
     var commentCount: Int = 0
-    var isStorySeen: Bool = true
+    var hasStory: Bool = false       // 스토리 올렸는지 여부
+    var isStorySeen: Bool = true     // 스토리를 이미 봤는지
 }
 
 extension String {
@@ -94,6 +95,11 @@ final class HomeViewModel: ObservableObject {
     @Published var stories: [StoryItem] = []
     @Published var feedPosts: [HomeFeedPost] = []
     @Published var isLoadingStories: Bool = false
+    @Published var isLoadingFeed: Bool = false
+
+    /// 커서 기반 페이지네이션
+    private var nextCursor: Int? = nil
+    private(set) var hasMoreFeed: Bool = true
 
     /// 이미 본 스토리 ID (로컬 관리 — 서버에 isSeen API가 없으므로)
     private var seenStoryIds: Set<Int> {
@@ -101,9 +107,7 @@ final class HomeViewModel: ObservableObject {
         set { UserDefaults.standard.set(Array(newValue), forKey: "seenStoryIds") }
     }
 
-    init() {
-        loadMockFeed()
-    }
+    init() {}
 
     // MARK: - 스토리 목록 로드 (서버 API)
 
@@ -171,53 +175,68 @@ final class HomeViewModel: ObservableObject {
         }
     }
 
-    // MARK: - 피드 (기존 mock 유지 — 추후 API 연동)
+    // MARK: - 피드 로드 (서버 API — 커서 기반 무한 스크롤)
 
-    private func loadMockFeed() {
-        feedPosts = [
-            HomeFeedPost(
-                profileImage: "Profile_img",
-                displayName: "은찬",
-                handle: "silver_c_Id",
-                date: "4월 15일",
-                photos: [
-                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img1"),
-                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img2"),
-                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img3"),
-                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img4"),
-                ],
-                likeCount: 12,
-                commentCount: 3,
-                isStorySeen: false
-            ),
-            HomeFeedPost(
-                profileImage: "Profile_img",
-                displayName: "은찬",
-                handle: "silver_c_Id",
-                date: "4월 14일",
-                photos: [
-                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img2"),
-                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img3"),
-                ],
-                likeCount: 5,
-                commentCount: 1,
-                isStorySeen: true
-            ),
-            HomeFeedPost(
-                profileImage: "Profile_img",
-                displayName: "은찬",
-                handle: "silver_c_Id",
-                date: "4월 13일",
-                photos: [
-                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img3"),
-                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img4"),
-                    FeedPhoto(frontImageUrl: nil, backImageUrl: nil, assetName: "Mock_img5"),
-                ],
-                likeCount: 24,
-                commentCount: 7,
-                isStorySeen: false
-            ),
-        ]
+    /// 첫 페이지 로드 (pull-to-refresh 또는 최초 진입)
+    func loadFeed() async {
+        feedPosts = []
+        nextCursor = nil
+        hasMoreFeed = true
+        await loadMoreFeed()
+    }
+
+    /// 다음 페이지 로드 (무한 스크롤)
+    func loadMoreFeed() async {
+        guard !isLoadingFeed, hasMoreFeed else { return }
+        isLoadingFeed = true
+        defer { isLoadingFeed = false }
+
+        do {
+            let result = try await FeedService.shared.fetchFeed(cursor: nextCursor)
+            let newPosts = result.content.map { item in
+                // 해당 유저의 스토리가 있는지 확인 → 프로필 이미지 & 스토리 상태 연동
+                let matchedStory = stories.first(where: { $0.username == item.authorHandle })
+                let profileImg = matchedStory?.profileImage ?? ""
+                let hasStory = matchedStory != nil
+                let seen = matchedStory.map { seenStoryIds.contains($0.storyId) } ?? true
+
+                return HomeFeedPost(
+                    profileImage: profileImg,
+                    displayName: item.authorName,
+                    handle: item.authorHandle,
+                    date: Self.formatAlbumDate(item.albumDate),
+                    photos: item.photos.map { photo in
+                        FeedPhoto(
+                            frontImageUrl: photo.frontImageUrl,
+                            backImageUrl: photo.backImageUrl,
+                            assetName: nil
+                        )
+                    },
+                    likeCount: 0,
+                    commentCount: 0,
+                    hasStory: hasStory,
+                    isStorySeen: seen
+                )
+            }
+            feedPosts.append(contentsOf: newPosts)
+            nextCursor = result.nextCursor
+            hasMoreFeed = result.hasNext
+            print("[HomeViewModel] 피드 \(newPosts.count)개 로드 (total=\(feedPosts.count), hasMore=\(hasMoreFeed))")
+        } catch {
+            print("[HomeViewModel] 피드 로드 실패: \(error)")
+        }
+    }
+
+    /// "2026-04-28" → "4월 28일"
+    private static func formatAlbumDate(_ dateString: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "ko_KR")
+        guard let date = formatter.date(from: dateString) else { return dateString }
+        let display = DateFormatter()
+        display.dateFormat = "M월 d일"
+        display.locale = Locale(identifier: "ko_KR")
+        return display.string(from: date)
     }
 
     func toggleLike(for post: HomeFeedPost) {
