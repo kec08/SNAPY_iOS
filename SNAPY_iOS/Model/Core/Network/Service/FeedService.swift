@@ -32,11 +32,7 @@ final class FeedService {
 
     func fetchFeed(cursor: Int? = nil, size: Int = 20) async throws -> CursorResponse<FeedItemData> {
         let target: FeedAPI = .recommend(cursor: cursor, size: size)
-        let endpoint = MoyaProvider.defaultEndpointMapping(for: target)
-        print("[FeedService] request URL: \(try? endpoint.urlRequest().url?.absoluteString ?? "?")")
         let response = try await requestWithRefresh(target)
-        let body = String(data: response.data, encoding: .utf8) ?? "(nil)"
-        print("[FeedService] status=\(response.statusCode) body=\(body.prefix(500))")
         guard (200..<300).contains(response.statusCode) else {
             throw FeedError.serverError("서버 오류 (\(response.statusCode))")
         }

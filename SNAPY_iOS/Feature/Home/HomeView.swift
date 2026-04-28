@@ -16,6 +16,8 @@ struct HomeView: View {
     @State private var profileNavHandle: String? = nil
     @State private var profileNavName: String = ""
     @State private var profileNavImage: String? = nil
+    // Pull-to-refresh
+    @State private var isRefreshing = false
 
     var body: some View {
         NavigationStack {
@@ -26,6 +28,13 @@ struct HomeView: View {
                     VStack(spacing: 0) {
                         // 헤더
                         HomeHeader()
+
+                        // Pull-to-refresh 로딩바 (헤더 바로 아래)
+                        if isRefreshing {
+                            ProgressView()
+                                .tint(.white)
+                                .padding(.vertical, 12)
+                        }
 
                         // 스토리
                         HomeStoryBar(
@@ -49,7 +58,6 @@ struct HomeView: View {
                                     }
                                 )
                                 .onAppear {
-                                    // 마지막 포스트 근처에서 다음 페이지 로드
                                     if post.id == viewModel.feedPosts.last?.id {
                                         Task { await viewModel.loadMoreFeed() }
                                     }
@@ -57,7 +65,7 @@ struct HomeView: View {
                             }
                         }
 
-                        // 로딩 인디케이터
+                        // 로딩 인디케이터 (다음 페이지)
                         if viewModel.isLoadingFeed {
                             ProgressView()
                                 .tint(.white)
@@ -70,9 +78,20 @@ struct HomeView: View {
                                 .padding(.vertical, 40)
                         }
                     }
+                    // 스크롤 위치 감지 → pull-to-refresh
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear
+                                .onChange(of: geo.frame(in: .global).minY) { _, newValue in
+                                    // 헤더 높이(~41) + 여유 → 70pt 이상 당기면 새로고침
+                                    if newValue > 140 && !isRefreshing {
+                                        triggerRefresh()
+                                    }
+                                }
+                        }
+                    )
                 }
-
-                // 홈 화면 보일 때마다 스토리 + 피드 새로고침
+                // 홈 화면 최초 진입 시 로드
                 .onAppear {
                     Task {
                         async let stories: () = viewModel.loadStories()
@@ -118,6 +137,19 @@ struct HomeView: View {
                     }
                 )
             }
+        }
+    }
+
+    // MARK: - Pull-to-refresh
+
+    private func triggerRefresh() {
+        isRefreshing = true
+        Task {
+            async let stories: () = viewModel.loadStories()
+            async let feed: () = viewModel.loadFeed()
+            async let delay: () = Task.sleep(nanoseconds: 500_000_000)
+            _ = try? await (stories, feed, delay)
+            isRefreshing = false
         }
     }
 
