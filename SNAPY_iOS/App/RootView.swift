@@ -163,23 +163,26 @@ private extension RootView {
     func checkAutoLogin() async {
         // 1) access token이 아직 유효하면 바로 메인
         if TokenStorage.isAccessTokenValid() {
+            print("[AutoLogin] access token 유효 → 메인")
             screen = .main
             return
         }
 
-        // 2) access token 만료 → refresh 시도
-        if TokenStorage.accessToken != nil {
+        // 2) refresh token이 있으면 재발급 시도
+        if TokenStorage.refreshToken != nil {
             do {
                 _ = try await AuthService.shared.refreshAccessToken()
+                print("[AutoLogin] 토큰 재발급 성공 → 메인")
                 screen = .main
                 return
             } catch {
-                // refresh 실패 → 토큰 정리 후 로그인으로
+                print("[AutoLogin] 토큰 재발급 실패 → 로그인")
                 TokenStorage.clear()
             }
         }
 
         // 3) 토큰 없음 → 로그인
+        print("[AutoLogin] 토큰 없음 → 로그인")
         screen = .login
     }
 }

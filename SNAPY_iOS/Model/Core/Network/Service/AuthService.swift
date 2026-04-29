@@ -37,7 +37,6 @@ final class AuthService {
             if let body = String(data: response.data, encoding: .utf8) {
                 print("[AuthService] 로그인 응답 \(body)")
             }
-
             // HTTP 에러 상태 코드 처리
             guard (200..<300).contains(response.statusCode) else {
                 // Spring Boot 에러 또는 BaseResponse 형식에서 메시지 추출
@@ -62,6 +61,7 @@ final class AuthService {
             if let refresh = data.refreshToken {
                 TokenStorage.refreshToken = refresh
             }
+            print("[AuthService] refreshToken: \(TokenStorage.refreshToken?.prefix(20) ?? "nil")")
 
             return decoded
 
@@ -148,14 +148,16 @@ final class AuthService {
     // MARK: - 토큰 재발급
     func refreshAccessToken() async throws -> RefreshResponse {
         print("[AuthService] 토큰 재발급 요청")
-        print("[AuthService] X-Refresh-Token: \(TokenStorage.refreshToken ?? "nil")")
+        print("[AuthService] X-Refresh-Token: \(TokenStorage.refreshToken?.prefix(20) ?? "nil")...")
         let result = await provider.requestAsync(.refresh)
 
         switch result {
         case .success(let response):
             print("[AuthService] 재발급 응답 코드 \(response.statusCode)")
-            if let body = String(data: response.data, encoding: .utf8) {
-                print("[AuthService] 재발급 응답 \(body)")
+
+            guard (200..<300).contains(response.statusCode) else {
+                print("[AuthService] 재발급 실패 (\(response.statusCode))")
+                throw AuthError.serverError("토큰 재발급 실패")
             }
 
             let decoded = try JSONDecoder().decode(RefreshResponse.self, from: response.data)
@@ -166,12 +168,12 @@ final class AuthService {
 
             // 새 accessToken 저장
             TokenStorage.accessToken = data.accessToken
+            print("[AuthService] 재발급 성공 — 새 accessToken 저장")
 
             return decoded
 
         case .failure(let error):
             print("[AuthService] 재발급 네트워크 실패: \(error)")
-            TokenStorage.forceLogout()
             throw error
         }
     }

@@ -71,12 +71,15 @@ extension AuthAPI: TargetType {
     var headers: [String : String]? {
         switch self {
         case .login, .signup:
-            return ["Content-Type": "application/json"]
+            return [
+                "Content-Type": "application/json",
+                "X-Client-Type": "app"
+            ]
 
         case .refresh:
             var headers: [String: String] = [
                 "Content-Type": "application/json",
-                "X-Client-Type": "IOS"
+                "X-Client-Type": "app"
             ]
             if let refresh = TokenStorage.refreshToken {
                 headers["X-Refresh-Token"] = refresh
