@@ -169,7 +169,7 @@ final class FriendService {
                 do {
                     _ = try await AuthService.shared.refreshAccessToken()
                 } catch {
-                    TokenStorage.clear()
+                    TokenStorage.forceLogout()
                     throw FriendError.unauthorized
                 }
                 let retryResult = await provider.requestAsync(target)

@@ -266,14 +266,14 @@ final class AlbumService {
                 do {
                     _ = try await AuthService.shared.refreshAccessToken()
                 } catch {
-                    TokenStorage.clear()
+                    TokenStorage.forceLogout()
                     throw AlbumError.unauthorized
                 }
                 let retryResult = await provider.requestAsync(target)
                 switch retryResult {
                 case .success(let retryResponse):
                     if retryResponse.statusCode == 401 {
-                        TokenStorage.clear()
+                        TokenStorage.forceLogout()
                         throw AlbumError.unauthorized
                     }
                     return retryResponse

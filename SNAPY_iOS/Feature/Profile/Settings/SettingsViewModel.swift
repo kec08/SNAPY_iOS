@@ -74,13 +74,7 @@ final class SettingsViewModel: ObservableObject {
                 print("[Settings] 로그아웃 실패: \(error)")
             }
             TokenStorage.clear()
-            NotificationCenter.default.post(name: .didLogout, object: nil)
+            NotificationCenter.default.post(name: .didManualLogout, object: nil)
         }
     }
-}
-
-// MARK: - 로그아웃 Notification
-
-extension Notification.Name {
-    static let didLogout = Notification.Name("didLogout")
 }

@@ -54,14 +54,14 @@ final class FeedService {
                 do {
                     _ = try await AuthService.shared.refreshAccessToken()
                 } catch {
-                    TokenStorage.clear()
+                    TokenStorage.forceLogout()
                     throw FeedError.unauthorized
                 }
                 let retryResult = await provider.requestAsync(target)
                 switch retryResult {
                 case .success(let retryResponse):
                     if retryResponse.statusCode == 401 {
-                        TokenStorage.clear()
+                        TokenStorage.forceLogout()
                         throw FeedError.unauthorized
                     }
                     return retryResponse

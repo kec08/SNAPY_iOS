@@ -154,7 +154,7 @@ final class ProfileService {
                 do {
                     _ = try await AuthService.shared.refreshAccessToken()
                 } catch {
-                    TokenStorage.clear()
+                    TokenStorage.forceLogout()
                     throw ProfileError.unauthorized
                 }
                 let retryResult = await provider.requestAsync(target)

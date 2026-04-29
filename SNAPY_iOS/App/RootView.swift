@@ -25,6 +25,7 @@ struct RootView: View {
     @StateObject private var authVM = AuthViewModel()
     @StateObject private var signUpVM = SiginUpViewModel()
     @State private var screen: AppScreen = .splash
+    @State private var showSessionExpiredAlert = false
 
     var body: some View {
         ZStack {
@@ -134,14 +135,52 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.4), value: screen)
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                screen = .login
-            }
+        .task {
+            // 스플래시 최소 표시 시간
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            await checkAutoLogin()
         }
         .onReceive(NotificationCenter.default.publisher(for: .didLogout)) { _ in
+            // 이미 로그인 화면이면 알림 불필요
+            guard screen != .login && screen != .snapyLogin && screen != .splash else { return }
+            showSessionExpiredAlert = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .didManualLogout)) { _ in
             screen = .login
         }
+        .alert("세션 만료", isPresented: $showSessionExpiredAlert) {
+            Button("확인") {
+                screen = .login
+            }
+        } message: {
+            Text("로그인이 만료되었습니다.\n다시 로그인해주세요.")
+        }
+    }
+}
+
+// MARK: - 자동 로그인
+private extension RootView {
+    func checkAutoLogin() async {
+        // 1) access token이 아직 유효하면 바로 메인
+        if TokenStorage.isAccessTokenValid() {
+            screen = .main
+            return
+        }
+
+        // 2) access token 만료 → refresh 시도
+        if TokenStorage.accessToken != nil {
+            do {
+                _ = try await AuthService.shared.refreshAccessToken()
+                screen = .main
+                return
+            } catch {
+                // refresh 실패 → 토큰 정리 후 로그인으로
+                TokenStorage.clear()
+            }
+        }
+
+        // 3) 토큰 없음 → 로그인
+        screen = .login
     }
 }
 

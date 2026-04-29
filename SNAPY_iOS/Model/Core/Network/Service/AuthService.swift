@@ -160,7 +160,7 @@ final class AuthService {
             return decoded
 
         case .failure(let error):
-            TokenStorage.clear()
+            TokenStorage.forceLogout()
             throw error
         }
     }

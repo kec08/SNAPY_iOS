@@ -25,6 +25,21 @@ enum TokenStorage {
         accessToken = nil
         refreshToken = nil
     }
+
+    /// 토큰 정리 + 로그인 화면으로 강제 이동
+    static func forceLogout() {
+        clear()
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .didLogout, object: nil)
+        }
+    }
+}
+
+extension Notification.Name {
+    /// 세션 만료 등 강제 로그아웃 (알림창 표시)
+    static let didLogout = Notification.Name("didLogout")
+    /// 설정에서 직접 로그아웃 (알림 없이 바로 이동)
+    static let didManualLogout = Notification.Name("didManualLogout")
 }
 
 // JWT payload 디코딩용
