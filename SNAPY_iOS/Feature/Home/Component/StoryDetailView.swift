@@ -8,6 +8,15 @@
 import SwiftUI
 import Kingfisher
 
+/// 스토리 좋아요 상태 캐시 (앱 실행 동안 유지)
+enum StoryLikeCache {
+    private static var store: [String: Bool] = [:]
+
+    static func key(storyId: Int, type: String) -> String { "\(storyId)-\(type)" }
+    static func get(storyId: Int, type: String) -> Bool { store[key(storyId: storyId, type: type)] ?? false }
+    static func set(storyId: Int, type: String, liked: Bool) { store[key(storyId: storyId, type: type)] = liked }
+}
+
 struct StoryDetailView: View {
     let stories: [StoryItem]
     let initialIndex: Int
@@ -21,6 +30,7 @@ struct StoryDetailView: View {
     @State private var isPaused: Bool = false
     @State private var hideUI: Bool = false
     @State private var isLiked: Bool = false
+    @State private var showHeartPop: Bool = false
     @State private var timer: Timer?
 
     // 좌우 드래그
@@ -73,8 +83,8 @@ struct StoryDetailView: View {
         .onAppear {
             currentUserIndex = initialIndex
             startTimer()
-            // 현재 스토리를 본 것으로 마킹
             onStorySeen?(stories[initialIndex].storyId)
+            loadLikeStatus()
         }
         .onDisappear {
             stopTimer()
@@ -90,16 +100,29 @@ struct StoryDetailView: View {
         let safeImageIndex = min(imageIndex, max(photos.count - 1, 0))
 
         ZStack {
+            // 1) 배경 이미지
             storyPhotoContent(photo: photos.isEmpty ? nil : photos[safeImageIndex], size: size)
-                .contentShape(Rectangle())
-                .onTapGesture { location in
-                    if location.x < size.width * 0.25 {
-                        goToPrevious()
-                    } else {
-                        goToNext()
-                    }
+
+            // 2) 탭 네비게이션 (이전/다음) — 하단 버튼 영역 제외
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture { goToPrevious() }
+                        .frame(width: size.width * 0.25)
+
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture { goToNext() }
                 }
 
+                // 하단 버튼 영역만큼 비움 (탭 전파 차단)
+                Color.clear
+                    .frame(height: 80)
+                    .allowsHitTesting(false)
+            }
+
+            // 3) UI 오버레이 (프로그레스바, 프로필, 버튼)
             if !hideUI {
                 VStack(spacing: 0) {
                     // 상단
@@ -127,6 +150,7 @@ struct StoryDetailView: View {
                             }
                         }
                         .padding(.horizontal, 12)
+                        .allowsHitTesting(false)
 
                         // 프로필 정보
                         HStack(spacing: 12) {
@@ -151,11 +175,11 @@ struct StoryDetailView: View {
                                     .foregroundColor(.customGray200)
                                     .padding(.leading, 4)
                             }
-                            
 
                             Spacer()
                         }
                         .padding(.horizontal, 14)
+                        .allowsHitTesting(false)
                     }
                     .padding(.top, 16)
 
@@ -163,13 +187,13 @@ struct StoryDetailView: View {
 
                     // 하단 그라데이션
                     LinearGradient(
-                        colors: [.clear, .black.opacity(0.3)],
+                        colors: [.clear, .black.opacity(0.4)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
-                    .frame(height: 100)
+                    .frame(height: 160)
                     .allowsHitTesting(false)
-                    .padding(.bottom, -60)
+                    .padding(.bottom, -100)
 
                     // 하단 버튼
                     if userIndex == currentUserIndex {
@@ -181,12 +205,30 @@ struct StoryDetailView: View {
 
                             if !isMyStory {
                                 Button {
-                                    toggleLikeAPI()
+                                    triggerLike()
                                 } label: {
-                                    Image(systemName: isLiked ? "heart.fill" : "heart")
-                                        .font(.system(size: 28))
-                                        .foregroundColor(isLiked ? .red : .white)
+                                    ZStack {
+                                        // 탭 피드백: 위로 튀어오르는 하트
+                                        if showHeartPop {
+                                            Image("Heart_img")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 36, height: 36)
+                                                .transition(.asymmetric(
+                                                    insertion: .scale(scale: 0.2).combined(with: .opacity),
+                                                    removal: .opacity.combined(with: .offset(y: -20))
+                                                ))
+                                                .offset(y: -50)
+                                        }
+
+                                        Image(systemName: isLiked ? "heart.fill" : "heart")
+                                            .font(.system(size: 28))
+                                            .foregroundColor(isLiked ? .red : .white)
+                                    }
+                                    .frame(width: 48, height: 48)
+                                    .contentShape(Rectangle())
                                 }
+                                .buttonStyle(.plain)
                             }
 
                             Button {
@@ -195,7 +237,10 @@ struct StoryDetailView: View {
                                 Image(systemName: "paperplane")
                                     .font(.system(size: 24))
                                     .foregroundColor(.white)
+                                    .frame(width: 48, height: 48)
+                                    .contentShape(Rectangle())
                             }
+                            .buttonStyle(.plain)
                         }
                         .padding(.horizontal, 22)
                         .padding(.bottom, 30)
@@ -301,15 +346,16 @@ struct StoryDetailView: View {
         if currentImageIndex < currentPhotos.count - 1 {
             currentImageIndex += 1
             progress = 0
+            loadLikeStatus()
         } else if currentUserIndex < stories.count - 1 {
             withAnimation(.easeInOut(duration: 0.35)) {
                 currentUserIndex += 1
             }
             currentImageIndex = 0
             progress = 0
-            isLiked = false
             onStorySeen?(stories[currentUserIndex].storyId)
             startTimer()
+            loadLikeStatus()
         } else {
             dismiss()
         }
@@ -319,29 +365,52 @@ struct StoryDetailView: View {
         if currentImageIndex > 0 {
             currentImageIndex -= 1
             progress = 0
+            loadLikeStatus()
         } else if currentUserIndex > 0 {
             withAnimation(.easeInOut(duration: 0.35)) {
                 currentUserIndex -= 1
             }
             currentImageIndex = stories[currentUserIndex].photos.count - 1
             progress = 0
-            isLiked = false
             startTimer()
+            loadLikeStatus()
         }
     }
 
-    // MARK: - 좋아요 API
+    // MARK: - 좋아요
+
+    /// 햅틱 + 팝 애니메이션 + API 호출
+    private func triggerLike() {
+        let willLike = !isLiked  // 토글 후 좋아요 상태
+
+        // 짧은 햅틱 진동
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+
+        // 좋아요일 때만 팝 애니메이션
+        if willLike {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+                showHeartPop = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    showHeartPop = false
+                }
+            }
+        }
+
+        toggleLikeAPI()
+    }
 
     private func toggleLikeAPI() {
         let story = currentStory
         let photos = story.photos
         guard currentImageIndex < photos.count else {
-            isLiked.toggle()
+            print("[StoryDetail] guard 실패: currentImageIndex(\(currentImageIndex)) >= photos.count(\(photos.count))")
             return
         }
         let photo = photos[currentImageIndex]
         guard let type = photo.albumType else {
-            isLiked.toggle()
+            print("[StoryDetail] guard 실패: albumType nil (type=\(photo.type))")
             return
         }
 
@@ -354,18 +423,29 @@ struct StoryDetailView: View {
                     storyId: story.storyId,
                     type: type
                 )
-                // 서버 결과와 동기화
                 await MainActor.run {
                     isLiked = result.liked
+                    StoryLikeCache.set(storyId: story.storyId, type: type.rawValue, liked: result.liked)
                 }
             } catch {
                 print("[StoryDetail] 좋아요 실패: \(error)")
-                // 실패 시 롤백
                 await MainActor.run {
                     isLiked.toggle()
                 }
             }
         }
+    }
+
+    /// 로컬 캐시에서 좋아요 상태 복원
+    private func loadLikeStatus() {
+        let story = currentStory
+        let photos = story.photos
+        guard currentImageIndex < photos.count,
+              let type = photos[currentImageIndex].albumType else {
+            isLiked = false
+            return
+        }
+        isLiked = StoryLikeCache.get(storyId: story.storyId, type: type.rawValue)
     }
 
     // MARK: - 제스처

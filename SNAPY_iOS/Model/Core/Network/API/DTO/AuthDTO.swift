@@ -38,9 +38,10 @@ struct LoginRequest: Codable {
     let password: String
 }
 
-// 로그인 Response Datadlrj
+// 로그인 Response Data
 struct LoginData: Codable {
     let accessToken: String
+    let refreshToken: String?
 }
 
 typealias LoginResponse = BaseResponse<LoginData>

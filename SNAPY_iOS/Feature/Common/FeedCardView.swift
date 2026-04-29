@@ -113,6 +113,7 @@ struct FeedCardView: View {
             .frame(height: 540)
             .contentShape(Rectangle())
             .onTapGesture(count: 2) { location in
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 triggerHeartAnimation(at: location)
                 if !isLiked {
                     isLiked = true
@@ -139,6 +140,10 @@ struct FeedCardView: View {
             HStack(spacing: 14) {
                 HStack(spacing: 5) {
                     Button {
+                        let willLike = !isLiked
+                        if willLike {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        }
                         isLiked.toggle()
                         likeCount += isLiked ? 1 : -1
                         onLike?()

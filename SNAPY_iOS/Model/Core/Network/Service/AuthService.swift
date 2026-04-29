@@ -57,8 +57,11 @@ final class AuthService {
                 throw AuthError.serverError(localizedLoginError(decoded.message, statusCode: response.statusCode))
             }
 
-            // accessToken 저장
+            // 토큰 저장
             TokenStorage.accessToken = data.accessToken
+            if let refresh = data.refreshToken {
+                TokenStorage.refreshToken = refresh
+            }
 
             return decoded
 
@@ -142,12 +145,19 @@ final class AuthService {
         }
     }
 
-    // MARK: - 토큰 재발급 (RefreshToken은 쿠키에서 서버가 자동 추출)
+    // MARK: - 토큰 재발급
     func refreshAccessToken() async throws -> RefreshResponse {
+        print("[AuthService] 토큰 재발급 요청")
+        print("[AuthService] X-Refresh-Token: \(TokenStorage.refreshToken ?? "nil")")
         let result = await provider.requestAsync(.refresh)
 
         switch result {
         case .success(let response):
+            print("[AuthService] 재발급 응답 코드 \(response.statusCode)")
+            if let body = String(data: response.data, encoding: .utf8) {
+                print("[AuthService] 재발급 응답 \(body)")
+            }
+
             let decoded = try JSONDecoder().decode(RefreshResponse.self, from: response.data)
 
             guard decoded.success, let data = decoded.data else {
@@ -160,6 +170,7 @@ final class AuthService {
             return decoded
 
         case .failure(let error):
+            print("[AuthService] 재발급 네트워크 실패: \(error)")
             TokenStorage.forceLogout()
             throw error
         }
