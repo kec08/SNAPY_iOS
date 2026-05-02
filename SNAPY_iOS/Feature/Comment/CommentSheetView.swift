@@ -9,13 +9,20 @@ import SwiftUI
 import Kingfisher
 
 struct CommentSheetView: View {
-    let postId: UUID
+    let albumId: Int
+    @Binding var commentCount: Int
     @State private var comments: [Comment] = []
     @State private var showEmojiBar = false
     @State private var showVoiceRecorder = false
     @State private var showImagePicker = false
+    @State private var isLoading = false
+    @State private var nextCursor: Int? = nil
+    @State private var hasMore = true
+    @State private var deleteTarget: Comment? = nil
+    @State private var showDeleteAlert = false
 
     private let emojis = ["💕", "🔥", "🤩", "😍", "😢", "😡", "💀"]
+    private let myHandle = UserDefaults.standard.string(forKey: "myHandle") ?? ""
 
     var body: some View {
         ZStack {
@@ -36,7 +43,11 @@ struct CommentSheetView: View {
                     .padding(.bottom, 16)
 
                 // 댓글 목록 or 빈 상태
-                if comments.isEmpty {
+                if isLoading && comments.isEmpty {
+                    Spacer()
+                    ProgressView().tint(.white)
+                    Spacer()
+                } else if comments.isEmpty {
                     emptyView
                 } else {
                     commentListView
@@ -55,20 +66,26 @@ struct CommentSheetView: View {
         }
         .sheet(isPresented: $showVoiceRecorder) {
             VoiceRecorderSheet { recordedURL in
-                // 녹음 완료 → 댓글 추가 (추후 서버 업로드)
-                let comment = Comment(
-                    profileImageUrl: nil,
-                    handle: "silver_c.ld",
-                    type: .voice(url: recordedURL.absoluteString, duration: 4),
-                    createdAt: Date()
-                )
-                comments.append(comment)
+                Task { await uploadAudio(url: recordedURL) }
             }
             .presentationDetents([.fraction(0.55)])
             .presentationDragIndicator(.hidden)
         }
         .onAppear {
-            loadMockComments()
+            Task { await loadComments() }
+        }
+        .alert("댓글 삭제", isPresented: $showDeleteAlert) {
+            Button("취소", role: .cancel) {
+                deleteTarget = nil
+            }
+            Button("삭제", role: .destructive) {
+                if let target = deleteTarget {
+                    Task { await deleteComment(target) }
+                    deleteTarget = nil
+                }
+            }
+        } message: {
+            Text("이 댓글을 삭제하시겠습니까?")
         }
     }
 
@@ -93,7 +110,32 @@ struct CommentSheetView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 24) {
                 ForEach(comments) { comment in
-                    CommentRow(comment: comment)
+                    CommentRow(
+                        comment: comment,
+                        isMine: comment.handle == myHandle,
+                        onDelete: {
+                            deleteTarget = comment
+                            showDeleteAlert = true
+                        }
+                    )
+                }
+
+                // 더보기
+                if hasMore && !isLoading {
+                    Button {
+                        Task { await loadMoreComments() }
+                    } label: {
+                        Text("더보기")
+                            .font(.system(size: 14))
+                            .foregroundColor(.customGray300)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                    }
+                }
+
+                if isLoading && !comments.isEmpty {
+                    ProgressView().tint(.white)
+                        .frame(maxWidth: .infinity)
                 }
             }
             .padding(.horizontal, 20)
@@ -107,13 +149,7 @@ struct CommentSheetView: View {
         HStack(spacing: 16) {
             ForEach(emojis, id: \.self) { emoji in
                 Button {
-                    let comment = Comment(
-                        profileImageUrl: nil,
-                        handle: "silver_c.ld",
-                        type: .emoji(emoji),
-                        createdAt: Date()
-                    )
-                    comments.append(comment)
+                    Task { await uploadEmoji(emoji) }
                     showEmojiBar = false
                 } label: {
                     Text(emoji)
@@ -125,7 +161,7 @@ struct CommentSheetView: View {
         .padding(.vertical, 12)
     }
 
-    // MARK: - 하단 입력 바
+    // MARK: - 하단 출력 바
 
     private var inputBar: some View {
         HStack(spacing: 0) {
@@ -180,17 +216,74 @@ struct CommentSheetView: View {
         .padding(.top, 10)
     }
 
-    // MARK: - Mock
+    // MARK: - 서버 통신
 
-    private func loadMockComments() {
-        comments = [
-            Comment(profileImageUrl: nil, handle: "silver_c.ld",
-                    type: .image(url: "Mock_img1"), createdAt: Date()),
-            Comment(profileImageUrl: nil, handle: "silver_c.ld",
-                    type: .voice(url: "", duration: 4), createdAt: Date()),
-            Comment(profileImageUrl: nil, handle: "silver_c.ld",
-                    type: .emoji("😍"), createdAt: Date()),
-        ]
+    private func loadComments() async {
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            let result = try await CommentService.shared.fetchComments(albumId: albumId)
+            comments = result.content.map { Comment(from: $0) }
+            commentCount = comments.count
+            nextCursor = result.nextCursor
+            hasMore = result.hasNext
+        } catch {
+            print("[CommentSheet] 댓글 로드 실패: \(error)")
+        }
+    }
+
+    private func loadMoreComments() async {
+        guard hasMore, !isLoading else { return }
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            let result = try await CommentService.shared.fetchComments(albumId: albumId, cursor: nextCursor)
+            comments.append(contentsOf: result.content.map { Comment(from: $0) })
+            nextCursor = result.nextCursor
+            hasMore = result.hasNext
+        } catch {
+            print("[CommentSheet] 댓글 더보기 실패: \(error)")
+        }
+    }
+
+    private func uploadEmoji(_ emoji: String) async {
+        // 낙관적 추가
+        let temp = Comment(profileImageUrl: nil, handle: myHandle, type: .emoji(emoji))
+        comments.append(temp)
+        commentCount = comments.count
+        do {
+            _ = try await CommentService.shared.uploadEmoji(albumId: albumId, emoji: emoji)
+            await loadComments()
+        } catch {
+            print("[CommentSheet] 이모지 댓글 실패: \(error)")
+            comments.removeAll { $0.id == temp.id }
+            commentCount = comments.count
+        }
+    }
+
+    private func uploadAudio(url: URL) async {
+        let temp = Comment(profileImageUrl: nil, handle: myHandle, type: .voice(url: url.absoluteString, duration: 4))
+        comments.append(temp)
+        commentCount = comments.count
+        do {
+            _ = try await CommentService.shared.uploadAudio(albumId: albumId, audioURL: url)
+            await loadComments()
+        } catch {
+            print("[CommentSheet] 음성 댓글 실패: \(error)")
+            comments.removeAll { $0.id == temp.id }
+            commentCount = comments.count
+        }
+    }
+
+    private func deleteComment(_ comment: Comment) async {
+        comments.removeAll { $0.id == comment.id }
+        commentCount = comments.count
+        do {
+            try await CommentService.shared.deleteComment(commentId: comment.id)
+        } catch {
+            print("[CommentSheet] 댓글 삭제 실패: \(error)")
+            await loadComments()
+        }
     }
 }
 
@@ -198,6 +291,8 @@ struct CommentSheetView: View {
 
 struct CommentRow: View {
     let comment: Comment
+    var isMine: Bool = false
+    var onDelete: (() -> Void)? = nil
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -212,6 +307,18 @@ struct CommentRow: View {
                     .foregroundColor(.textWhite)
 
                 commentContent
+            }
+
+            Spacer()
+
+            if isMine {
+                Button {
+                    onDelete?()
+                } label: {
+                    Image(systemName: "trash")
+                        .font(.system(size: 14))
+                        .foregroundColor(.customGray300)
+                }
             }
         }
     }
@@ -303,5 +410,5 @@ struct CommentRow: View {
 }
 
 #Preview("댓글 있음") {
-    CommentSheetView(postId: UUID())
+    CommentSheetView(albumId: 1, commentCount: .constant(0))
 }

@@ -10,6 +10,7 @@ import Kingfisher
 
 /// 홈 피드와 프로필 피드 상세에서 공통으로 사용하는 피드 카드
 struct FeedCardView: View {
+    let albumId: Int                 // 서버 앨범 ID (댓글 조회에 사용)
     let profileImageSource: ProfileImageSource
     let displayName: String
     let handle: String
@@ -23,7 +24,7 @@ struct FeedCardView: View {
     // 좋아요/댓글 상태
     @Binding var isLiked: Bool
     @Binding var likeCount: Int
-    var commentCount: Int = 0
+    @Binding var commentCount: Int
 
     // 콜백
     var onLike: (() -> Void)? = nil
@@ -183,14 +184,22 @@ struct FeedCardView: View {
             .padding(.horizontal, 14)
             .padding(.bottom, 20)
 
-            ImageCommentSection()
+            ImageCommentSection(albumId: albumId)
                 .padding(.horizontal, 14)
                 .padding(.bottom, 12)
         }
         .sheet(isPresented: $showComments) {
-            CommentSheetView(postId: UUID())
+            CommentSheetView(albumId: albumId, commentCount: $commentCount)
                 .presentationDetents([.large])
                 .presentationDragIndicator(.hidden)
+        }
+        .onAppear {
+            guard albumId > 0, commentCount == 0 else { return }
+            Task {
+                if let result = try? await CommentService.shared.fetchComments(albumId: albumId, size: 100) {
+                    commentCount = result.content.count
+                }
+            }
         }
     }
 
@@ -343,9 +352,9 @@ struct HeartAnimation: Identifiable {
 // MARK: - 이미지 댓글 섹션
 
 struct ImageCommentSection: View {
+    let albumId: Int
     @State private var showImagePicker = false
-
-    private let reactions = ["Mock_img2", "Mock_img3", "Mock_img4", "Mock_img5", "Mock_img1", "Mock_img2", "Mock_img3", "Mock_img4"]
+    @State private var imageUrls: [String] = []
 
     var body: some View {
         HStack(spacing: 12) {
@@ -364,15 +373,33 @@ struct ImageCommentSection: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(reactions.indices, id: \.self) { index in
-                        Image(reactions[index])
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 44, height: 44)
-                            .clipShape(Circle())
+                    ForEach(imageUrls, id: \.self) { urlString in
+                        if let url = URL(string: urlString) {
+                            KFImage(url)
+                                .resizable()
+                                .placeholder { Color.customDarkGray }
+                                .scaledToFill()
+                                .frame(width: 44, height: 44)
+                                .clipShape(Circle())
+                        }
                     }
                 }
             }
+        }
+        .onAppear {
+            Task { await loadImageComments() }
+        }
+    }
+
+    private func loadImageComments() async {
+        guard albumId > 0 else { return }
+        do {
+            let result = try await CommentService.shared.fetchComments(albumId: albumId, size: 20)
+            imageUrls = result.content
+                .filter { $0.type == "IMAGE" }
+                .compactMap { $0.imageUrl }
+        } catch {
+            print("[ImageCommentSection] 로드 실패: \(error)")
         }
     }
 }

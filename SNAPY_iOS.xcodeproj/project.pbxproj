@@ -64,6 +64,9 @@
 		BC706F722F95280D0093C0B8 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F712F95280A0093C0B8 /* SettingsViewModel.swift */; };
 		BCAA007F2F9A381E00A6B597 /* GuestbookDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAA007E2F9A381C00A6B597 /* GuestbookDTO.swift */; };
 		BCA00F012FA0000100FEED01 /* FeedDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F002FA0000100FEED01 /* FeedDTO.swift */; };
+		BCA00F092FA2000100CMNT01 /* CommentDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F082FA2000100CMNT01 /* CommentDTO.swift */; };
+		BCA00F0B2FA2000100CMNT02 /* CommentAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F0A2FA2000100CMNT02 /* CommentAPI.swift */; };
+		BCA00F0D2FA2000100CMNT03 /* CommentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F0C2FA2000100CMNT03 /* CommentService.swift */; };
 		BCA00F032FA0000100FEED02 /* FeedAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F022FA0000100FEED02 /* FeedAPI.swift */; };
 		BCA00F052FA0000100FEED03 /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F042FA0000100FEED03 /* FeedService.swift */; };
 		BCA00F072FA1000100CARD01 /* FeedCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F082FA1000100CARD01 /* FeedCardView.swift */; };
@@ -195,6 +198,9 @@
 		BC706F772F95A71B0093C0B8 /* SNAPY_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SNAPY_iOS.entitlements; sourceTree = "<group>"; };
 		BCAA007E2F9A381C00A6B597 /* GuestbookDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestbookDTO.swift; sourceTree = "<group>"; };
 		BCA00F002FA0000100FEED01 /* FeedDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDTO.swift; sourceTree = "<group>"; };
+		BCA00F082FA2000100CMNT01 /* CommentDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentDTO.swift; sourceTree = "<group>"; };
+		BCA00F0A2FA2000100CMNT02 /* CommentAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentAPI.swift; sourceTree = "<group>"; };
+		BCA00F0C2FA2000100CMNT03 /* CommentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentService.swift; sourceTree = "<group>"; };
 		BCA00F022FA0000100FEED02 /* FeedAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedAPI.swift; sourceTree = "<group>"; };
 		BCA00F042FA0000100FEED03 /* FeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedService.swift; sourceTree = "<group>"; };
 		BCA00F082FA1000100CARD01 /* FeedCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedCardView.swift; sourceTree = "<group>"; };
@@ -305,6 +311,7 @@
 		BC1DC2DA2F68CF730016A4CD /* DTO */ = {
 			isa = PBXGroup;
 			children = (
+				BCA00F082FA2000100CMNT01 /* CommentDTO.swift */,
 				BCA00F002FA0000100FEED01 /* FeedDTO.swift */,
 				BCAA007E2F9A381C00A6B597 /* GuestbookDTO.swift */,
 				BC706F6D2F9527A40093C0B8 /* SettingsDTO.swift */,
@@ -328,6 +335,7 @@
 		BC1DC2E12F68CF730016A4CD /* API */ = {
 			isa = PBXGroup;
 			children = (
+				BCA00F0E2FA2000100CMNT04 /* Comment */,
 				BCA00F062FA0000100FEED04 /* Feed */,
 				BC706F6A2F93E8DE0093C0B8 /* Story */,
 				BC706E602F8DC1010093C0B8 /* Friend */,
@@ -343,6 +351,7 @@
 		BC1DC2E82F68CF730016A4CD /* Service */ = {
 			isa = PBXGroup;
 			children = (
+				BCA00F0C2FA2000100CMNT03 /* CommentService.swift */,
 				BCA00F042FA0000100FEED03 /* FeedService.swift */,
 				BC706F662F93E88A0093C0B8 /* StoryService.swift */,
 				BC706E632F8DC1330093C0B8 /* FriendService.swift */,
@@ -450,6 +459,14 @@
 				BC706E672F8DFDD60093C0B8 /* ContactSyncView.swift */,
 			);
 			path = Contact;
+			sourceTree = "<group>";
+		};
+		BCA00F0E2FA2000100CMNT04 /* Comment */ = {
+			isa = PBXGroup;
+			children = (
+				BCA00F0A2FA2000100CMNT02 /* CommentAPI.swift */,
+			);
+			path = Comment;
 			sourceTree = "<group>";
 		};
 		BCA00F062FA0000100FEED04 /* Feed */ = {
@@ -1003,6 +1020,9 @@
 				BCA00F012FA0000100FEED01 /* FeedDTO.swift in Sources */,
 				BCA00F032FA0000100FEED02 /* FeedAPI.swift in Sources */,
 				BCA00F052FA0000100FEED03 /* FeedService.swift in Sources */,
+				BCA00F092FA2000100CMNT01 /* CommentDTO.swift in Sources */,
+				BCA00F0B2FA2000100CMNT02 /* CommentAPI.swift in Sources */,
+				BCA00F0D2FA2000100CMNT03 /* CommentService.swift in Sources */,
 				BC706F692F93E8B80093C0B8 /* StoryDTO.swift in Sources */,
 				BC1DC2FE2F68CF730016A4CD /* ImagePicker.swift in Sources */,
 				BC64737D2F86B42C00FA15EA /* MoyaProvider.swift in Sources */,

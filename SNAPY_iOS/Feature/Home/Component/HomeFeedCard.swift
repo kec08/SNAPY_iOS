@@ -15,6 +15,7 @@ struct HomeFeedCard: View {
 
     @State private var isLiked: Bool
     @State private var likeCount: Int
+    @State private var commentCount: Int
 
     init(post: HomeFeedPost, onLike: @escaping () -> Void,
          onProfileImageTap: (() -> Void)? = nil, onNameTap: (() -> Void)? = nil) {
@@ -24,10 +25,12 @@ struct HomeFeedCard: View {
         self.onNameTap = onNameTap
         _isLiked = State(initialValue: post.isLiked)
         _likeCount = State(initialValue: post.likeCount)
+        _commentCount = State(initialValue: post.commentCount)
     }
 
     var body: some View {
         FeedCardView(
+            albumId: post.albumId,
             profileImageSource: profileSource,
             displayName: post.displayName,
             handle: post.handle,
@@ -39,7 +42,7 @@ struct HomeFeedCard: View {
             isStorySeen: post.isStorySeen,
             isLiked: $isLiked,
             likeCount: $likeCount,
-            commentCount: post.commentCount,
+            commentCount: $commentCount,
             onLike: { onLike() },
             onProfileImageTap: onProfileImageTap,
             onNameTap: onNameTap
@@ -62,6 +65,7 @@ struct HomeFeedCard: View {
     ScrollView {
         HomeFeedCard(
             post: HomeFeedPost(
+                albumId: 1,
                 profileImage: "Profile_img",
                 displayName: "김은찬",
                 handle: "silver_c_Id",

@@ -118,9 +118,11 @@ struct FeedDetailCard: View {
 
     @State private var isLiked = false
     @State private var likeCount = 0
+    @State private var commentCount = 0
 
     var body: some View {
         FeedCardView(
+            albumId: post.id,
             profileImageSource: profileSource,
             displayName: displayName,
             handle: handle,
@@ -129,7 +131,8 @@ struct FeedDetailCard: View {
                 FeedCardPhoto(frontImageUrl: $0.frontImageUrl, backImageUrl: $0.backImageUrl, assetName: nil)
             },
             isLiked: $isLiked,
-            likeCount: $likeCount
+            likeCount: $likeCount,
+            commentCount: $commentCount
         )
     }
 
