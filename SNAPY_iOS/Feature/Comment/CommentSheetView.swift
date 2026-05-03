@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import PhotosUI
 
 struct CommentSheetView: View {
     let albumId: Int
@@ -14,7 +15,7 @@ struct CommentSheetView: View {
     @State private var comments: [Comment] = []
     @State private var showEmojiBar = false
     @State private var showVoiceRecorder = false
-    @State private var showImagePicker = false
+    @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var isLoading = false
     @State private var nextCursor: Int? = nil
     @State private var hasMore = true
@@ -166,14 +167,17 @@ struct CommentSheetView: View {
     private var inputBar: some View {
         HStack(spacing: 0) {
             // 이미지 버튼
-            Button {
-                showImagePicker = true
-            } label: {
+            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
                 Image(systemName: "photo.on.rectangle.angled")
                     .font(.system(size: 20))
                     .foregroundColor(.white)
                     .frame(width: 52, height: 52)
                     .background(Color.customDarkGray, in: Circle())
+            }
+            .onChange(of: selectedPhotoItem) { _, newItem in
+                guard let newItem else { return }
+                Task { await uploadPickedImage(item: newItem) }
+                selectedPhotoItem = nil
             }
 
             Spacer()
@@ -243,6 +247,26 @@ struct CommentSheetView: View {
             hasMore = result.hasNext
         } catch {
             print("[CommentSheet] 댓글 더보기 실패: \(error)")
+        }
+    }
+
+    private func uploadPickedImage(item: PhotosPickerItem) async {
+        guard let data = try? await item.loadTransferable(type: Data.self),
+              let image = UIImage(data: data) else {
+            print("[CommentSheet] 이미지 로드 실패")
+            return
+        }
+        // 낙관적 추가 (로컬 이미지를 임시 URL로)
+        let temp = Comment(profileImageUrl: nil, handle: myHandle, type: .image(url: ""))
+        comments.append(temp)
+        commentCount = comments.count
+        do {
+            _ = try await CommentService.shared.uploadImage(albumId: albumId, image: image)
+            await loadComments()
+        } catch {
+            print("[CommentSheet] 이미지 댓글 실패: \(error)")
+            comments.removeAll { $0.id == temp.id }
+            commentCount = comments.count
         }
     }
 

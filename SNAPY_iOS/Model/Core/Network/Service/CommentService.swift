@@ -32,8 +32,7 @@ final class CommentService {
     // MARK: - 댓글 목록 조회
 
     func fetchComments(albumId: Int, cursor: Int? = nil, size: Int = 20) async throws -> CursorResponse<CommentResponseData> {
-        let target: CommentAPI = .fetchComments(albumId: albumId, cursor: cursor, size: size)
-        let response = try await requestWithRefresh(target)
+        let response = try await requestWithRefresh(.fetchComments(albumId: albumId, cursor: cursor, size: size))
         guard (200..<300).contains(response.statusCode) else {
             throw CommentError.serverError("서버 오류 (\(response.statusCode))")
         }
@@ -47,8 +46,7 @@ final class CommentService {
     // MARK: - 이모지 댓글 작성
 
     func uploadEmoji(albumId: Int, emoji: String) async throws -> CommentUploadResponseData {
-        let target: CommentAPI = .uploadEmoji(albumId: albumId, emoji: emoji)
-        let response = try await requestWithRefresh(target)
+        let response = try await requestWithRefresh(.uploadEmoji(albumId: albumId, emoji: emoji))
         guard (200..<300).contains(response.statusCode) else {
             throw CommentError.serverError("서버 오류 (\(response.statusCode))")
         }
@@ -62,11 +60,11 @@ final class CommentService {
     // MARK: - 이미지 댓글 작성
 
     func uploadImage(albumId: Int, image: UIImage) async throws -> CommentUploadResponseData {
-        guard let imageData = image.jpegData(compressionQuality: 0.85) else {
+        let resized = Self.resizeImage(image, maxDimension: 1024)
+        guard let imageData = resized.jpegData(compressionQuality: 0.7) else {
             throw CommentError.serverError("이미지 변환 실패")
         }
-        let target: CommentAPI = .uploadImage(albumId: albumId, imageData: imageData)
-        let response = try await requestWithRefresh(target)
+        let response = try await requestWithRefresh(.uploadImage(albumId: albumId, imageData: imageData))
         guard (200..<300).contains(response.statusCode) else {
             throw CommentError.serverError("서버 오류 (\(response.statusCode))")
         }
@@ -81,8 +79,7 @@ final class CommentService {
 
     func uploadAudio(albumId: Int, audioURL: URL) async throws -> CommentUploadResponseData {
         let audioData = try Data(contentsOf: audioURL)
-        let target: CommentAPI = .uploadAudio(albumId: albumId, audioData: audioData)
-        let response = try await requestWithRefresh(target)
+        let response = try await requestWithRefresh(.uploadAudio(albumId: albumId, audioData: audioData))
         guard (200..<300).contains(response.statusCode) else {
             throw CommentError.serverError("서버 오류 (\(response.statusCode))")
         }
@@ -96,8 +93,7 @@ final class CommentService {
     // MARK: - 댓글 삭제
 
     func deleteComment(commentId: Int) async throws {
-        let target: CommentAPI = .delete(commentId: commentId)
-        let response = try await requestWithRefresh(target)
+        let response = try await requestWithRefresh(.delete(commentId: commentId))
         guard (200..<300).contains(response.statusCode) else {
             throw CommentError.serverError("서버 오류 (\(response.statusCode))")
         }
@@ -133,6 +129,17 @@ final class CommentService {
 
         case .failure(let error):
             throw error
+        }
+    }
+
+    private static func resizeImage(_ image: UIImage, maxDimension: CGFloat) -> UIImage {
+        let size = image.size
+        guard max(size.width, size.height) > maxDimension else { return image }
+        let ratio = maxDimension / max(size.width, size.height)
+        let newSize = CGSize(width: size.width * ratio, height: size.height * ratio)
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
         }
     }
 }
