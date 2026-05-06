@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import PhotosUI
 
 /// 홈 피드와 프로필 피드 상세에서 공통으로 사용하는 피드 카드
 struct FeedCardView: View {
@@ -353,22 +354,35 @@ struct HeartAnimation: Identifiable {
 
 struct ImageCommentSection: View {
     let albumId: Int
-    @State private var showImagePicker = false
+    @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var imageUrls: [String] = []
+    @State private var isUploading = false
 
     var body: some View {
         HStack(spacing: 12) {
-            Button {
-                showImagePicker = true
-            } label: {
+            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
                 Circle()
                     .stroke(Color.customGray300, style: StrokeStyle(lineWidth: 1, dash: [4]))
                     .frame(width: 44, height: 44)
                     .overlay(
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.customGray300)
+                        Group {
+                            if isUploading {
+                                ProgressView()
+                                    .tint(.customGray300)
+                                    .scaleEffect(0.7)
+                            } else {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(.customGray300)
+                            }
+                        }
                     )
+            }
+            .disabled(isUploading)
+            .onChange(of: selectedPhotoItem) { _, newItem in
+                guard let newItem else { return }
+                Task { await uploadPickedImage(item: newItem) }
+                selectedPhotoItem = nil
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -389,6 +403,19 @@ struct ImageCommentSection: View {
         .onAppear {
             Task { await loadImageComments() }
         }
+    }
+
+    private func uploadPickedImage(item: PhotosPickerItem) async {
+        guard let data = try? await item.loadTransferable(type: Data.self),
+              let image = UIImage(data: data) else { return }
+        isUploading = true
+        do {
+            _ = try await CommentService.shared.uploadImage(albumId: albumId, image: image)
+            await loadImageComments()
+        } catch {
+            print("[ImageCommentSection] 업로드 실패: \(error)")
+        }
+        isUploading = false
     }
 
     private func loadImageComments() async {
