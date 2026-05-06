@@ -386,17 +386,15 @@ struct CommentRow: View {
             KFImage(imgUrl)
                 .resizable()
                 .placeholder { Color.customDarkGray }
-                .scaledToFill()
-                .frame(width: 200, height: 160)
-                .clipped()
+                .scaledToFit()
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .frame(maxWidth: 200, maxHeight: 240, alignment: .leading)
         } else {
             Image(url)
                 .resizable()
-                .scaledToFill()
-                .frame(width: 200, height: 160)
-                .clipped()
+                .scaledToFit()
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .frame(maxWidth: 200, maxHeight: 240, alignment: .leading)
         }
     }
 
