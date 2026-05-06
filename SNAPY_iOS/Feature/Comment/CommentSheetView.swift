@@ -8,6 +8,8 @@
 import SwiftUI
 import Kingfisher
 import PhotosUI
+import AVFoundation
+import Combine
 
 struct CommentSheetView: View {
     let albumId: Int
@@ -318,6 +320,8 @@ struct CommentRow: View {
     var isMine: Bool = false
     var onDelete: (() -> Void)? = nil
 
+    @StateObject private var audioPlayer = AudioCommentPlayer()
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             // 프로필
@@ -366,8 +370,8 @@ struct CommentRow: View {
         switch comment.type {
         case .image(let url):
             imageComment(url: url)
-        case .voice(_, let duration):
-            voiceComment(duration: duration)
+        case .voice(let url, _):
+            voiceComment(url: url)
         case .emoji(let emoji):
             Text(emoji)
                 .font(.system(size: 48))
@@ -398,38 +402,209 @@ struct CommentRow: View {
 
     // MARK: - 음성 댓글
 
-    private func voiceComment(duration: TimeInterval) -> some View {
+    private func voiceComment(url: String) -> some View {
         HStack(spacing: 12) {
             Button {
-                // 재생 (추후 구현)
+                audioPlayer.togglePlayback(urlString: url)
             } label: {
-                Image(systemName: "play.fill")
+                Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
                     .font(.system(size: 16))
                     .foregroundColor(.black)
             }
 
-            // 파형
+            // 파형 (실제 오디오 데이터 기반, 재생 시 왼→오 채워짐)
             HStack(spacing: 2) {
-                ForEach(0..<30, id: \.self) { _ in
+                ForEach(0..<30, id: \.self) { index in
+                    let isActive = audioPlayer.isPlaying && Double(index) / 30.0 <= audioPlayer.progress
                     RoundedRectangle(cornerRadius: 1)
-                        .fill(Color.black.opacity(0.7))
-                        .frame(width: 2.5, height: CGFloat.random(in: 8...28))
+                        .fill(isActive ? Color.black : Color.black.opacity(0.3))
+                        .frame(width: 2.5, height: audioPlayer.waveformHeights[index])
                 }
             }
 
-            Text(formatDuration(duration))
+            Text(formatDuration(audioPlayer.isPlaying ? audioPlayer.currentTime : audioPlayer.duration))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(.black)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .background(Color.MainYellow, in: RoundedRectangle(cornerRadius: 16))
+        .onAppear {
+            audioPlayer.loadDuration(urlString: url)
+        }
     }
 
     private func formatDuration(_ seconds: TimeInterval) -> String {
         let mins = Int(seconds) / 60
         let secs = Int(seconds) % 60
         return String(format: "%d:%02d", mins, secs)
+    }
+}
+
+// MARK: - 음성 댓글 재생 플레이어
+
+@MainActor
+final class AudioCommentPlayer: NSObject, ObservableObject, AVAudioPlayerDelegate {
+    @Published var isPlaying = false
+    @Published var duration: TimeInterval = 0
+    @Published var progress: Double = 0  // 0.0 ~ 1.0
+    @Published var currentTime: TimeInterval = 0
+    @Published var waveformHeights: [CGFloat] = Array(repeating: 4, count: 30)
+
+    private var player: AVAudioPlayer?
+    private var downloadTask: URLSessionDataTask?
+    private var progressTimer: AnyCancellable?
+    private var cachedAudioData: Data?
+    private let barCount = 30
+
+    func loadDuration(urlString: String) {
+        guard duration == 0, let url = URL(string: urlString), urlString.hasPrefix("http") else { return }
+        // 다운로드해서 duration + 파형 동시에 분석
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
+            guard let self, let data else { return }
+            DispatchQueue.main.async {
+                self.cachedAudioData = data
+                if let tempPlayer = try? AVAudioPlayer(data: data) {
+                    self.duration = tempPlayer.duration
+                }
+                self.extractWaveform(from: data)
+            }
+        }.resume()
+    }
+
+    /// 오디오 데이터에서 파형 추출 (AVAudioFile로 PCM 샘플 읽기)
+    private func extractWaveform(from data: Data) {
+        // 임시 파일에 저장 후 AVAudioFile로 읽기
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("waveform_\(UUID().uuidString).m4a")
+        do {
+            try data.write(to: tempURL)
+            let file = try AVAudioFile(forReading: tempURL)
+            guard let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: file.fileFormat.sampleRate, channels: 1, interleaved: false),
+                  let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(file.length)) else {
+                try? FileManager.default.removeItem(at: tempURL)
+                return
+            }
+            try file.read(into: buffer)
+            try? FileManager.default.removeItem(at: tempURL)
+
+            guard let channelData = buffer.floatChannelData?[0] else { return }
+            let frameCount = Int(buffer.frameLength)
+            let samplesPerBar = max(frameCount / barCount, 1)
+
+            var heights: [CGFloat] = []
+            for i in 0..<barCount {
+                let start = i * samplesPerBar
+                let end = min(start + samplesPerBar, frameCount)
+                var sum: Float = 0
+                for j in start..<end {
+                    sum += abs(channelData[j])
+                }
+                let avg = sum / Float(end - start)
+                heights.append(CGFloat(avg))
+            }
+
+            // 정규화 (4~28 범위로)
+            let maxVal = heights.max() ?? 1
+            if maxVal > 0 {
+                waveformHeights = heights.map { max(4, ($0 / maxVal) * 28) }
+            }
+        } catch {
+            try? FileManager.default.removeItem(at: tempURL)
+        }
+    }
+
+    private func startProgressTimer() {
+        progressTimer?.cancel()
+        progress = 0
+        currentTime = 0
+        progressTimer = Timer.publish(every: 0.05, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self, let player = self.player, player.isPlaying else { return }
+                self.currentTime = player.currentTime
+                self.progress = player.duration > 0 ? player.currentTime / player.duration : 0
+            }
+    }
+
+    private func stopProgressTimer() {
+        progressTimer?.cancel()
+        progressTimer = nil
+        progress = 0
+        currentTime = 0
+    }
+
+    func togglePlayback(urlString: String) {
+        if isPlaying {
+            player?.stop()
+            isPlaying = false
+            stopProgressTimer()
+            return
+        }
+
+        guard let url = URL(string: urlString) else { return }
+
+        // 로컬 파일
+        if url.isFileURL {
+            playLocalFile(url)
+            return
+        }
+
+        // 캐시된 데이터 있으면 바로 재생
+        if let cached = cachedAudioData {
+            playData(cached)
+            return
+        }
+
+        // 리모트 URL → 다운로드 후 재생
+        downloadTask?.cancel()
+        downloadTask = URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            guard let data, error == nil else {
+                print("[AudioPlayer] 다운로드 실패: \(error?.localizedDescription ?? "")")
+                return
+            }
+            DispatchQueue.main.async {
+                self?.cachedAudioData = data
+                self?.playData(data)
+            }
+        }
+        downloadTask?.resume()
+    }
+
+    private func playLocalFile(_ url: URL) {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback)
+            try AVAudioSession.sharedInstance().setActive(true)
+            player = try AVAudioPlayer(contentsOf: url)
+            player?.delegate = self
+            duration = player?.duration ?? 0
+            player?.play()
+            isPlaying = true
+            startProgressTimer()
+        } catch {
+            print("[AudioPlayer] 로컬 재생 실패: \(error)")
+        }
+    }
+
+    private func playData(_ data: Data) {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback)
+            try AVAudioSession.sharedInstance().setActive(true)
+            player = try AVAudioPlayer(data: data)
+            player?.delegate = self
+            duration = player?.duration ?? 0
+            player?.play()
+            isPlaying = true
+            startProgressTimer()
+        } catch {
+            print("[AudioPlayer] 재생 실패: \(error)")
+        }
+    }
+
+    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        Task { @MainActor in
+            self.isPlaying = false
+            self.stopProgressTimer()
+        }
     }
 }
 

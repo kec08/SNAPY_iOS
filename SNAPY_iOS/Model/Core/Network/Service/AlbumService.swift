@@ -177,6 +177,27 @@ final class AlbumService {
         }
     }
 
+    // MARK: - 특정 유저의 월간 앨범 조회
+
+    func fetchAlbumsForUser(month: Int, handle: String) async throws -> [AlbumListItemData] {
+        let response = try await requestWithRefresh(.fetchByMonthForUser(month: month, handle: handle))
+        guard (200..<300).contains(response.statusCode) else {
+            let msg = extractErrorMessage(from: response.data, statusCode: response.statusCode)
+            throw AlbumError.serverError(msg)
+        }
+        do {
+            let decoded = try JSONDecoder().decode(AlbumListResponse.self, from: response.data)
+            guard decoded.success, let data = decoded.data else {
+                throw AlbumError.serverError(decoded.message)
+            }
+            return data
+        } catch let err as AlbumError {
+            throw err
+        } catch {
+            throw AlbumError.decodingFailed
+        }
+    }
+
     // MARK: - 게시 (publish)
 
     /// /api/albums/{albumId}/publish — 앨범을 피드에 공개한다.
