@@ -15,6 +15,7 @@ enum AlbumAPI {
     case fetchToday
     case fetchAll               // GET /api/albums (파라미터 없이 전체 조회)
     case fetchByMonth(month: Int)
+    case fetchByMonthForUser(month: Int, handle: String)  // GET /api/albums?month=N&handle=X
     case fetchCalendar
     case fetchDetail(albumId: Int)
     case publish(albumId: Int)
@@ -34,7 +35,7 @@ extension AlbumAPI: TargetType {
             return "/api/albums/today"
         case .fetchAll:
             return "/api/albums"
-        case .fetchByMonth:
+        case .fetchByMonth, .fetchByMonthForUser:
             return "/api/albums"
         case .fetchCalendar:
             return "/api/albums/calendar"
@@ -49,7 +50,7 @@ extension AlbumAPI: TargetType {
         switch self {
         case .upload, .publish:
             return .post
-        case .fetchToday, .fetchAll, .fetchByMonth, .fetchCalendar, .fetchDetail:
+        case .fetchToday, .fetchAll, .fetchByMonth, .fetchByMonthForUser, .fetchCalendar, .fetchDetail:
             return .get
         }
     }
@@ -83,6 +84,12 @@ extension AlbumAPI: TargetType {
         case .fetchByMonth(let month):
             return .requestParameters(
                 parameters: ["month": month],
+                encoding: URLEncoding.queryString
+            )
+
+        case .fetchByMonthForUser(let month, let handle):
+            return .requestParameters(
+                parameters: ["month": month, "handle": handle],
                 encoding: URLEncoding.queryString
             )
 

@@ -27,6 +27,8 @@ struct FriendProfileView: View {
     @State private var mutualFriendsText: String?
     @State private var contactText: String?
 
+    @State private var feedPosts: [FeedPost] = []
+
     @State private var isFriendRequested = false
     @State private var showFriendSheet = false
     @State private var currentFriend: Bool
@@ -200,17 +202,19 @@ struct FriendProfileView: View {
                                 .background(Color.Gray500)
                                 .padding(.horizontal, 22)
 
-                            // 피드 (목 데이터)
-                            ProfileFeedGrid(
-                                posts: [
-                                    FeedPost(id: 1, thumbnailImage: "Mock_img1", photos: [], date: "2026.04.01"),
-                                    FeedPost(id: 2, thumbnailImage: "Mock_img2", photos: [], date: "2026.03.28"),
-                                    FeedPost(id: 3, thumbnailImage: "Mock_img3", photos: [], date: "2026.03.25"),
-                                    FeedPost(id: 4, thumbnailImage: "Mock_img4", photos: [], date: "2026.03.20"),
-                                ],
-                                displayName: name,
-                                handle: handle
-                            )
+                            // 피드 (서버 데이터)
+                            if feedPosts.isEmpty && !isLoading {
+                                Text("아직 게시물이 없습니다")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.customGray300)
+                                    .padding(.top, 40)
+                            } else {
+                                ProfileFeedGrid(
+                                    posts: feedPosts,
+                                    displayName: name,
+                                    handle: handle
+                                )
+                            }
                         }
                     } else {
                         // 비친구: 공개 프로필 안내
@@ -274,14 +278,18 @@ struct FriendProfileView: View {
                 name = profile.username
                 profileImageUrl = profile.profileImageUrl
                 bannerImageUrl = profile.backgroundImageUrl
+                friendCount = profile.friendCount ?? 0
             } catch {
                 print("[FriendProfile] 프로필 로드 실패: \(error)")
             }
-            do {
-                let friends = try await FriendService.shared.getFriends(handle: handle)
-                friendCount = friends.count
-            } catch {
-                print("[FriendProfile] 친구 수 로드 실패: \(error)")
+            // friendCount가 0이면 친구 목록에서 다시 조회
+            if friendCount == 0 {
+                do {
+                    let friends = try await FriendService.shared.getFriends(handle: handle)
+                    friendCount = friends.count
+                } catch {
+                    print("[FriendProfile] 친구 수 로드 실패: \(error)")
+                }
             }
             // 겹친구 조회 (init에서 전달받지 못한 경우 서버에서 조회)
             if mutualFriendsText == nil {
@@ -311,6 +319,11 @@ struct FriendProfileView: View {
             // 방명록 로드 (상대방 handle로)
             guestbookVM.handle = handle
             await guestbookVM.loadGuestbook()
+
+            // 친구인 경우 피드(앨범) 로드
+            if currentFriend {
+                await loadFriendFeed()
+            }
         }
         .sheet(isPresented: $showFriendSheet) {
             FriendRelationSheet(
@@ -346,6 +359,47 @@ struct FriendProfileView: View {
                 assetName: "Profile_img",
                 isCircle: true
             )
+        }
+    }
+
+    /// 친구 앨범을 월별로 조회하여 feedPosts에 세팅
+    private func loadFriendFeed() async {
+        let month = Calendar.current.component(.month, from: Date())
+        do {
+            let albums = try await AlbumService.shared.fetchAlbumsForUser(month: month, handle: handle)
+            let sorted = albums.sorted { $0.albumDate > $1.albumDate }
+
+            let posts: [FeedPost] = await withTaskGroup(of: FeedPost?.self) { group in
+                for album in sorted {
+                    group.addTask {
+                        do {
+                            let detail = try await AlbumService.shared.fetchAlbumAsDaily(albumId: album.albumId)
+                            guard !detail.photos.isEmpty else { return nil }
+                            let thumbnail = detail.photos.first?.backImageUrl ?? ""
+                            return FeedPost(
+                                id: album.albumId,
+                                thumbnailImage: thumbnail,
+                                photos: detail.photos,
+                                date: album.albumDate.replacingOccurrences(of: "-", with: ".")
+                            )
+                        } catch {
+                            print("[FriendProfile] 앨범 상세 실패 (id=\(album.albumId)): \(error)")
+                            return nil
+                        }
+                    }
+                }
+                var results: [FeedPost] = []
+                for await post in group {
+                    if let post { results.append(post) }
+                }
+                return results.sorted { $0.date > $1.date }
+            }
+
+            feedPosts = posts
+            postCount = posts.count
+            print("[FriendProfile] 피드 \(posts.count)개 로드 완료")
+        } catch {
+            print("[FriendProfile] 피드 로드 실패: \(error)")
         }
     }
 

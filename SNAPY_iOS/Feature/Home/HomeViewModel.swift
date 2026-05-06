@@ -21,7 +21,8 @@ struct FeedPhoto: Identifiable {
 
 struct HomeFeedPost: Identifiable {
     let id = UUID()
-    let profileImage: String        // asset 이름 또는 URL (http로 시작하면 URL로 인식)
+    let albumId: Int                 // 서버 앨범 ID (댓글 조회에 사용)
+    let profileImage: String        // asset 이름 URL (http로 시작하면 URL로 인식)
     let displayName: String
     let handle: String
     let date: String
@@ -201,6 +202,7 @@ final class HomeViewModel: ObservableObject {
                 let seen = matchedStory.map { seenStoryIds.contains($0.storyId) } ?? true
 
                 return HomeFeedPost(
+                    albumId: item.albumId,
                     profileImage: profileImg,
                     displayName: item.authorName,
                     handle: item.authorHandle,
@@ -268,6 +270,7 @@ final class HomeViewModel: ObservableObject {
         let dateText = formatter.string(from: Date())
 
         let post = HomeFeedPost(
+            albumId: 0,
             profileImage: profileImage,
             displayName: displayName,
             handle: handle,
