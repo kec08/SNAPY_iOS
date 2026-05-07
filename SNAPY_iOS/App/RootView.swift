@@ -58,6 +58,9 @@ struct RootView: View {
 
             case .snapyLogin:
                 SnapyLoginView(
+                    onBack: {
+                        screen = .login
+                    },
                     onLoginTap: {
                         Task {
                             await authVM.login()
