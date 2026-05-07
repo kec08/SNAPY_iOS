@@ -11,6 +11,7 @@ import Combine
 struct LoginView: View {
     var onSnapyTap: () -> Void
     var onRegisterTap: () -> Void
+    var onGoogleLoginSuccess: () -> Void = {}
     @EnvironmentObject var authVM: AuthViewModel
     @State private var showErrorAlert = false
 
@@ -84,6 +85,9 @@ struct LoginView: View {
                 GoogleLoginButton(title: "Google로 계속하기") {
                     Task {
                         await authVM.googleLogin()
+                        if authVM.isLoggedIn && authVM.isOAuthLogin {
+                            onGoogleLoginSuccess()
+                        }
                     }
                 }
                 .padding(.bottom, 20)

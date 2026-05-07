@@ -18,6 +18,8 @@ struct HomeView: View {
     @State private var profileNavImage: String? = nil
     // Pull-to-refresh
     @State private var isRefreshing = false
+    // 알림
+    @State private var showNotification = false
 
     var body: some View {
         NavigationStack {
@@ -27,7 +29,7 @@ struct HomeView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         // 헤더
-                        HomeHeader()
+                        HomeHeader(showNotification: $showNotification)
 
                         // Pull-to-refresh 로딩바 (헤더 바로 아래)
                         if isRefreshing {
@@ -131,6 +133,10 @@ struct HomeView: View {
                         profileImageUrl: profileNavImage
                     )
                 }
+            }
+            // 알림 화면
+            .navigationDestination(isPresented: $showNotification) {
+                NotificationView()
             }
             // 피드에서 탭한 유저의 스토리만 표시
             .fullScreenCover(item: $singleStoryItem) { story in

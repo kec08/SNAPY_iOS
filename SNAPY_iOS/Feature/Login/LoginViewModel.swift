@@ -26,6 +26,7 @@ enum AuthFlow: Equatable {
 final class AuthViewModel: ObservableObject {
     @Published var authFlow: AuthFlow = .splash
     @Published var isLoggedIn = false
+    @Published var isOAuthLogin = false
     @Published var isLoading = false
     @Published var errorMessage: String?
 
@@ -34,6 +35,10 @@ final class AuthViewModel: ObservableObject {
     @Published var loginPassword = ""
 
     @Published var currentUser: User?
+
+    // OAuth 프로필 기본값
+    @Published var oauthDefaultName: String = ""
+    @Published var oauthDefaultHandle: String = ""
 
     private let authService = AuthService.shared
 
@@ -119,8 +124,16 @@ final class AuthViewModel: ObservableObject {
             GIDSignIn.sharedInstance.configuration = config
             print("[GoogleLogin] signIn 시작")
             let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
-            print("[GoogleLogin] signIn 완료 - user: \(result.user.profile?.email ?? "nil")")
+            let profile = result.user.profile
+            print("[GoogleLogin] signIn 완료 - user: \(profile?.email ?? "nil")")
             print("[GoogleLogin] idToken 존재 여부: \(result.user.idToken != nil)")
+
+            // Google 프로필 정보 저장
+            await MainActor.run {
+                oauthDefaultName = profile?.name ?? ""
+                // 이메일 앞부분을 핸들 기본값으로
+                oauthDefaultHandle = profile?.email.components(separatedBy: "@").first ?? ""
+            }
             guard let idToken = result.user.idToken?.tokenString else {
                 print("[GoogleLogin] idToken이 nil")
                 await MainActor.run {
@@ -136,6 +149,7 @@ final class AuthViewModel: ObservableObject {
 
             await MainActor.run {
                 if response.success {
+                    isOAuthLogin = true
                     isLoggedIn = true
                     authFlow = .main
                 } else {

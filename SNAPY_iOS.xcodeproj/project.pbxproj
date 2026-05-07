@@ -81,6 +81,14 @@
 		BCAAFF162F98E1D500A6B597 /* PastMonthFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAAFF152F98E1D300A6B597 /* PastMonthFeedView.swift */; };
 		BCAAFF182F98E23100A6B597 /* ProfileFeedSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAAFF172F98E22F00A6B597 /* ProfileFeedSection.swift */; };
 		BCBCF4342FAC209C0058E92D /* GoogleLoginButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBCF4332FAC209B0058E92D /* GoogleLoginButton.swift */; };
+		BCBCF4362FAC3D5F0058E92D /* NotificationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBCF4352FAC3D5A0058E92D /* NotificationDTO.swift */; };
+		BCBCF43F2FAC3DC50058E92D /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBCF43C2FAC3DC50058E92D /* NotificationView.swift */; };
+		BCBCF4402FAC3DC50058E92D /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBCF43D2FAC3DC50058E92D /* NotificationViewModel.swift */; };
+		BCBCF4442FAC3E180058E92D /* NotificationAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBCF4432FAC3E170058E92D /* NotificationAPI.swift */; };
+		BCBCF4462FAC3E380058E92D /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBCF4452FAC3E370058E92D /* NotificationService.swift */; };
+		BCBCF4482FAC59720058E92D /* OAuthPhoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBCF4472FAC59710058E92D /* OAuthPhoneView.swift */; };
+		BCBCF44C2FAC5EAF0058E92D /* OAuthInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBCF44B2FAC5EAE0058E92D /* OAuthInfoView.swift */; };
+		BCBCF4502FAC695B0058E92D /* RegisterProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBCF44F2FAC693A0058E92D /* RegisterProfileImageView.swift */; };
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
 		BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */; };
@@ -216,6 +224,14 @@
 		BCAAFF152F98E1D300A6B597 /* PastMonthFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastMonthFeedView.swift; sourceTree = "<group>"; };
 		BCAAFF172F98E22F00A6B597 /* ProfileFeedSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFeedSection.swift; sourceTree = "<group>"; };
 		BCBCF4332FAC209B0058E92D /* GoogleLoginButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleLoginButton.swift; sourceTree = "<group>"; };
+		BCBCF4352FAC3D5A0058E92D /* NotificationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDTO.swift; sourceTree = "<group>"; };
+		BCBCF43C2FAC3DC50058E92D /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
+		BCBCF43D2FAC3DC50058E92D /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
+		BCBCF4432FAC3E170058E92D /* NotificationAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationAPI.swift; sourceTree = "<group>"; };
+		BCBCF4452FAC3E370058E92D /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		BCBCF4472FAC59710058E92D /* OAuthPhoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthPhoneView.swift; sourceTree = "<group>"; };
+		BCBCF44B2FAC5EAE0058E92D /* OAuthInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthInfoView.swift; sourceTree = "<group>"; };
+		BCBCF44F2FAC693A0058E92D /* RegisterProfileImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterProfileImageView.swift; sourceTree = "<group>"; };
 		BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginView.swift; sourceTree = "<group>"; };
 		BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyTextField.swift; sourceTree = "<group>"; };
 		BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailView.swift; sourceTree = "<group>"; };
@@ -319,6 +335,7 @@
 		BC1DC2DA2F68CF730016A4CD /* DTO */ = {
 			isa = PBXGroup;
 			children = (
+				BCBCF4352FAC3D5A0058E92D /* NotificationDTO.swift */,
 				BCA00F082FA2000100CMNT01 /* CommentDTO.swift */,
 				BCA00F002FA0000100FEED01 /* FeedDTO.swift */,
 				BCAA007E2F9A381C00A6B597 /* GuestbookDTO.swift */,
@@ -343,6 +360,7 @@
 		BC1DC2E12F68CF730016A4CD /* API */ = {
 			isa = PBXGroup;
 			children = (
+				BCBCF4422FAC3E010058E92D /* Notification */,
 				BCA00F0E2FA2000100CMNT04 /* Comment */,
 				BCA00F062FA0000100FEED04 /* Feed */,
 				BC706F6A2F93E8DE0093C0B8 /* Story */,
@@ -359,6 +377,7 @@
 		BC1DC2E82F68CF730016A4CD /* Service */ = {
 			isa = PBXGroup;
 			children = (
+				BCBCF4452FAC3E370058E92D /* NotificationService.swift */,
 				BCA00F0C2FA2000100CMNT03 /* CommentService.swift */,
 				BCA00F042FA0000100FEED03 /* FeedService.swift */,
 				BC706F662F93E88A0093C0B8 /* StoryService.swift */,
@@ -530,6 +549,40 @@
 			path = Comment;
 			sourceTree = "<group>";
 		};
+		BCBCF43E2FAC3DC50058E92D /* Notification */ = {
+			isa = PBXGroup;
+			children = (
+				BCBCF43C2FAC3DC50058E92D /* NotificationView.swift */,
+				BCBCF43D2FAC3DC50058E92D /* NotificationViewModel.swift */,
+			);
+			path = Notification;
+			sourceTree = "<group>";
+		};
+		BCBCF4422FAC3E010058E92D /* Notification */ = {
+			isa = PBXGroup;
+			children = (
+				BCBCF4432FAC3E170058E92D /* NotificationAPI.swift */,
+			);
+			path = Notification;
+			sourceTree = "<group>";
+		};
+		BCBCF44D2FAC61F10058E92D /* OAuth */ = {
+			isa = PBXGroup;
+			children = (
+				BCBCF44B2FAC5EAE0058E92D /* OAuthInfoView.swift */,
+				BCBCF4472FAC59710058E92D /* OAuthPhoneView.swift */,
+			);
+			path = OAuth;
+			sourceTree = "<group>";
+		};
+		BCBCF44E2FAC692D0058E92D /* ProfileImage */ = {
+			isa = PBXGroup;
+			children = (
+				BCBCF44F2FAC693A0058E92D /* RegisterProfileImageView.swift */,
+			);
+			path = ProfileImage;
+			sourceTree = "<group>";
+		};
 		BCCAD6052F6B05E100ED71E0 /* Email */ = {
 			isa = PBXGroup;
 			children = (
@@ -584,6 +637,7 @@
 		BCD815932F69285F0028AE50 /* Feature */ = {
 			isa = PBXGroup;
 			children = (
+				BCBCF43E2FAC3DC50058E92D /* Notification */,
 				BCA00F092FA1000100CARD02 /* Common */,
 				BCAAFF0A2F9890F000A6B597 /* Comment */,
 				BCD816E92F6A52070028AE50 /* Onboarding */,
@@ -614,6 +668,7 @@
 		BCD8159B2F69289D0028AE50 /* Login */ = {
 			isa = PBXGroup;
 			children = (
+				BCBCF44D2FAC61F10058E92D /* OAuth */,
 				BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */,
 				BCD815A82F692FC60028AE50 /* Component */,
 				BCD815A62F692FAE0028AE50 /* LoginViewModel.swift */,
@@ -625,6 +680,7 @@
 		BCD8159C2F6928AC0028AE50 /* SignUp */ = {
 			isa = PBXGroup;
 			children = (
+				BCBCF44E2FAC692D0058E92D /* ProfileImage */,
 				BC706E662F8DFDCD0093C0B8 /* Contact */,
 				BC6674E82F73D22A009CBF8D /* SiginUpViewModel.swift */,
 				BCCAD6722F6B9F6000ED71E0 /* Complete */,
@@ -947,6 +1003,7 @@
 				BCD816DC2F6A41A50028AE50 /* ProfileViewModel.swift in Sources */,
 				BC6676CD2F840615009CBF8D /* ProfileEditView.swift in Sources */,
 				BC1DC2F12F68CF730016A4CD /* Color+Extensions.swift in Sources */,
+				BCBCF4462FAC3E380058E92D /* NotificationService.swift in Sources */,
 				BCCAD60C2F6B062F00ED71E0 /* PasswordView.swift in Sources */,
 				BCBCF4342FAC209C0058E92D /* GoogleLoginButton.swift in Sources */,
 				BCAA007F2F9A381E00A6B597 /* GuestbookDTO.swift in Sources */,
@@ -961,9 +1018,13 @@
 				BC6676D42F8406D1009CBF8D /* ProfileHeaderView.swift in Sources */,
 				BC706F5D2F8FEFB00093C0B8 /* HomeStoryBar.swift in Sources */,
 				BCAAFF162F98E1D500A6B597 /* PastMonthFeedView.swift in Sources */,
+				BCBCF44C2FAC5EAF0058E92D /* OAuthInfoView.swift in Sources */,
 				BCD816BF2F69A8D30028AE50 /* AppleSignInButton.swift in Sources */,
 				BCED9C222F6E625A008E47BB /* PhotoStore.swift in Sources */,
+				BCBCF4482FAC59720058E92D /* OAuthPhoneView.swift in Sources */,
 				BC6676402F797A9E009CBF8D /* AlbumTimeSlotCard.swift in Sources */,
+				BCBCF43F2FAC3DC50058E92D /* NotificationView.swift in Sources */,
+				BCBCF4402FAC3DC50058E92D /* NotificationViewModel.swift in Sources */,
 				BCD10DAC2F854C94004CBC29 /* GuestbookFullView.swift in Sources */,
 				BC706E5B2F8D39700093C0B8 /* FriendProfileView.swift in Sources */,
 				BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */,
@@ -984,6 +1045,7 @@
 				BCD816D82F6A41940028AE50 /* FriendViewModel.swift in Sources */,
 				BC706E5D2F8D482C0093C0B8 /* FriendRelationSheet.swift in Sources */,
 				BC6473752F86AD6E00FA15EA /* AlbumService.swift in Sources */,
+				BCBCF4362FAC3D5F0058E92D /* NotificationDTO.swift in Sources */,
 				BC706F6E2F9527A60093C0B8 /* SettingsDTO.swift in Sources */,
 				BCD816EB2F6A52390028AE50 /* OnboardingView.swift in Sources */,
 				BC706E642F8DC1350093C0B8 /* FriendService.swift in Sources */,
@@ -995,6 +1057,7 @@
 				BCD8159A2F69285F0028AE50 /* SNAPY_iOSApp.swift in Sources */,
 				BC1DC2F22F68CF730016A4CD /* AuthAPI.swift in Sources */,
 				BCD815A52F692FAB0028AE50 /* LoginView.swift in Sources */,
+				BCBCF4502FAC695B0058E92D /* RegisterProfileImageView.swift in Sources */,
 				BC6674E92F73D231009CBF8D /* SiginUpViewModel.swift in Sources */,
 				BC01001F2F6C5D4200A85201 /* SignUpHeader.swift in Sources */,
 				BC706E592F8D09950093C0B8 /* FriendRequestView.swift in Sources */,
@@ -1013,6 +1076,7 @@
 				BC6473732F86AD4900FA15EA /* AlbumDTO.swift in Sources */,
 				BC6676C92F833C2B009CBF8D /* ImageCarousel.swift in Sources */,
 				BC6676C02F7D7086009CBF8D /* AlbumMissCard.swift in Sources */,
+				BCBCF4442FAC3E180058E92D /* NotificationAPI.swift in Sources */,
 				BC6674E52F72F50D009CBF8D /* AlbumHeader.swift in Sources */,
 				BC706E572F8D096F0093C0B8 /* FriendRequestRow.swift in Sources */,
 				BCED9C1C2F6E61A9008E47BB /* PhotoPreviewView.swift in Sources */,

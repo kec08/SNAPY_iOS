@@ -8,17 +8,19 @@
 import SwiftUI
 
 struct HomeHeader: View {
+    @Binding var showNotification: Bool
+
     var body: some View {
         ZStack {
             Image("SNAPY_logo")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 100, height: 25)
-            
+
             HStack {
                 Spacer()
                 Button {
-                    // 알림 화면
+                    showNotification = true
                 } label: {
                     Image(systemName: "bell.fill")
                         .font(.system(size: 20))

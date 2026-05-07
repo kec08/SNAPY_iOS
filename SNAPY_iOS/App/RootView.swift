@@ -15,9 +15,14 @@ enum AppScreen {
     case registerPassword
     case registerPhone
     case registerInfo
+    case registerProfileImage
     case registerComplete
     case contactSync
     case onboarding
+    case oauthInfo        // 구글 로그인 후 핸들/이름 설정
+    case oauthProfile     // 구글 로그인 후 프로필/배너 이미지
+    case oauthPhone       // 구글 로그인 후 전화번호 등록
+    case oauthContactSync // 구글 로그인 후 연락처 동기화
     case main
 }
 
@@ -40,9 +45,12 @@ struct RootView: View {
                     },
                     onRegisterTap: {
                         screen = .registerEmail
+                    },
+                    onGoogleLoginSuccess: {
+                        screen = .oauthInfo
                     }
                 )
-            .environmentObject(authVM)
+                .environmentObject(authVM)
 
             case .snapyLogin:
                 SnapyLoginView(
@@ -92,7 +100,7 @@ struct RootView: View {
                     }
                 )
                 .environmentObject(signUpVM)
-
+                
             case .registerInfo:
                 InfoView(
                     onBack: {
@@ -102,12 +110,17 @@ struct RootView: View {
                         Task {
                             await signUpVM.register()
                             if signUpVM.isRegistered {
-                                screen = .contactSync
+                                screen = .registerProfileImage
                             }
                         }
                     }
                 )
                 .environmentObject(signUpVM)
+
+            case .registerProfileImage:
+                RegisterProfileImageView(onNext: {
+                    screen = .contactSync
+                })
 
             case .contactSync:
                 ContactSyncView(
@@ -125,6 +138,28 @@ struct RootView: View {
                 )
                 .environmentObject(signUpVM)
                 
+            case .oauthInfo:
+                OAuthInfoView(onNext: {
+                    screen = .oauthProfile
+                })
+                .environmentObject(authVM)
+
+            case .oauthProfile:
+                RegisterProfileImageView(onNext: {
+                    screen = .oauthPhone
+                })
+
+            case .oauthPhone:
+                OAuthPhoneView(onNext: {
+                    screen = .oauthContactSync
+                })
+
+            case .oauthContactSync:
+                ContactSyncView(onDoneTap: {
+                    authVM.isOAuthLogin = false
+                    screen = .main
+                })
+
             case .onboarding:
                 OnboardingView(onStartTap: {
                     screen = .main
