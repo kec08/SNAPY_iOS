@@ -48,6 +48,10 @@ struct RootView: View {
                     },
                     onGoogleLoginSuccess: {
                         screen = .oauthInfo
+                    },
+                    onGoogleLoginExistingUser: {
+                        authVM.isOAuthLogin = false
+                        screen = .main
                     }
                 )
                 .environmentObject(authVM)

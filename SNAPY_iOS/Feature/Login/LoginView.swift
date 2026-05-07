@@ -12,6 +12,7 @@ struct LoginView: View {
     var onSnapyTap: () -> Void
     var onRegisterTap: () -> Void
     var onGoogleLoginSuccess: () -> Void = {}
+    var onGoogleLoginExistingUser: () -> Void = {}
     @EnvironmentObject var authVM: AuthViewModel
     @State private var showErrorAlert = false
 
@@ -86,7 +87,15 @@ struct LoginView: View {
                     Task {
                         await authVM.googleLogin()
                         if authVM.isLoggedIn && authVM.isOAuthLogin {
-                            onGoogleLoginSuccess()
+                            // 프로필 조회로 기존 유저인지 확인
+                            do {
+                                _ = try await ProfileService.shared.fetchMyProfile()
+                                // 성공하면 기존 유저 → 바로 메인
+                                onGoogleLoginExistingUser()
+                            } catch {
+                                // 403 등 실패 → 신규 유저 → 설정 플로우
+                                onGoogleLoginSuccess()
+                            }
                         }
                     }
                 }
