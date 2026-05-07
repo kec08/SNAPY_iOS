@@ -141,6 +141,16 @@ final class ProfileService {
         return data
     }
 
+    // MARK: - 전화번호 등록
+
+    func updatePhone(_ phone: String) async throws {
+        let response = try await requestWithRefresh(.updatePhone(phone: phone))
+        print("[ProfileService] 전화번호 등록 응답 코드 \(response.statusCode)")
+        guard (200..<300).contains(response.statusCode) else {
+            throw ProfileError.serverError(extractMessage(from: response))
+        }
+    }
+
     // MARK: - 401 재시도
 
     private func requestWithRefresh(_ target: ProfileAPI) async throws -> Response {

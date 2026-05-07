@@ -169,10 +169,11 @@ struct StoryDetailView: View {
                                     .foregroundColor(.customGray200)
                             }
 
-                            if !story.relativeTimeText.isEmpty {
-                                Text(story.relativeTimeText)
+                            if let timeText = currentPhotoTimeText(for: story, imageIndex: userIndex == currentUserIndex ? currentImageIndex : 0), !timeText.isEmpty {
+                                Text(timeText)
                                     .font(.system(size: 13))
                                     .foregroundColor(.customGray200)
+                                    .shadow(color: .black.opacity(0.6), radius: 2, x: 0, y: 1)
                                     .padding(.leading, 4)
                             }
 
@@ -305,6 +306,46 @@ struct StoryDetailView: View {
                 .resizable()
                 .scaledToFill()
         }
+    }
+
+    // MARK: - 사진별 시간 텍스트
+
+    private func currentPhotoTimeText(for story: StoryItem, imageIndex: Int) -> String? {
+        let photos = story.photos
+        guard imageIndex < photos.count else { return story.relativeTimeText }
+        // 개별 사진의 createdAt 우선, 없으면 스토리 전체 createdAt
+        let dateStr = photos[imageIndex].createdAt ?? story.createdAt
+        guard let dateStr, !dateStr.isEmpty else { return nil }
+        return relativeTime(from: dateStr)
+    }
+
+    private func relativeTime(from dateStr: String) -> String {
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let date = iso.date(from: dateStr)
+            ?? ISO8601DateFormatter().date(from: dateStr)
+            ?? parseFlexible(dateStr)
+        guard let date else { return "" }
+
+        let seconds = Int(Date().timeIntervalSince(date))
+        if seconds < 60 { return "방금 전" }
+        let minutes = seconds / 60
+        if minutes < 60 { return "\(minutes)분 전" }
+        let hours = minutes / 60
+        if hours < 24 { return "\(hours)시간 전" }
+        let days = hours / 24
+        return "\(days)일 전"
+    }
+
+    private func parseFlexible(_ str: String) -> Date? {
+        let fmt = DateFormatter()
+        fmt.locale = Locale(identifier: "en_US_POSIX")
+        fmt.timeZone = TimeZone(identifier: "Asia/Seoul")
+        for format in ["yyyy-MM-dd'T'HH:mm:ss.SSSSSS", "yyyy-MM-dd'T'HH:mm:ss"] {
+            fmt.dateFormat = format
+            if let d = fmt.date(from: str) { return d }
+        }
+        return nil
     }
 
     // MARK: - 프로그레스 바

@@ -24,7 +24,7 @@ enum AlbumAPI {
 extension AlbumAPI: TargetType {
 
     var baseURL: URL {
-        return URL(string: "http://3.36.111.255:8080")!
+        return URL(string: "https://snapy.api.krafte.net")!
     }
 
     var path: String {
@@ -87,9 +87,9 @@ extension AlbumAPI: TargetType {
                 encoding: URLEncoding.queryString
             )
 
-        case .fetchByMonthForUser(let month, let handle):
+        case .fetchByMonthForUser(let month, let userHandle):
             return .requestParameters(
-                parameters: ["month": month, "handle": handle],
+                parameters: ["month": month, "userHandle": userHandle],
                 encoding: URLEncoding.queryString
             )
 

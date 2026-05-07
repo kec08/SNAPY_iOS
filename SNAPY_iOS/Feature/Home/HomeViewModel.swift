@@ -194,10 +194,32 @@ final class HomeViewModel: ObservableObject {
 
         do {
             let result = try await FeedService.shared.fetchFeed(cursor: nextCursor)
+
+            // 프로필 이미지가 없는 유저들 일괄 조회
+            let handles = Set(result.content.map { $0.authorHandle })
+            var profileImageMap: [String: String] = [:]
+            await withTaskGroup(of: (String, String?).self) { group in
+                for handle in handles {
+                    // 스토리에서 이미 프로필 이미지를 알고 있으면 스킵
+                    if let story = stories.first(where: { $0.username == handle }), !story.profileImage.isEmpty {
+                        profileImageMap[handle] = story.profileImage
+                        continue
+                    }
+                    // 캐시에 있으면 스킵
+                    if profileImageMap[handle] != nil { continue }
+                    group.addTask {
+                        let url = try? await ProfileService.shared.fetchUserProfile(handle: handle).profileImageUrl
+                        return (handle, url)
+                    }
+                }
+                for await (handle, url) in group {
+                    if let url { profileImageMap[handle] = url }
+                }
+            }
+
             let newPosts = result.content.map { item in
-                // 해당 유저의 스토리가 있는지 확인 → 프로필 이미지 & 스토리 상태 연동
                 let matchedStory = stories.first(where: { $0.username == item.authorHandle })
-                let profileImg = matchedStory?.profileImage ?? ""
+                let profileImg = profileImageMap[item.authorHandle] ?? matchedStory?.profileImage ?? ""
                 let hasStory = matchedStory != nil
                 let seen = matchedStory.map { seenStoryIds.contains($0.storyId) } ?? true
 

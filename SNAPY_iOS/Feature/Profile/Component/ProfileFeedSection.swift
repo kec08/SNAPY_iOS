@@ -23,6 +23,14 @@ struct ProfileFeedSection: View {
     ]
 
     var body: some View {
+        if viewModel.feedPosts.isEmpty && viewModel.pastMonths.isEmpty {
+            Text("게시물이 아직 없습니다")
+                .font(.system(size: 14))
+                .foregroundColor(.customGray300)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
+        }
+
         LazyVGrid(columns: columns, spacing: 2) {
             // 이번 달 피드 그리드
             ForEach(viewModel.feedPosts) { post in

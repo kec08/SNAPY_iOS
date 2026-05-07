@@ -19,7 +19,7 @@ enum StoryAPI {
 extension StoryAPI: TargetType {
 
     var baseURL: URL {
-        URL(string: "http://3.36.111.255:8080")!
+        URL(string: "https://snapy.api.krafte.net")!
     }
 
     var path: String {

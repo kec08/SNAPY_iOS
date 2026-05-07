@@ -202,10 +202,10 @@ struct FriendProfileView: View {
                                 .background(Color.Gray500)
                                 .padding(.horizontal, 22)
 
-                            // 피드 (서버 데이터)
+                            // 피드
                             if feedPosts.isEmpty && !isLoading {
-                                Text("아직 게시물이 없습니다")
-                                    .font(.system(size: 14))
+                                Text("이번달에 올린 게시물이 없습니다")
+                                    .font(.system(size: 16))
                                     .foregroundColor(.customGray300)
                                     .padding(.top, 40)
                             } else {

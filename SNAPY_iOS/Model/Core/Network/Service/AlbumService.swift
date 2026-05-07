@@ -180,7 +180,13 @@ final class AlbumService {
     // MARK: - 특정 유저의 월간 앨범 조회
 
     func fetchAlbumsForUser(month: Int, handle: String) async throws -> [AlbumListItemData] {
-        let response = try await requestWithRefresh(.fetchByMonthForUser(month: month, handle: handle))
+        let target = AlbumAPI.fetchByMonthForUser(month: month, handle: handle)
+        print("[AlbumService] 요청 URL: \(target.baseURL)\(target.path) | params: month=\(month), handle=\(handle)")
+        let response = try await requestWithRefresh(target)
+        if let requestUrl = response.request?.url?.absoluteString {
+            print("[AlbumService] 실제 요청 URL: \(requestUrl)")
+        }
+        print("[AlbumService] 응답(\(response.statusCode)): \(String(data: response.data, encoding: .utf8)?.prefix(300) ?? "")")
         guard (200..<300).contains(response.statusCode) else {
             let msg = extractErrorMessage(from: response.data, statusCode: response.statusCode)
             throw AlbumError.serverError(msg)

@@ -20,12 +20,13 @@ enum ProfileAPI {
     case updatePastAlbumVisibility(Visibility)            // PATCH /api/users/me/settings/past-album-visibility
     case fetchGuestbook(handle: String)                  // GET  /api/users/{handle}/guestbook
     case postGuestbook(handle: String, image: UIImage)   // POST /api/users/{handle}/guestbook
+    case updatePhone(phone: String)                      // PATCH /api/users/me/phone
 }
 
 extension ProfileAPI: TargetType {
 
     var baseURL: URL {
-        return URL(string: "http://3.36.111.255:8080")!
+        return URL(string: "https://snapy.api.krafte.net")!
     }
 
     var path: String {
@@ -48,6 +49,8 @@ extension ProfileAPI: TargetType {
             return "/api/users/\(handle)/guestbook"
         case .postGuestbook(let handle, _):
             return "/api/users/\(handle)/guestbook"
+        case .updatePhone:
+            return "/api/users/me/phone"
         }
     }
 
@@ -58,7 +61,7 @@ extension ProfileAPI: TargetType {
         case .postGuestbook:
             return .post
         case .updateProfileImage, .updateBackgroundImage,
-             .updateFeedVisibility, .updatePastAlbumVisibility:
+             .updateFeedVisibility, .updatePastAlbumVisibility, .updatePhone:
             return .patch
         }
     }
@@ -96,6 +99,11 @@ extension ProfileAPI: TargetType {
         case .updatePastAlbumVisibility(let v):
             let body = UpdateVisibilityRequest(visibility: v.rawValue)
             return .requestJSONEncodable(body)
+        case .updatePhone(let phone):
+            return .requestParameters(
+                parameters: ["phone": phone],
+                encoding: JSONEncoding.default
+            )
         }
     }
 

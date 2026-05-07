@@ -25,6 +25,14 @@ struct GuestbookSection: View {
     private var thumbHeight: CGFloat { thumbWidth * 16 / 9 }
 
     var body: some View {
+        if viewModel.guestbookEntries.isEmpty && isMyProfile {
+            Text("방명록이 아직 없습니다")
+                .font(.system(size: 14))
+                .foregroundColor(.customGray300)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 20)
+        }
+
         HStack(spacing: 12) {
             // + 추가 버튼 (다른 사람 프로필 + 아직 작성 안 했을 때만)
             if !isMyProfile && !viewModel.hasMyGuestbook {

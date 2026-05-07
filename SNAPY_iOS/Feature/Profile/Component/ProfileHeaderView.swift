@@ -105,9 +105,11 @@ struct ProfileHeaderView: View {
                 }
 
                 // 겹지인 목록
-                Text(viewModel.mutualFriendsText)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.textWhite)
+                if !viewModel.mutualFriendsText.isEmpty {
+                    Text(viewModel.mutualFriendsText)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.textWhite)
+                }
 
                 // 사용자 id
                 Text("@\(viewModel.handle)")

@@ -18,6 +18,8 @@ struct HomeView: View {
     @State private var profileNavImage: String? = nil
     // Pull-to-refresh
     @State private var isRefreshing = false
+    // 알림
+    @State private var showNotification = false
 
     var body: some View {
         NavigationStack {
@@ -27,7 +29,7 @@ struct HomeView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         // 헤더
-                        HomeHeader()
+                        HomeHeader(showNotification: $showNotification)
 
                         // Pull-to-refresh 로딩바 (헤더 바로 아래)
                         if isRefreshing {
@@ -45,31 +47,36 @@ struct HomeView: View {
                         )
 
                         // 피드
-                        LazyVStack(spacing: 30) {
-                            ForEach(viewModel.feedPosts) { post in
-                                HomeFeedCard(
-                                    post: post,
-                                    onLike: { viewModel.toggleLike(for: post) },
-                                    onProfileImageTap: {
-                                        handleProfileImageTap(post: post)
-                                    },
-                                    onNameTap: {
-                                        navigateToProfile(post: post)
-                                    }
-                                )
-                                .onAppear {
-                                    if post.id == viewModel.feedPosts.last?.id {
-                                        Task { await viewModel.loadMoreFeed() }
+                        if viewModel.feedPosts.isEmpty && viewModel.isLoadingFeed {
+                            // 첫 로딩: 스켈레톤 UI
+                            FeedSkeletonList()
+                        } else {
+                            LazyVStack(spacing: 30) {
+                                ForEach(viewModel.feedPosts) { post in
+                                    HomeFeedCard(
+                                        post: post,
+                                        onLike: { viewModel.toggleLike(for: post) },
+                                        onProfileImageTap: {
+                                            handleProfileImageTap(post: post)
+                                        },
+                                        onNameTap: {
+                                            navigateToProfile(post: post)
+                                        }
+                                    )
+                                    .onAppear {
+                                        if post.id == viewModel.feedPosts.last?.id {
+                                            Task { await viewModel.loadMoreFeed() }
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        // 로딩 인디케이터 (다음 페이지)
-                        if viewModel.isLoadingFeed {
-                            ProgressView()
-                                .tint(.white)
-                                .padding(.vertical, 20)
+                            // 다음 페이지 로딩
+                            if viewModel.isLoadingFeed {
+                                ProgressView()
+                                    .tint(.white)
+                                    .padding(.vertical, 20)
+                            }
                         }
 
                         // 피드 끝 메시지
@@ -126,6 +133,10 @@ struct HomeView: View {
                         profileImageUrl: profileNavImage
                     )
                 }
+            }
+            // 알림 화면
+            .navigationDestination(isPresented: $showNotification) {
+                NotificationView()
             }
             // 피드에서 탭한 유저의 스토리만 표시
             .fullScreenCover(item: $singleStoryItem) { story in
