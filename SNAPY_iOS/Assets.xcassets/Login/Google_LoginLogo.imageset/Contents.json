@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "ri_google-fill.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

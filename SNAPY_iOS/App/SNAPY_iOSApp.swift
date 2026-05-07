@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import GoogleSignIn
 
 @main
 struct SNAPY_iOSApp: App {
@@ -22,6 +23,9 @@ struct SNAPY_iOSApp: App {
         WindowGroup {
             RootView()
                 .preferredColorScheme(.dark)
+                .onOpenURL { url in
+                    GIDSignIn.sharedInstance.handle(url)
+                }
         }
     }
 }

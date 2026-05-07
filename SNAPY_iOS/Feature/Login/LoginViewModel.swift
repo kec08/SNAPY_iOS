@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import GoogleSignIn
 
 enum AuthFlow: Equatable {
     case splash
@@ -90,6 +91,74 @@ final class AuthViewModel: ObservableObject {
             await MainActor.run {
                 errorMessage = "로그인에 실패했습니다. 다시 시도해주세요."
                 isLoading = false
+            }
+        }
+    }
+
+    func googleLogin() async {
+        await MainActor.run {
+            isLoading = true
+            errorMessage = nil
+        }
+
+        do {
+            guard let windowScene = await MainActor.run(body: {
+                UIApplication.shared.connectedScenes.first as? UIWindowScene
+            }),
+            let rootVC = await MainActor.run(body: {
+                windowScene.keyWindow?.rootViewController
+            }) else {
+                await MainActor.run {
+                    errorMessage = "로그인 화면을 표시할 수 없습니다."
+                    isLoading = false
+                }
+                return
+            }
+
+            let config = GIDConfiguration(clientID: "1020178958015-4hpunjp0nggtit2idai2961j14sea0dj.apps.googleusercontent.com")
+            GIDSignIn.sharedInstance.configuration = config
+            print("[GoogleLogin] signIn 시작")
+            let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
+            print("[GoogleLogin] signIn 완료 - user: \(result.user.profile?.email ?? "nil")")
+            print("[GoogleLogin] idToken 존재 여부: \(result.user.idToken != nil)")
+            guard let idToken = result.user.idToken?.tokenString else {
+                print("[GoogleLogin] idToken이 nil")
+                await MainActor.run {
+                    errorMessage = "Google 인증 토큰을 가져올 수 없습니다."
+                    isLoading = false
+                }
+                return
+            }
+            print("[GoogleLogin] idToken 앞 50자: \(String(idToken.prefix(50)))")
+            print("[GoogleLogin] idToken 획득, 서버 전송 시작")
+            let response = try await authService.googleLogin(idToken: idToken)
+            print("[GoogleLogin] 서버 응답: success=\(response.success)")
+
+            await MainActor.run {
+                if response.success {
+                    isLoggedIn = true
+                    authFlow = .main
+                } else {
+                    errorMessage = response.message
+                }
+                isLoading = false
+            }
+        } catch let authError as AuthError {
+            await MainActor.run {
+                errorMessage = authError.localizedDescription
+                isLoading = false
+            }
+        } catch {
+            print("[GoogleLogin] 에러 발생: \(error)")
+            print("[GoogleLogin] 에러 설명: \(error.localizedDescription)")
+            await MainActor.run {
+                if error.localizedDescription.contains("canceled") || error.localizedDescription.contains("cancelled") {
+                    // 사용자가 취소한 경우
+                    isLoading = false
+                } else {
+                    errorMessage = "구글 로그인에 실패했습니다. 다시 시도해주세요."
+                    isLoading = false
+                }
             }
         }
     }

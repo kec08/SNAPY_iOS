@@ -12,6 +12,7 @@ struct LoginView: View {
     var onSnapyTap: () -> Void
     var onRegisterTap: () -> Void
     @EnvironmentObject var authVM: AuthViewModel
+    @State private var showErrorAlert = false
 
     let images = ["Login_img1", "Login_img2", "Login_img3", "Login_img4", "Login_img5"]
 
@@ -47,13 +48,14 @@ struct LoginView: View {
                 .padding(.horizontal, 24)
 
                 Spacer()
-                    .frame(height: 40)
+                    .frame(height: 30)
 
                 // 이미지 캐러셀
                 ImageCarousel(images: images, autoScrollInterval: 2.5)
+                    .scaleEffect(0.95)
 
                 Spacer()
-                    .frame(height: 40)
+                    .frame(height: 20)
 
                 HStack(spacing: 8){
                     Text("아직 회원이 아니신가요?")
@@ -68,7 +70,7 @@ struct LoginView: View {
                                 .font(.system(size: 14, weight: .semibold))
                     }
                 }
-                .padding(.bottom, 32)
+                .padding(.bottom, 28)
                 .frame(maxWidth: .infinity)
 
 
@@ -77,7 +79,14 @@ struct LoginView: View {
                         print("Apple로 계속하기 클릭")
                     }
                 }
-                .padding(.bottom, 24)
+                .padding(.bottom, 20)
+
+                GoogleLoginButton(title: "Google로 계속하기") {
+                    Task {
+                        await authVM.googleLogin()
+                    }
+                }
+                .padding(.bottom, 20)
 
                 // 하단 버튼
                 SnapyButton(title: "SNAPY로 계속하기") {
@@ -86,6 +95,18 @@ struct LoginView: View {
                     }
                 }
                 .padding(.bottom, 24)
+            }
+        }
+        .alert("로그인 실패", isPresented: $showErrorAlert) {
+            Button("확인", role: .cancel) {
+                authVM.errorMessage = nil
+            }
+        } message: {
+            Text(authVM.errorMessage ?? "")
+        }
+        .onChange(of: authVM.errorMessage) { newValue in
+            if newValue != nil {
+                showErrorAlert = true
             }
         }
     }

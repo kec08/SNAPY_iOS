@@ -21,6 +21,8 @@
 		BC64737A2F86ADDA00FA15EA /* AlbumAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6473792F86ADD800FA15EA /* AlbumAPI.swift */; };
 		BC64737D2F86B42C00FA15EA /* MoyaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC64737C2F86B42600FA15EA /* MoyaProvider.swift */; };
 		BC65863C2FAB905900D827CF /* FeedSkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC65863B2FAB905700D827CF /* FeedSkeletonView.swift */; };
+		BC65863F2FAB980100D827CF /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = BC65863E2FAB980100D827CF /* GoogleSignIn */; };
+		BC6586412FAB980100D827CF /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BC6586402FAB980100D827CF /* GoogleSignInSwift */; };
 		BC6674E52F72F50D009CBF8D /* AlbumHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6674E42F72F50D009CBF8D /* AlbumHeader.swift */; };
 		BC6674E72F73A564009CBF8D /* AlbumStrick.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6674E62F73A551009CBF8D /* AlbumStrick.swift */; };
 		BC6674E92F73D231009CBF8D /* SiginUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6674E82F73D22A009CBF8D /* SiginUpViewModel.swift */; };
@@ -78,6 +80,7 @@
 		BCAAFF122F98DD0C00A6B597 /* PastMonthCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAAFF112F98DD0A00A6B597 /* PastMonthCard.swift */; };
 		BCAAFF162F98E1D500A6B597 /* PastMonthFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAAFF152F98E1D300A6B597 /* PastMonthFeedView.swift */; };
 		BCAAFF182F98E23100A6B597 /* ProfileFeedSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAAFF172F98E22F00A6B597 /* ProfileFeedSection.swift */; };
+		BCBCF4342FAC209C0058E92D /* GoogleLoginButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCBCF4332FAC209B0058E92D /* GoogleLoginButton.swift */; };
 		BCCAD5822F6ABB4B00ED71E0 /* SnapyLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */; };
 		BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */; };
 		BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */; };
@@ -212,6 +215,7 @@
 		BCAAFF112F98DD0A00A6B597 /* PastMonthCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastMonthCard.swift; sourceTree = "<group>"; };
 		BCAAFF152F98E1D300A6B597 /* PastMonthFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastMonthFeedView.swift; sourceTree = "<group>"; };
 		BCAAFF172F98E22F00A6B597 /* ProfileFeedSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFeedSection.swift; sourceTree = "<group>"; };
+		BCBCF4332FAC209B0058E92D /* GoogleLoginButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleLoginButton.swift; sourceTree = "<group>"; };
 		BCCAD5812F6ABB3D00ED71E0 /* SnapyLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyLoginView.swift; sourceTree = "<group>"; };
 		BCCAD5FD2F6ABC2F00ED71E0 /* SnapyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapyTextField.swift; sourceTree = "<group>"; };
 		BCCAD6062F6B05EB00ED71E0 /* EmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailView.swift; sourceTree = "<group>"; };
@@ -270,9 +274,11 @@
 			files = (
 				BCD8158D2F68DF9B0028AE50 /* Moya in Frameworks */,
 				BCD8158B2F68DF9B0028AE50 /* CombineMoya in Frameworks */,
+				BC6586412FAB980100D827CF /* GoogleSignInSwift in Frameworks */,
 				BCD815912F68DF9B0028AE50 /* RxMoya in Frameworks */,
 				BCD8158F2F68DF9B0028AE50 /* ReactiveMoya in Frameworks */,
 				BCAAFE082F97486A00A6B597 /* Kingfisher in Frameworks */,
+				BC65863F2FAB980100D827CF /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -684,6 +690,7 @@
 		BCD815A82F692FC60028AE50 /* Component */ = {
 			isa = PBXGroup;
 			children = (
+				BCBCF4332FAC209B0058E92D /* GoogleLoginButton.swift */,
 				BC6676C82F833C20009CBF8D /* ImageCarousel.swift */,
 				BCD816C02F69AA5D0028AE50 /* AppleLoginButton.swift */,
 				BCD816BE2F69A8D30028AE50 /* AppleSignInButton.swift */,
@@ -801,6 +808,8 @@
 				BCD8158E2F68DF9B0028AE50 /* ReactiveMoya */,
 				BCD815902F68DF9B0028AE50 /* RxMoya */,
 				BCAAFE072F97486A00A6B597 /* Kingfisher */,
+				BC65863E2FAB980100D827CF /* GoogleSignIn */,
+				BC6586402FAB980100D827CF /* GoogleSignInSwift */,
 			);
 			productName = SNAPY_iOS;
 			productReference = BC5AFEBE2F6866FF00273744 /* SNAPY_iOS.app */;
@@ -887,6 +896,7 @@
 			packageReferences = (
 				BCD815892F68DF9B0028AE50 /* XCRemoteSwiftPackageReference "Moya" */,
 				BCAAFE062F97486A00A6B597 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				BC65863D2FAB980100D827CF /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BC5AFEBF2F6866FF00273744 /* Products */;
@@ -938,6 +948,7 @@
 				BC6676CD2F840615009CBF8D /* ProfileEditView.swift in Sources */,
 				BC1DC2F12F68CF730016A4CD /* Color+Extensions.swift in Sources */,
 				BCCAD60C2F6B062F00ED71E0 /* PasswordView.swift in Sources */,
+				BCBCF4342FAC209C0058E92D /* GoogleLoginButton.swift in Sources */,
 				BCAA007F2F9A381E00A6B597 /* GuestbookDTO.swift in Sources */,
 				BCD815AF2F69346D0028AE50 /* MainTabView.swift in Sources */,
 				BC706E5F2F8DC0E20093C0B8 /* FriendDTO.swift in Sources */,
@@ -1403,6 +1414,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		BC65863D2FAB980100D827CF /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.1.0;
+			};
+		};
 		BCAAFE062F97486A00A6B597 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher";
@@ -1422,6 +1441,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		BC65863E2FAB980100D827CF /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BC65863D2FAB980100D827CF /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		BC6586402FAB980100D827CF /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BC65863D2FAB980100D827CF /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
 		BCAAFE072F97486A00A6B597 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BCAAFE062F97486A00A6B597 /* XCRemoteSwiftPackageReference "Kingfisher" */;
