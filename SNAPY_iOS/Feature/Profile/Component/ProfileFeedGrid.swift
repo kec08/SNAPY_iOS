@@ -116,9 +116,20 @@ struct FeedDetailCard: View {
     let profileImage: UIImage?
     let profileAsset: String
 
-    @State private var isLiked = false
-    @State private var likeCount = 0
+    @State private var isLiked: Bool
+    @State private var likeCount: Int
     @State private var commentCount = 0
+
+    init(post: FeedPost, displayName: String, handle: String,
+         profileImage: UIImage?, profileAsset: String) {
+        self.post = post
+        self.displayName = displayName
+        self.handle = handle
+        self.profileImage = profileImage
+        self.profileAsset = profileAsset
+        _isLiked = State(initialValue: post.isLiked)
+        _likeCount = State(initialValue: post.likeCount)
+    }
 
     var body: some View {
         FeedCardView(
@@ -132,8 +143,22 @@ struct FeedDetailCard: View {
             },
             isLiked: $isLiked,
             likeCount: $likeCount,
-            commentCount: $commentCount
+            commentCount: $commentCount,
+            onLike: { toggleLike() }
         )
+    }
+
+    private func toggleLike() {
+        let albumId = post.id
+        Task {
+            do {
+                let result = try await AlbumService.shared.toggleLike(albumId: albumId)
+                isLiked = result.liked
+                likeCount = result.likeCount
+            } catch {
+                print("[FeedDetailCard] 좋아요 실패: \(error)")
+            }
+        }
     }
 
     private var profileSource: ProfileImageSource {

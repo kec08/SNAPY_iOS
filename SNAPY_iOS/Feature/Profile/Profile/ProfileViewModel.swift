@@ -16,6 +16,8 @@ struct FeedPost: Identifiable {
     let thumbnailImage: String  // 에셋 또는 URL
     let photos: [PhotoData]     // 상세 사진들 (front + back)
     let date: String
+    var isLiked: Bool = false
+    var likeCount: Int = 0
 }
 
 // 이전 달 요약 (대표 사진 1장 + 월 표시)
@@ -282,7 +284,9 @@ final class ProfileViewModel: ObservableObject {
                                 id: album.albumId,
                                 thumbnailImage: thumbnail,
                                 photos: detail.photos,
-                                date: Self.formatAlbumDate(album.albumDate)
+                                date: Self.formatAlbumDate(album.albumDate),
+                                isLiked: detail.liked ?? false,
+                                likeCount: detail.likeCount ?? 0
                             )
                         } catch {
                             print("[ProfileVM] 앨범 상세 실패 (id=\(album.albumId)): \(error)")
@@ -320,7 +324,9 @@ final class ProfileViewModel: ObservableObject {
                                 id: album.albumId,
                                 thumbnailImage: thumbnail,
                                 photos: detail.photos,
-                                date: Self.formatAlbumDate(album.albumDate)
+                                date: Self.formatAlbumDate(album.albumDate),
+                                isLiked: detail.liked ?? false,
+                                likeCount: detail.likeCount ?? 0
                             )
                         } catch { return nil }
                     }

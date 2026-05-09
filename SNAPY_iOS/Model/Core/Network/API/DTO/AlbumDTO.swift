@@ -87,6 +87,8 @@ struct DailyAlbumData: Codable {
     let albumId: Int
     let albumDate: String
     let photoCount: Int
+    let likeCount: Int?
+    let liked: Bool?
     let photos: [PhotoData]
 }
 
@@ -114,6 +116,13 @@ struct AlbumPublishData: Codable {
     let publishedAt: String     // "2026-04-13T15:51:17.6160497"
 }
 
+/// 앨범 하트(좋아요) 응답 data
+struct AlbumLikeData: Codable {
+    let albumId: Int
+    let liked: Bool
+    let likeCount: Int
+}
+
 // MARK: - typealias
 
 typealias AlbumUploadResponse  = BaseResponse<AlbumUploadData>
@@ -121,3 +130,4 @@ typealias TodayAlbumResponse   = BaseResponse<DailyAlbumData>
 typealias AlbumListResponse    = BaseResponse<[AlbumListItemData]>
 typealias AlbumDetailResponse  = BaseResponse<[AlbumListItemData]>
 typealias AlbumPublishResponse = BaseResponse<AlbumPublishData>
+typealias AlbumLikeResponse    = BaseResponse<AlbumLikeData>

@@ -236,7 +236,8 @@ final class HomeViewModel: ObservableObject {
                             assetName: nil
                         )
                     },
-                    likeCount: 0,
+                    isLiked: item.liked ?? false,
+                    likeCount: item.likeCount ?? 0,
                     commentCount: 0,
                     hasStory: hasStory,
                     isStorySeen: seen
@@ -264,9 +265,28 @@ final class HomeViewModel: ObservableObject {
     }
 
     func toggleLike(for post: HomeFeedPost) {
-        if let idx = feedPosts.firstIndex(where: { $0.id == post.id }) {
-            feedPosts[idx].isLiked.toggle()
-            feedPosts[idx].likeCount += feedPosts[idx].isLiked ? 1 : -1
+        guard let idx = feedPosts.firstIndex(where: { $0.id == post.id }) else { return }
+        // 즉시 UI 반영 (낙관적 업데이트)
+        feedPosts[idx].isLiked.toggle()
+        feedPosts[idx].likeCount += feedPosts[idx].isLiked ? 1 : -1
+
+        let albumId = post.albumId
+        Task {
+            do {
+                let result = try await AlbumService.shared.toggleLike(albumId: albumId)
+                // 서버 응답으로 정확한 값 동기화
+                if let idx = feedPosts.firstIndex(where: { $0.albumId == albumId }) {
+                    feedPosts[idx].isLiked = result.liked
+                    feedPosts[idx].likeCount = result.likeCount
+                }
+            } catch {
+                // 실패 시 롤백
+                if let idx = feedPosts.firstIndex(where: { $0.albumId == albumId }) {
+                    feedPosts[idx].isLiked.toggle()
+                    feedPosts[idx].likeCount += feedPosts[idx].isLiked ? 1 : -1
+                }
+                print("[HomeViewModel] 좋아요 실패: \(error)")
+            }
         }
     }
 
