@@ -25,6 +25,8 @@ struct NotificationView: View {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(Color.textWhite)
+                            .frame(width: 40, height: 40)
+                            .background(.ultraThinMaterial, in: Circle())
                     }
 
                     Spacer()
@@ -32,6 +34,7 @@ struct NotificationView: View {
                     Text("알림")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(Color.textWhite)
+                        .padding(.leading, 16)
 
                     Spacer()
 
@@ -43,6 +46,7 @@ struct NotificationView: View {
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(Color.customGray300)
                     }
+                    .frame(width: 60)
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 14)
@@ -59,7 +63,7 @@ struct NotificationView: View {
                 } else if viewModel.notifications.isEmpty {
                     Spacer()
                     Text("알림이 없습니다")
-                        .font(.system(size: 15))
+                        .font(.system(size: 20))
                         .foregroundColor(Color.customGray300)
                     Spacer()
                 } else {
@@ -196,10 +200,21 @@ struct NotificationRow: View {
     let notification: NotificationData
     let message: AttributedString
 
+    private var isServiceNotification: Bool {
+        notification.type == .albumPhotoUploadReminder
+    }
+
     var body: some View {
         HStack(spacing: 12) {
-            // 프로필 이미지
-            if let urlString = notification.senderProfileImageUrl,
+            // 프로필 이미지 / 서비스 알림 아이콘
+            if isServiceNotification {
+                Image(systemName: notificationIcon)
+                    .font(.system(size: 18))
+                    .foregroundColor(.MainYellow)
+                    .frame(width: 40, height: 40)
+                    .background(Color(white: 0.2))
+                    .clipShape(Circle())
+            } else if let urlString = notification.senderProfileImageUrl,
                let url = URL(string: urlString) {
                 KFImage(url)
                     .resizable()
@@ -211,9 +226,9 @@ struct NotificationRow: View {
             } else {
                 Image(systemName: notificationIcon)
                     .font(.system(size: 18))
-                    .foregroundColor(Color.textWhite)
+                    .foregroundColor(.MainYellow)
                     .frame(width: 44, height: 44)
-                    .background(Color.customDarkGray)
+                    .background(Color(white: 0.2))
                     .clipShape(Circle())
             }
 
