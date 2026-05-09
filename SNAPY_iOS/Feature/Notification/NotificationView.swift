@@ -11,6 +11,7 @@ import Kingfisher
 struct NotificationView: View {
     @StateObject private var viewModel = NotificationViewModel()
     @Environment(\.dismiss) private var dismiss
+    @State private var showOlderSection = false
 
     var body: some View {
         ZStack {
@@ -72,33 +73,57 @@ struct NotificationView: View {
                             let grouped = groupedNotifications(viewModel.notifications)
 
                             ForEach(grouped, id: \.title) { section in
-                                // 섹션 헤더
-                                HStack {
-                                    Text(section.title)
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(Color.textWhite)
-                                    Spacer()
-                                }
-                                .padding(.horizontal, 20)
-                                .padding(.top, 20)
-                                .padding(.bottom, 8)
-
-                                ForEach(section.items) { notification in
-                                    NotificationRow(
-                                        notification: notification,
-                                        message: viewModel.message(for: notification)
-                                    )
-                                    .onTapGesture {
-                                        Task { await viewModel.markAsRead(notification) }
-                                    }
-                                    .onAppear {
-                                        if notification.id == viewModel.notifications.last?.id {
-                                            Task { await viewModel.loadMore() }
+                                if section.isOlder {
+                                    // 7일 이전 섹션: 더보기 버튼
+                                    if !showOlderSection {
+                                        Button {
+                                            withAnimation(.easeInOut(duration: 0.3)) {
+                                                showOlderSection = true
+                                            }
+                                        } label: {
+                                            HStack {
+                                                Text("이전 알림 더보기")
+                                                    .font(.system(size: 14, weight: .semibold))
+                                                    .foregroundColor(Color.customGray300)
+                                                Image(systemName: "chevron.down")
+                                                    .font(.system(size: 12, weight: .semibold))
+                                                    .foregroundColor(Color.customGray300)
+                                            }
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 16)
                                         }
                                     }
 
-                                    Divider()
-                                        .background(Color.white.opacity(0.06))
+                                    if showOlderSection {
+                                        HStack {
+                                            Text(section.title)
+                                                .font(.system(size: 14, weight: .bold))
+                                                .foregroundColor(Color.textWhite)
+                                            Spacer()
+                                        }
+                                        .padding(.horizontal, 20)
+                                        .padding(.top, 20)
+                                        .padding(.bottom, 8)
+
+                                        ForEach(section.items) { notification in
+                                            notificationRow(notification)
+                                        }
+                                    }
+                                } else {
+                                    // 최근 7일 이내 섹션
+                                    HStack {
+                                        Text(section.title)
+                                            .font(.system(size: 14, weight: .bold))
+                                            .foregroundColor(Color.textWhite)
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 20)
+                                    .padding(.top, 20)
+                                    .padding(.bottom, 8)
+
+                                    ForEach(section.items) { notification in
+                                        notificationRow(notification)
+                                    }
                                 }
                             }
 
@@ -126,11 +151,33 @@ struct NotificationView: View {
         }
     }
 
+    // MARK: - 알림 Row 헬퍼
+
+    @ViewBuilder
+    private func notificationRow(_ notification: NotificationData) -> some View {
+        NotificationRow(
+            notification: notification,
+            message: viewModel.message(for: notification)
+        )
+        .onTapGesture {
+            Task { await viewModel.markAsRead(notification) }
+        }
+        .onAppear {
+            if notification.id == viewModel.notifications.last?.id {
+                Task { await viewModel.loadMore() }
+            }
+        }
+
+        Divider()
+            .background(Color.white.opacity(0.06))
+    }
+
     // MARK: - 날짜별 그룹핑
 
     private struct NotificationSection {
         let title: String
         let items: [NotificationData]
+        var isOlder: Bool = false
     }
 
     private func groupedNotifications(_ notifications: [NotificationData]) -> [NotificationSection] {
@@ -163,7 +210,7 @@ struct NotificationView: View {
         if !today.isEmpty { sections.append(NotificationSection(title: "오늘", items: today)) }
         if !yesterday.isEmpty { sections.append(NotificationSection(title: "어제", items: yesterday)) }
         if !recent7Days.isEmpty { sections.append(NotificationSection(title: "최근 7일", items: recent7Days)) }
-        if !older.isEmpty { sections.append(NotificationSection(title: "이전", items: older)) }
+        if !older.isEmpty { sections.append(NotificationSection(title: "이전", items: older, isOlder: true)) }
 
         return sections
     }
@@ -185,8 +232,8 @@ enum NotificationDateParser {
 
         let df = DateFormatter()
         df.locale = Locale(identifier: "en_US_POSIX")
-        // 타임존 없는 경우 UTC로 처리
-        for tz in [TimeZone(identifier: "UTC")!, TimeZone(identifier: "Asia/Seoul")!] {
+        // 타임존 없는 경우 KST 우선 처리
+        for tz in [TimeZone(identifier: "Asia/Seoul")!, TimeZone(identifier: "UTC")!] {
             for fmt in [
                 "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
                 "yyyy-MM-dd'T'HH:mm:ss.SSS",
@@ -285,26 +332,23 @@ struct NotificationRow: View {
 
     private func relativeTime(from date: Date) -> String {
         let seconds = Int(-date.timeIntervalSinceNow)
+        if seconds < 0 { return "방금 전" }
         if seconds < 60 { return "방금 전" }
         if seconds < 3600 { return "\(seconds / 60)분 전" }
 
         let hours = seconds / 3600
         let days = seconds / 86400
 
-        if seconds < 86400 {
+        if hours < 24 {
             return "\(hours)시간 전"
         }
 
         if days < 7 {
-            let remainHours = (seconds % 86400) / 3600
-            if remainHours > 0 {
-                return "\(days)일 \(remainHours)시간 전"
-            }
             return "\(days)일 전"
         }
-
         let df = DateFormatter()
         df.dateFormat = "M월 d일"
+        df.locale = Locale(identifier: "ko_KR")
         return df.string(from: date)
     }
 }
