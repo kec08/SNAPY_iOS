@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
+    @State private var isRefreshing = false
 
     var body: some View {
         NavigationStack {
@@ -18,6 +19,13 @@ struct ProfileView: View {
                 ScrollViewReader { scrollProxy in
                     ScrollView {
                         VStack(spacing: 30) {
+                            // Pull-to-refresh 로딩바 (배너 위)
+                            if isRefreshing {
+                                ProgressView()
+                                    .tint(.white)
+                                    .padding(.top, 60)
+                            }
+
                             ProfileHeaderView(viewModel: viewModel)
 
                             GuestbookSection(viewModel: viewModel)
@@ -31,6 +39,21 @@ struct ProfileView: View {
                                 scrollProxy: scrollProxy
                             )
                         }
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear
+                                    .onChange(of: geo.frame(in: .global).minY) { _, newValue in
+                                        if newValue > 140 && !isRefreshing {
+                                            isRefreshing = true
+                                            Task {
+                                                await viewModel.loadProfile()
+                                                try? await Task.sleep(nanoseconds: 500_000_000)
+                                                isRefreshing = false
+                                            }
+                                        }
+                                    }
+                            }
+                        )
                     }
                 }
                 .ignoresSafeArea(edges: .top)

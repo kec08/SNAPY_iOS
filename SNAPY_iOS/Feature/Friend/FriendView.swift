@@ -10,6 +10,7 @@ import SwiftUI
 struct FriendView: View {
     @StateObject private var viewModel = FriendViewModel()
     @State private var showFriendRequest = false
+    @State private var isRefreshing = false
 
     var body: some View {
         NavigationStack {
@@ -75,6 +76,13 @@ struct FriendView: View {
                         ScrollView {
                             VStack(alignment: .leading, spacing: 0) {
                                 // 검색 중이 아닐 때만 "추천 친구" 타이틀
+                                if isRefreshing {
+                                    ProgressView()
+                                        .tint(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.bottom, 8)
+                                }
+
                                 if viewModel.searchText.isEmpty {
                                     Text("추천 친구")
                                         .font(.system(size: 14, weight: .semibold))
@@ -94,6 +102,21 @@ struct FriendView: View {
                                 }
                             }
                             .padding(.top, 4)
+                            .background(
+                                GeometryReader { geo in
+                                    Color.clear
+                                        .onChange(of: geo.frame(in: .global).minY) { _, newValue in
+                                            if newValue > 250 && !isRefreshing {
+                                                isRefreshing = true
+                                                Task {
+                                                    await viewModel.loadRecommendedFriends()
+                                                    try? await Task.sleep(nanoseconds: 500_000_000)
+                                                    isRefreshing = false
+                                                }
+                                            }
+                                        }
+                                }
+                            )
                         }
                     }
                 }
