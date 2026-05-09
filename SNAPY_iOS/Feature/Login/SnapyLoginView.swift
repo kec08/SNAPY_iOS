@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SnapyLoginView: View {
+    var onBack: () -> Void = {}
     var onLoginTap: () -> Void
     var onRegisterTap: () -> Void
     @EnvironmentObject var authVM: AuthViewModel
@@ -17,19 +18,36 @@ struct SnapyLoginView: View {
             Color.backgroundBlack.ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
+                // 뒤로가기
+                HStack {
+                    Button {
+                        withAnimation {
+                            onBack()
+                        }
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(Color.primary)
+                    }
+                    .buttonStyle(.glass)
+                    Spacer()
+                }
+                .padding(.top, 34)
+                .padding(.horizontal, 24)
+
                 // Header
                 HStack(spacing: 12) {
                     Image("Login_Logo")
                         .resizable()
                         .scaledToFit()
                         .frame(height: 34)
-                    
+
                     Image("SNAPY_logo")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 130, height: 28)
                 }
-                .padding(.top, 34)
+                .padding(.top, 16)
                 .padding(.horizontal, 24)
 
                 VStack(alignment: .leading, spacing: 8) {

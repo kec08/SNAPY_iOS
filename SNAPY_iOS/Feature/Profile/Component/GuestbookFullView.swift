@@ -59,6 +59,14 @@ struct GuestbookFullView: View {
             } // if !isMyProfile
         }
         .navigationBarBackButtonHidden(true)
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width > 80 && abs(value.translation.height) < 100 {
+                        dismiss()
+                    }
+                }
+        )
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {

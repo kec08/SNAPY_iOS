@@ -82,6 +82,8 @@ struct StoryDetailView: View {
         .statusBarHidden()
         .onAppear {
             currentUserIndex = initialIndex
+            // 새로 올린 사진부터 시작
+            currentImageIndex = stories[initialIndex].unseenStartIndex
             startTimer()
             onStorySeen?(stories[initialIndex].storyId)
             loadLikeStatus()

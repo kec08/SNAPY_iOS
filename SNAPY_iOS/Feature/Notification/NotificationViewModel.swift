@@ -126,25 +126,36 @@ final class NotificationViewModel: ObservableObject {
 
     // MARK: - 알림 타입별 메시지
 
-    func message(for notification: NotificationData) -> String {
+    func message(for notification: NotificationData) -> AttributedString {
         let name = notification.senderUsername ?? notification.senderHandle ?? "알 수 없음"
+        let suffix: String
         switch notification.type {
         case .storyLike:
-            return "\(name)님이 스토리에 좋아요를 눌렀습니다."
+            suffix = "님이 스토리에 좋아요를 눌렀습니다."
         case .friendRequest:
-            return "\(name)님이 친구 요청을 보냈습니다."
+            suffix = "님이 친구 요청을 보냈습니다."
         case .friendAccepted:
-            return "\(name)님이 친구 요청을 수락했습니다."
+            suffix = "님이 친구 요청을 수락했습니다."
         case .albumPublished:
-            return "\(name)님의 앨범이 발행되었습니다."
+            suffix = "님의 앨범이 발행되었습니다."
         case .newStory:
-            return "\(name)님이 새 스토리를 올렸습니다."
+            suffix = "님이 새 스토리를 올렸습니다."
         case .feedComment:
-            return "\(name)님이 댓글을 남겼습니다."
+            suffix = "님이 댓글을 남겼습니다."
         case .guestbookCreated:
-            return "\(name)님이 방명록을 남겼습니다."
+            suffix = "님이 방명록을 남겼습니다."
         case .albumPhotoUploadReminder:
-            return "앨범에 사진을 올려주세요!"
+            var text = AttributedString("앨범에 사진을 올려주세요!")
+            text.font = .system(size: 14, weight: .regular)
+            return text
         }
+
+        var boldName = AttributedString(name)
+        boldName.font = .system(size: 14, weight: .bold)
+
+        var rest = AttributedString(suffix)
+        rest.font = .system(size: 14, weight: .regular)
+
+        return boldName + rest
     }
 }

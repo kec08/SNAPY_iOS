@@ -19,6 +19,7 @@ enum AlbumAPI {
     case fetchCalendar
     case fetchDetail(albumId: Int)
     case publish(albumId: Int)
+    case toggleLike(albumId: Int)
 }
 
 extension AlbumAPI: TargetType {
@@ -43,12 +44,14 @@ extension AlbumAPI: TargetType {
             return "/api/albums/\(albumId)"
         case .publish(let albumId):
             return "/api/albums/\(albumId)/publish"
+        case .toggleLike(let albumId):
+            return "/api/albums/\(albumId)/likes"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .upload, .publish:
+        case .upload, .publish, .toggleLike:
             return .post
         case .fetchToday, .fetchAll, .fetchByMonth, .fetchByMonthForUser, .fetchCalendar, .fetchDetail:
             return .get
@@ -93,7 +96,7 @@ extension AlbumAPI: TargetType {
                 encoding: URLEncoding.queryString
             )
 
-        case .fetchToday, .fetchAll, .fetchCalendar, .fetchDetail, .publish:
+        case .fetchToday, .fetchAll, .fetchCalendar, .fetchDetail, .publish, .toggleLike:
             return .requestPlain
         }
     }

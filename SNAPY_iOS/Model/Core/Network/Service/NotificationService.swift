@@ -33,6 +33,10 @@ final class NotificationService {
     func getNotifications(page: Int = 0, size: Int = 20) async throws -> NotificationPageData {
         let response = try await requestWithRefresh(.getNotifications(page: page, size: size))
 
+        if let body = String(data: response.data, encoding: .utf8) {
+            print("[NotificationService] 응답: \(body.prefix(500))")
+        }
+
         guard (200..<300).contains(response.statusCode) else {
             throw NotificationError.serverError("서버 오류 (\(response.statusCode))")
         }

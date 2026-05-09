@@ -34,6 +34,7 @@ struct FriendProfileView: View {
     @State private var currentFriend: Bool
     @State private var showBannerViewer = false
     @State private var showProfileViewer = false
+    @State private var isRefreshing = false
     @StateObject private var guestbookVM = ProfileViewModel()
 
     init(name: String, handle: String, profileImageUrl: String?, bannerImageUrl: String? = nil, isFriend: Bool = false, mutualFriendsText: String? = nil, contactText: String? = nil) {
@@ -55,6 +56,13 @@ struct FriendProfileView: View {
 
             ScrollView {
                 VStack(spacing: 0) {
+                    // Pull-to-refresh 로딩바
+                    if isRefreshing {
+                        ProgressView()
+                            .tint(.white)
+                            .padding(.top, 60)
+                    }
+
                     // MARK: 배너
                     Button { showBannerViewer = true } label: {
                         if let url = bannerImageUrl, let imgUrl = URL(string: url) {
@@ -237,6 +245,21 @@ struct FriendProfileView: View {
                     }
                 }
             }
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onChange(of: geo.frame(in: .global).minY) { _, newValue in
+                            if newValue > 140 && !isRefreshing {
+                                isRefreshing = true
+                                Task {
+                                    await refreshProfile()
+                                    try? await Task.sleep(nanoseconds: 500_000_000)
+                                    isRefreshing = false
+                                }
+                            }
+                        }
+                }
+            )
             .ignoresSafeArea(edges: .top)
         }
         .navigationBarBackButtonHidden(true)
@@ -281,6 +304,18 @@ struct FriendProfileView: View {
                 friendCount = profile.friendCount ?? 0
             } catch {
                 print("[FriendProfile] 프로필 로드 실패: \(error)")
+            }
+            // 친구 여부 확인 (init에서 isFriend가 false인 경우 내 친구 목록에서 확인)
+            if !currentFriend {
+                do {
+                    let myHandle = UserDefaults.standard.string(forKey: "myHandle") ?? ""
+                    let myFriends = try await FriendService.shared.getFriends(handle: myHandle)
+                    if myFriends.contains(where: { $0.handle == handle }) {
+                        currentFriend = true
+                    }
+                } catch {
+                    print("[FriendProfile] 친구 여부 확인 실패: \(error)")
+                }
             }
             // friendCount가 0이면 친구 목록에서 다시 조회
             if friendCount == 0 {
@@ -359,6 +394,24 @@ struct FriendProfileView: View {
                 assetName: "Profile_img",
                 isCircle: true
             )
+        }
+    }
+
+    /// 새로고침
+    private func refreshProfile() async {
+        do {
+            let profile = try await ProfileService.shared.fetchUserProfile(handle: handle)
+            name = profile.username
+            profileImageUrl = profile.profileImageUrl
+            bannerImageUrl = profile.backgroundImageUrl
+            friendCount = profile.friendCount ?? 0
+        } catch {
+            print("[FriendProfile] 새로고침 프로필 실패: \(error)")
+        }
+        guestbookVM.handle = handle
+        await guestbookVM.loadGuestbook()
+        if currentFriend {
+            await loadFriendFeed()
         }
     }
 

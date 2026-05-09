@@ -21,6 +21,8 @@ struct FeedItemData: Codable, Identifiable {
     let albumId: Int
     let albumDate: String
     let photoCount: Int
+    let likeCount: Int?
+    let liked: Bool?
     let photos: [AlbumPhotoSet]
     let authorName: String
     let authorHandle: String

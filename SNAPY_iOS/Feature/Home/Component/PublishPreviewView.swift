@@ -66,6 +66,14 @@ struct PublishPreviewView: View {
         }
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width > 80 && abs(value.translation.height) < 100 {
+                        dismiss()
+                    }
+                }
+        )
         .task {
             await photoStore.loadToday()
         }

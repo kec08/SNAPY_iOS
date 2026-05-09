@@ -20,6 +20,7 @@ struct HomeView: View {
     @State private var isRefreshing = false
     // 알림
     @State private var showNotification = false
+    @State private var unreadNotificationCount: Int64 = 0
 
     var body: some View {
         NavigationStack {
@@ -29,7 +30,7 @@ struct HomeView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         // 헤더
-                        HomeHeader(showNotification: $showNotification)
+                        HomeHeader(showNotification: $showNotification, unreadCount: unreadNotificationCount)
 
                         // Pull-to-refresh 로딩바 (헤더 바로 아래)
                         if isRefreshing {
@@ -104,6 +105,17 @@ struct HomeView: View {
                         async let stories: () = viewModel.loadStories()
                         async let feed: () = viewModel.loadFeed()
                         _ = await (stories, feed)
+                    }
+                    Task {
+                        unreadNotificationCount = (try? await NotificationService.shared.getUnreadCount()) ?? 0
+                    }
+                }
+                .onChange(of: showNotification) { _, isShowing in
+                    if !isShowing {
+                        // 알림 화면에서 돌아오면 카운트 갱신
+                        Task {
+                            unreadNotificationCount = (try? await NotificationService.shared.getUnreadCount()) ?? 0
+                        }
                     }
                 }
 
