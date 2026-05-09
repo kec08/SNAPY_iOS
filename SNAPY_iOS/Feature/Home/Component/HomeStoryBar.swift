@@ -19,7 +19,12 @@ struct HomeStoryBar: View {
     @State private var storyPresentation: StoryPresentation?
 
     private var sortedStories: [StoryItem] {
-        stories.sorted { !$0.isSeen && $1.isSeen }
+        stories.sorted {
+            if $0.isSeen != $1.isSeen {
+                return !$0.isSeen  // 안 본 스토리 먼저
+            }
+            return $0.storyId > $1.storyId  // 같은 그룹 내 최신순
+        }
     }
 
     var body: some View {

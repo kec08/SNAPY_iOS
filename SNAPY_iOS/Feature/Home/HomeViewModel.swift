@@ -41,7 +41,8 @@ extension String {
 
 struct StoryItem: Identifiable {
     let id = UUID()
-    let storyId: Int           // 서버 스토리 ID (상세 조회/좋아요에 사용)
+    let storyId: Int           // 대표 스토리 ID (가장 최신)
+    let storyIds: [Int]        // 이 유저의 모든 스토리 ID
     let profileImage: String
     let bannerImage: String
     let displayName: String
@@ -49,6 +50,37 @@ struct StoryItem: Identifiable {
     let photos: [StoryPhotoSet]  // 서버의 사진 세트 (front/back + type)
     let createdAt: String?     // ISO8601 서버 시각
     let isSeen: Bool
+    let unseenStartIndex: Int  // 새로 올린 사진 시작 인덱스
+
+    init(storyId: Int, profileImage: String, bannerImage: String,
+         displayName: String, username: String, photos: [StoryPhotoSet],
+         createdAt: String?, isSeen: Bool) {
+        self.storyId = storyId
+        self.storyIds = [storyId]
+        self.profileImage = profileImage
+        self.bannerImage = bannerImage
+        self.displayName = displayName
+        self.username = username
+        self.photos = photos
+        self.createdAt = createdAt
+        self.isSeen = isSeen
+        self.unseenStartIndex = 0
+    }
+
+    init(storyId: Int, storyIds: [Int], profileImage: String, bannerImage: String,
+         displayName: String, username: String, photos: [StoryPhotoSet],
+         createdAt: String?, isSeen: Bool, unseenStartIndex: Int = 0) {
+        self.storyId = storyId
+        self.storyIds = storyIds
+        self.profileImage = profileImage
+        self.bannerImage = bannerImage
+        self.displayName = displayName
+        self.username = username
+        self.photos = photos
+        self.createdAt = createdAt
+        self.isSeen = isSeen
+        self.unseenStartIndex = unseenStartIndex
+    }
 
     /// 하위 호환: 기존 images 접근이 필요한 곳에서 backImageUrl 배열로 변환
     var images: [String] {
@@ -150,9 +182,52 @@ final class HomeViewModel: ObservableObject {
                 return results
             }
 
-            // storyId 순서 유지
-            stories = items.sorted { $0.storyId < $1.storyId }
-            print("[HomeViewModel] 스토리 \(stories.count)개 로드 완료")
+            // 같은 유저의 스토리를 하나로 합치기
+            var grouped: [String: [StoryItem]] = [:]
+            for item in items {
+                grouped[item.username, default: []].append(item)
+            }
+
+            var merged: [StoryItem] = []
+            for (_, userStories) in grouped {
+                let sorted = userStories.sorted { $0.storyId > $1.storyId }
+                let latest = sorted[0]
+                // 과거→최신 순서로 사진 정렬
+                let chronological = userStories.sorted { $0.storyId < $1.storyId }
+                let allPhotos = chronological.flatMap { $0.photos }
+                let allIds = sorted.map { $0.storyId }
+                let allSeen = sorted.allSatisfy { $0.isSeen }
+
+                // 이미 본 스토리의 사진 수 계산 → 새 사진 시작 인덱스
+                var unseenStart = 0
+                for story in chronological {
+                    if story.isSeen {
+                        unseenStart += story.photos.count
+                    } else {
+                        break
+                    }
+                }
+                // 전부 봤으면 처음부터
+                if unseenStart >= allPhotos.count {
+                    unseenStart = 0
+                }
+
+                merged.append(StoryItem(
+                    storyId: latest.storyId,
+                    storyIds: allIds,
+                    profileImage: latest.profileImage,
+                    bannerImage: latest.bannerImage,
+                    displayName: latest.displayName,
+                    username: latest.username,
+                    photos: allPhotos,
+                    createdAt: latest.createdAt,
+                    isSeen: allSeen,
+                    unseenStartIndex: unseenStart
+                ))
+            }
+
+            stories = merged.sorted { $0.storyId > $1.storyId }
+            print("[HomeViewModel] 스토리 \(stories.count)개 로드 완료 (합친 후)")
         } catch {
             print("[HomeViewModel] 스토리 목록 로드 실패: \(error)")
         }
@@ -161,10 +236,15 @@ final class HomeViewModel: ObservableObject {
     /// 스토리를 봤을 때 호출 → isSeen 갱신
     func markStorySeen(storyId: Int) {
         seenStoryIds.insert(storyId)
-        if let idx = stories.firstIndex(where: { $0.storyId == storyId }) {
+        if let idx = stories.firstIndex(where: { $0.storyId == storyId || $0.storyIds.contains(storyId) }) {
             let old = stories[idx]
+            // 모든 storyIds를 seen으로 마킹
+            for id in old.storyIds {
+                seenStoryIds.insert(id)
+            }
             stories[idx] = StoryItem(
                 storyId: old.storyId,
+                storyIds: old.storyIds,
                 profileImage: old.profileImage,
                 bannerImage: old.bannerImage,
                 displayName: old.displayName,
