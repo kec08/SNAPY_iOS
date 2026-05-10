@@ -206,12 +206,13 @@ final class ProfileViewModel: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
         }
-        isLoading = false
 
         // 피드 + 방명록 병렬 로드
         async let feedTask: () = loadFeed()
         async let guestbookTask: () = loadGuestbook()
         _ = await (feedTask, guestbookTask)
+
+        isLoading = false
     }
 
     // MARK: - 피드 로드 (이번 달 상세 + 이전 달 요약)

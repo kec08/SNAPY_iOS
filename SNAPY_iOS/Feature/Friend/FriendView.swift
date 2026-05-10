@@ -56,10 +56,9 @@ struct FriendView: View {
 
                     // MARK: 친구 리스트
                     if viewModel.isLoading || viewModel.isSearching {
-                        Spacer()
-                        ProgressView()
-                            .tint(.white)
-                        Spacer()
+                        ScrollView {
+                            FriendSkeletonList()
+                        }
                     } else if viewModel.filteredFriends.isEmpty {
                         Spacer()
                         VStack(spacing: 24) {
