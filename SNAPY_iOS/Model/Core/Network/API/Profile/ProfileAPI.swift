@@ -21,6 +21,9 @@ enum ProfileAPI {
     case fetchGuestbook(handle: String)                  // GET  /api/users/{handle}/guestbook
     case postGuestbook(handle: String, image: UIImage)   // POST /api/users/{handle}/guestbook
     case updatePhone(phone: String)                      // PATCH /api/users/me/phone
+    case updateHandle(handle: String)                    // PATCH /api/users/me/handle
+    case updateUsername(username: String)                 // PATCH /api/users/me/username
+    case checkHandle(handle: String)                     // GET   /api/users/handle/check
 }
 
 extension ProfileAPI: TargetType {
@@ -51,17 +54,24 @@ extension ProfileAPI: TargetType {
             return "/api/users/\(handle)/guestbook"
         case .updatePhone:
             return "/api/users/me/phone"
+        case .updateHandle:
+            return "/api/users/me/handle"
+        case .updateUsername:
+            return "/api/users/me/username"
+        case .checkHandle:
+            return "/api/users/handle/check"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        case .fetchMyProfile, .fetchUserProfile, .fetchSettings, .fetchGuestbook:
+        case .fetchMyProfile, .fetchUserProfile, .fetchSettings, .fetchGuestbook, .checkHandle:
             return .get
         case .postGuestbook:
             return .post
         case .updateProfileImage, .updateBackgroundImage,
-             .updateFeedVisibility, .updatePastAlbumVisibility, .updatePhone:
+             .updateFeedVisibility, .updatePastAlbumVisibility, .updatePhone,
+             .updateHandle, .updateUsername:
             return .patch
         }
     }
@@ -70,6 +80,12 @@ extension ProfileAPI: TargetType {
         switch self {
         case .fetchMyProfile, .fetchUserProfile, .fetchSettings, .fetchGuestbook:
             return .requestPlain
+
+        case .checkHandle(let handle):
+            return .requestParameters(
+                parameters: ["handle": handle],
+                encoding: URLEncoding.queryString
+            )
 
         case .postGuestbook(let handle, let image):
             let imageData = image.jpegData(compressionQuality: 0.85) ?? Data()
@@ -102,6 +118,16 @@ extension ProfileAPI: TargetType {
         case .updatePhone(let phone):
             return .requestParameters(
                 parameters: ["phone": phone],
+                encoding: JSONEncoding.default
+            )
+        case .updateHandle(let handle):
+            return .requestParameters(
+                parameters: ["handle": handle],
+                encoding: JSONEncoding.default
+            )
+        case .updateUsername(let username):
+            return .requestParameters(
+                parameters: ["username": username],
                 encoding: JSONEncoding.default
             )
         }

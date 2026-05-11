@@ -139,13 +139,28 @@ struct ProfileEditView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("저장") {
-                    viewModel.saveEdit()
-                    dismiss()
+                if viewModel.isSaving {
+                    ProgressView()
+                        .tint(.mainYellow)
+                } else {
+                    Button("저장") {
+                        viewModel.saveEdit()
+                    }
+                    .foregroundColor(.mainYellow)
+                    .disabled(viewModel.editUsername.isEmpty || viewModel.editHandle.isEmpty)
                 }
-                .foregroundColor(.mainYellow)
-                .disabled(viewModel.editUsername.isEmpty || viewModel.editHandle.isEmpty)
             }
+        }
+        .alert("저장 실패", isPresented: Binding(
+            get: { viewModel.saveError != nil },
+            set: { if !$0 { viewModel.saveError = nil } }
+        )) {
+            Button("확인", role: .cancel) {}
+        } message: {
+            Text(viewModel.saveError ?? "")
+        }
+        .onChange(of: viewModel.showEditProfile) { _, show in
+            if !show { dismiss() }
         }
     }
 }

@@ -151,6 +151,35 @@ final class ProfileService {
         }
     }
 
+    // MARK: - 이름 변경
+
+    func updateUsername(_ username: String) async throws {
+        let response = try await requestWithRefresh(.updateUsername(username: username))
+        guard (200..<300).contains(response.statusCode) else {
+            throw ProfileError.serverError(extractMessage(from: response))
+        }
+    }
+
+    // MARK: - 핸들 변경
+
+    func updateHandle(_ handle: String) async throws {
+        let response = try await requestWithRefresh(.updateHandle(handle: handle))
+        guard (200..<300).contains(response.statusCode) else {
+            throw ProfileError.serverError(extractMessage(from: response))
+        }
+    }
+
+    // MARK: - 핸들 중복 확인
+
+    func checkHandle(_ handle: String) async throws -> Bool {
+        let response = try await requestWithRefresh(.checkHandle(handle: handle))
+        guard (200..<300).contains(response.statusCode) else {
+            throw ProfileError.serverError(extractMessage(from: response))
+        }
+        let decoded = try JSONDecoder().decode(BaseResponse<CheckHandleData>.self, from: response.data)
+        return decoded.data?.available ?? false
+    }
+
     // MARK: - 401 재시도
 
     private func requestWithRefresh(_ target: ProfileAPI) async throws -> Response {

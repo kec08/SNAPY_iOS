@@ -36,3 +36,9 @@ struct BackgroundImageData: Codable {
 }
 
 typealias BackgroundImageResponse = BaseResponse<BackgroundImageData>
+
+// MARK: - 핸들 중복 확인 응답
+
+struct CheckHandleData: Codable {
+    let available: Bool
+}

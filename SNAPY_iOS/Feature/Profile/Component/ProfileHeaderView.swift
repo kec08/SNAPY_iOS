@@ -173,7 +173,7 @@ struct ProfileHeaderView: View {
                 currentStreak: viewModel.streakCount,
                 maxStreak: viewModel.maxStreak
             )
-            .presentationDetents([.fraction(0.4)])
+            .presentationDetents([.fraction(0.3)])
             .presentationDragIndicator(.visible)
         }
     }
@@ -197,13 +197,12 @@ struct StreakSheet: View {
     let maxStreak: Int
 
     var body: some View {
-        VStack(spacing: 70) {
+        VStack(spacing: 50) {
             Spacer().frame(height: 10)
 
             Text("스트릭")
-                .font(.system(size: 22, weight: .bold))
+                .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.textWhite)
-                .padding(.top, -30)
 
             HStack(spacing: -20) {
                 // 현재 스트릭

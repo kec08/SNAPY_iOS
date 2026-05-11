@@ -359,10 +359,59 @@ final class ProfileViewModel: ObservableObject {
         showEditProfile = true
     }
 
+    @Published var isSaving = false
+    @Published var saveError: String? = nil
+
     func saveEdit() {
-        username = editUsername
-        handle = editHandle
-        showEditProfile = false
+        let newUsername = editUsername
+        let newHandle = editHandle
+        let usernameChanged = newUsername != username
+        let handleChanged = newHandle != handle
+
+        guard usernameChanged || handleChanged else {
+            showEditProfile = false
+            return
+        }
+
+        isSaving = true
+        saveError = nil
+
+        Task {
+            do {
+                // 핸들 변경 시 중복 확인
+                if handleChanged {
+                    let available = try await ProfileService.shared.checkHandle(newHandle)
+                    if !available {
+                        await MainActor.run {
+                            saveError = "이미 사용 중인 사용자 ID입니다."
+                            isSaving = false
+                        }
+                        return
+                    }
+                }
+
+                if usernameChanged {
+                    try await ProfileService.shared.updateUsername(newUsername)
+                }
+                if handleChanged {
+                    try await ProfileService.shared.updateHandle(newHandle)
+                }
+                await MainActor.run {
+                    username = newUsername
+                    handle = newHandle
+                    if handleChanged {
+                        UserDefaults.standard.set(newHandle, forKey: "myHandle")
+                    }
+                    isSaving = false
+                    showEditProfile = false
+                }
+            } catch {
+                await MainActor.run {
+                    saveError = error.localizedDescription
+                    isSaving = false
+                }
+            }
+        }
     }
 
     // MARK: - 프로필 이미지 변경 (피커 → 서버 업로드)
