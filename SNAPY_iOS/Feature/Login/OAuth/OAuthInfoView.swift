@@ -14,6 +14,8 @@ struct OAuthInfoView: View {
     @State private var handle = ""
     @State private var username = ""
     @State private var handleValidation: String?
+    @State private var isSaving = false
+    @State private var errorMessage: String?
 
     var body: some View {
         ZStack {
@@ -79,15 +81,19 @@ struct OAuthInfoView: View {
 
                 Spacer()
 
-                SnapyButton(title: "다음") {
-                    withAnimation {
-                        onNext()
-                    }
+                SnapyButton(title: isSaving ? "저장 중..." : "다음", isEnabled: isValid && !isSaving) {
+                    Task { await saveAndNext() }
                 }
-                .opacity(isValid ? 1.0 : 0.4)
-                .disabled(!isValid)
                 .padding(.bottom, 24)
             }
+        }
+        .alert("오류", isPresented: Binding(
+            get: { errorMessage != nil },
+            set: { if !$0 { errorMessage = nil } }
+        )) {
+            Button("확인", role: .cancel) {}
+        } message: {
+            Text(errorMessage ?? "")
         }
         .onAppear {
             handle = authVM.oauthDefaultHandle
@@ -103,6 +109,33 @@ struct OAuthInfoView: View {
 
     private var isValid: Bool {
         !handle.isEmpty && !username.isEmpty && handleValidation == nil
+    }
+
+    private func saveAndNext() async {
+        isSaving = true
+        errorMessage = nil
+
+        do {
+            // 핸들 중복 확인
+            let available = try await ProfileService.shared.checkHandle(handle)
+            if !available {
+                errorMessage = "이미 사용 중인 사용자 ID입니다."
+                isSaving = false
+                return
+            }
+
+            // 핸들 + 이름 저장
+            try await ProfileService.shared.updateHandle(handle)
+            try await ProfileService.shared.updateUsername(username)
+
+            await MainActor.run {
+                isSaving = false
+                withAnimation { onNext() }
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+            isSaving = false
+        }
     }
 
     private func validateHandle(_ value: String) {
