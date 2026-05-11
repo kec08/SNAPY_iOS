@@ -23,7 +23,9 @@ struct ProfileFeedSection: View {
     ]
 
     var body: some View {
-        if viewModel.feedPosts.isEmpty && viewModel.pastMonths.isEmpty {
+        if viewModel.isLoading {
+            ProfileFeedSkeletonGrid()
+        } else if viewModel.feedPosts.isEmpty && viewModel.pastMonths.isEmpty {
             Text("게시물이 아직 없습니다")
                 .font(.system(size: 14))
                 .foregroundColor(.customGray300)
@@ -40,6 +42,7 @@ struct ProfileFeedSection: View {
                     displayName: viewModel.username,
                     handle: viewModel.handle,
                     profileImage: viewModel.profileImage,
+                    profileImageUrl: viewModel.profileImageUrl,
                     profileAsset: "Profile_img"
                 )) {
                     feedThumbnail(post.thumbnailImage)
@@ -91,6 +94,7 @@ struct ProfileFeedSection: View {
                                     displayName: viewModel.username,
                                     handle: viewModel.handle,
                                     profileImage: viewModel.profileImage,
+                                    profileImageUrl: viewModel.profileImageUrl,
                                     profileAsset: "Profile_img"
                                 )) {
                                     feedThumbnail(post.thumbnailImage)

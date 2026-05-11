@@ -106,7 +106,7 @@ struct SnapyLoginView: View {
                 Spacer()
 
                 // 로그인 버튼
-                SnapyButton(title: "SNAPY로 로그인") {
+                SnapyButton(title: "SNAPY 로그인", isEnabled: authVM.isLoginValid) {
                     withAnimation {
                         onLoginTap()
                     }

@@ -13,6 +13,7 @@ struct ProfileFeedGrid: View {
     let displayName: String
     let handle: String
     let profileImage: UIImage?
+    let profileImageUrl: String?
     let profileAsset: String
 
     init(
@@ -20,12 +21,14 @@ struct ProfileFeedGrid: View {
         displayName: String = "",
         handle: String = "",
         profileImage: UIImage? = nil,
+        profileImageUrl: String? = nil,
         profileAsset: String = "Profile_img"
     ) {
         self.posts = posts
         self.displayName = displayName
         self.handle = handle
         self.profileImage = profileImage
+        self.profileImageUrl = profileImageUrl
         self.profileAsset = profileAsset
     }
 
@@ -44,6 +47,7 @@ struct ProfileFeedGrid: View {
                     displayName: displayName,
                     handle: handle,
                     profileImage: profileImage,
+                    profileImageUrl: profileImageUrl,
                     profileAsset: profileAsset
                 )) {
                     Color.clear
@@ -78,6 +82,7 @@ struct FeedDetailView: View {
     let displayName: String
     let handle: String
     let profileImage: UIImage?
+    let profileImageUrl: String?
     let profileAsset: String
 
     var body: some View {
@@ -93,6 +98,7 @@ struct FeedDetailView: View {
                                 displayName: displayName,
                                 handle: handle,
                                 profileImage: profileImage,
+                                profileImageUrl: profileImageUrl,
                                 profileAsset: profileAsset
                             )
                             .id(post.id)
@@ -114,6 +120,7 @@ struct FeedDetailCard: View {
     let displayName: String
     let handle: String
     let profileImage: UIImage?
+    let profileImageUrl: String?
     let profileAsset: String
 
     @State private var isLiked: Bool
@@ -121,11 +128,12 @@ struct FeedDetailCard: View {
     @State private var commentCount = 0
 
     init(post: FeedPost, displayName: String, handle: String,
-         profileImage: UIImage?, profileAsset: String) {
+         profileImage: UIImage?, profileImageUrl: String? = nil, profileAsset: String) {
         self.post = post
         self.displayName = displayName
         self.handle = handle
         self.profileImage = profileImage
+        self.profileImageUrl = profileImageUrl
         self.profileAsset = profileAsset
         _isLiked = State(initialValue: post.isLiked)
         _likeCount = State(initialValue: post.likeCount)
@@ -164,6 +172,8 @@ struct FeedDetailCard: View {
     private var profileSource: ProfileImageSource {
         if let image = profileImage {
             return .uiImage(image)
+        } else if let url = profileImageUrl, !url.isEmpty {
+            return .url(url)
         } else if !profileAsset.isEmpty {
             return .asset(profileAsset)
         }

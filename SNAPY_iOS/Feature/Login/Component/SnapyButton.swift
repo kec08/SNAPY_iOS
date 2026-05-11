@@ -37,8 +37,8 @@ struct SnapyButton: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 56)
-            .background(Color.textWhite)
-            .foregroundColor(Color.backgroundBlack)
+            .background(isEnabled ? Color.textWhite : Color.customGray500)
+            .foregroundColor(isEnabled ? Color.backgroundBlack : Color.customGray300)
             .cornerRadius(28)
         }
         .disabled(!isEnabled)

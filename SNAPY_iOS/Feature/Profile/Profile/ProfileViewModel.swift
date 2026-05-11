@@ -78,6 +78,7 @@ final class ProfileViewModel: ObservableObject {
     @Published var postCount: Int = 0
     @Published var friendCount: Int = 0
     @Published var streakCount: Int = 0
+    @Published var maxStreak: Int = 0
     @Published var mutualFriendsText: String = ""
 
     // 프로필/배너 이미지 URL (UserDefaults 에 저장 → 앱 재시작해도 유지)
@@ -192,6 +193,8 @@ final class ProfileViewModel: ObservableObject {
             handle = profile.handle
             profileImageUrl = profile.profileImageUrl
             bannerImageUrl = profile.backgroundImageUrl
+            streakCount = profile.currentStreak ?? 0
+            maxStreak = profile.maxStreak ?? 0
             // 자기 handle 저장 (추천 친구에서 자신 제외용)
             UserDefaults.standard.set(profile.handle, forKey: "myHandle")
 
@@ -206,12 +209,13 @@ final class ProfileViewModel: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
         }
-        isLoading = false
 
         // 피드 + 방명록 병렬 로드
         async let feedTask: () = loadFeed()
         async let guestbookTask: () = loadGuestbook()
         _ = await (feedTask, guestbookTask)
+
+        isLoading = false
     }
 
     // MARK: - 피드 로드 (이번 달 상세 + 이전 달 요약)

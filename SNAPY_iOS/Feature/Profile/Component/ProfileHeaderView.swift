@@ -15,6 +15,7 @@ struct ProfileHeaderView: View {
     @State private var showBannerViewer = false
     @State private var showProfileViewer = false
     @State private var showFriendList = false
+    @State private var showStreakSheet = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -89,16 +90,18 @@ struct ProfileHeaderView: View {
                                 statItem(value: viewModel.friendCount, label: "친구")
                             }
                             
-                            VStack(spacing: 6) {
-                                Image("Strick_fire")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 26)
-                                Text("\(viewModel.streakCount)")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(.textWhite)
+                            Button { showStreakSheet = true } label: {
+                                VStack(spacing: 6) {
+                                    Image(viewModel.streakCount >= 5 ? "Strick_sequence_fire" : "Strick_fire")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 26)
+                                    Text("\(viewModel.streakCount)")
+                                        .font(.system(size: 18, weight: .bold))
+                                        .foregroundColor(.textWhite)
+                                }
+                                .padding(.bottom, 8)
                             }
-                            .padding(.bottom, 8)
                         }
                     }
                     .padding(.top, 10)
@@ -165,6 +168,14 @@ struct ProfileHeaderView: View {
         .navigationDestination(isPresented: $showFriendList) {
             FriendListView(handle: viewModel.handle)
         }
+        .sheet(isPresented: $showStreakSheet) {
+            StreakSheet(
+                currentStreak: viewModel.streakCount,
+                maxStreak: viewModel.maxStreak
+            )
+            .presentationDetents([.fraction(0.4)])
+            .presentationDragIndicator(.visible)
+        }
     }
 
     private func statItem(value: Int, label: String) -> some View {
@@ -176,6 +187,64 @@ struct ProfileHeaderView: View {
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.textWhite)
         }
+    }
+}
+
+// MARK: - 스트릭 시트
+
+struct StreakSheet: View {
+    let currentStreak: Int
+    let maxStreak: Int
+
+    var body: some View {
+        VStack(spacing: 70) {
+            Spacer().frame(height: 10)
+
+            Text("스트릭")
+                .font(.system(size: 22, weight: .bold))
+                .foregroundColor(.textWhite)
+                .padding(.top, -30)
+
+            HStack(spacing: -20) {
+                // 현재 스트릭
+                VStack(spacing: 16) {
+                    Text("현재 스트릭")
+                        .font(.system(size: 15))
+                        .foregroundColor(.customGray300)
+                    HStack(spacing: 10) {
+                        Image(currentStreak >= 5 ? "Strick_sequence_fire" : "Strick_fire")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 42)
+                        Text("\(currentStreak)일")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.textWhite)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+
+                // 최대 스트릭
+                VStack(spacing: 16) {
+                    Text("최대 스트릭")
+                        .font(.system(size: 15))
+                        .foregroundColor(.customGray300)
+                    HStack(spacing: 10) {
+                        Image(maxStreak >= 5 ? "Strick_sequence_fire" : "Strick_fire")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 42)
+                        Text("\(maxStreak)일")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.textWhite)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .padding(.horizontal, 24)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 

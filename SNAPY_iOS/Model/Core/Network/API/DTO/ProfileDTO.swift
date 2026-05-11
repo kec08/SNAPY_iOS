@@ -15,6 +15,8 @@ struct ProfileData: Codable {
     let profileImageUrl: String?
     let backgroundImageUrl: String?
     let friendCount: Int?
+    let currentStreak: Int?
+    let maxStreak: Int?
 }
 
 typealias ProfileResponse = BaseResponse<ProfileData>

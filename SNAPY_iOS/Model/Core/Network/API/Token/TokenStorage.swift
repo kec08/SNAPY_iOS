@@ -24,6 +24,17 @@ enum TokenStorage {
     static func clear() {
         accessToken = nil
         refreshToken = nil
+
+        // 프로필 캐시 초기화
+        UserDefaults.standard.removeObject(forKey: "profileImageUrl")
+        UserDefaults.standard.removeObject(forKey: "bannerImageUrl")
+        UserDefaults.standard.removeObject(forKey: "myHandle")
+        UserDefaults.standard.removeObject(forKey: "seenStoryIds")
+
+        // 디스크 캐시 이미지 삭제
+        let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        try? FileManager.default.removeItem(at: cacheDir.appendingPathComponent("profile_image.jpg"))
+        try? FileManager.default.removeItem(at: cacheDir.appendingPathComponent("banner_image.jpg"))
     }
 
     /// 토큰 정리 + 로그인 화면으로 강제 이동
