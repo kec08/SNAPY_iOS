@@ -22,6 +22,11 @@ enum TokenStorage {
     }
 
     static func clear() {
+        // 디바이스 토큰 서버에서 삭제
+        if let deviceToken = UserDefaults.standard.string(forKey: "deviceToken") {
+            Task { await PushService.shared.deleteToken(deviceToken) }
+        }
+
         accessToken = nil
         refreshToken = nil
 

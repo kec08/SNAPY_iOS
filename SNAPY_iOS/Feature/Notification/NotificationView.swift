@@ -315,6 +315,7 @@ struct NotificationRow: View {
     private var notificationIcon: String {
         switch notification.type {
         case .storyLike:        return "heart.fill"
+        case .feedLike:         return "heart.fill"
         case .friendRequest:    return "person.badge.plus"
         case .friendAccepted:   return "person.2.fill"
         case .albumPublished:   return "book.fill"
