@@ -122,8 +122,9 @@ struct StoryDetailView: View {
 
                 // 하단 버튼 영역만큼 비움 (탭 전파 차단)
                 Color.clear
-                    .frame(height: 80)
-                    .allowsHitTesting(false)
+                    .frame(height: 120)
+                    .contentShape(Rectangle())
+                    .onTapGesture { } // 빈 탭으로 goToNext 차단
             }
 
             // 3) UI 오버레이 (프로그레스바, 프로필, 버튼)
@@ -200,9 +201,11 @@ struct StoryDetailView: View {
                     .allowsHitTesting(false)
                     .padding(.bottom, -100)
 
-                    // 하단 버튼 (현재 보이는 페이지만)
+                    // 하단 버튼 (현재 보이는 페이지만) — 탭 전파 차단
                     if userIndex == currentUserIndex {
                         storyBottomButtons(story: story)
+                            .contentShape(Rectangle())
+                            .onTapGesture { } // 빈 탭으로 뒤쪽 goToNext 차단
                     }
                 }
             }
@@ -383,10 +386,28 @@ struct StoryDetailView: View {
         let myHandle = UserDefaults.standard.string(forKey: "myHandle") ?? ""
         let isMyStory = story.username == myHandle
 
-        HStack(spacing: 20) {
-            Spacer()
+        if isMyStory {
+            // 내 스토리: 공유만
+            HStack(spacing: 20) {
+                Spacer()
+                Button {
+                    // 공유
+                } label: {
+                    Image(systemName: "paperplane")
+                        .font(.system(size: 24))
+                        .foregroundColor(.white)
+                        .frame(width: 48, height: 48)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 22)
+            .padding(.bottom, 30)
+        } else {
+            // 다른 사람 스토리: 하트 + 공유
+            HStack(spacing: 20) {
+                Spacer()
 
-            if !isMyStory {
                 Button {
                     triggerLike()
                 } label: {
@@ -411,21 +432,21 @@ struct StoryDetailView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-            }
 
-            Button {
-                // 공유
-            } label: {
-                Image(systemName: "paperplane")
-                    .font(.system(size: 24))
-                    .foregroundColor(.white)
-                    .frame(width: 48, height: 48)
-                    .contentShape(Rectangle())
+                Button {
+                    // 공유
+                } label: {
+                    Image(systemName: "paperplane")
+                        .font(.system(size: 24))
+                        .foregroundColor(.white)
+                        .frame(width: 48, height: 48)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
+            .padding(.horizontal, 22)
+            .padding(.bottom, 30)
         }
-        .padding(.horizontal, 22)
-        .padding(.bottom, 30)
     }
 
     // MARK: - 좋아요
