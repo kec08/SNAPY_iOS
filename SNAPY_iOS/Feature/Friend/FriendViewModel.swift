@@ -86,7 +86,7 @@ final class FriendViewModel: ObservableObject {
         if !mutuals.isEmpty {
             let firstName = mutuals[0].username
             if mutuals.count == 1 {
-                return "\(firstName)와 친구입니다"
+                return "\(firstName)님과 친구입니다"
             } else {
                 return "\(firstName) 외 \(mutuals.count - 1)명과 친구입니다"
             }

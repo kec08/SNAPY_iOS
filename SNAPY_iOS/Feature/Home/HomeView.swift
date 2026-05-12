@@ -101,6 +101,14 @@ struct HomeView: View {
                 }
                 // 홈 화면 최초 진입 시 로드
                 .onAppear {
+                    // myHandle이 없으면 프로필에서 가져와서 저장
+                    if UserDefaults.standard.string(forKey: "myHandle") == nil {
+                        Task {
+                            if let profile = try? await ProfileService.shared.fetchMyProfile() {
+                                UserDefaults.standard.set(profile.handle, forKey: "myHandle")
+                            }
+                        }
+                    }
                     Task {
                         async let stories: () = viewModel.loadStories()
                         async let feed: () = viewModel.loadFeed()

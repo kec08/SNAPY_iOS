@@ -39,10 +39,15 @@ struct StoryPhotoSet: Codable, Identifiable {
     let frontImageUrl: String?
     let backImageUrl: String?
     let createdAt: String?
+    var ownerStoryId: Int?      // 합쳐진 스토리에서 원래 storyId (서버 응답에는 없음, 클라이언트에서 세팅)
 
-    var id: String { type }
+    var id: String { "\(ownerStoryId ?? 0)-\(type)" }
 
     var albumType: AlbumType? { AlbumType(rawValue: type) }
+
+    private enum CodingKeys: String, CodingKey {
+        case type, frontImageUrl, backImageUrl, createdAt
+    }
 }
 
 // MARK: - 좋아요 토글 (POST /api/stories/{storyId}/photos/{type}/likes)

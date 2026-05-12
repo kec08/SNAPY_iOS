@@ -159,13 +159,19 @@ final class HomeViewModel: ObservableObject {
                     group.addTask {
                         do {
                             let detail = try await StoryService.shared.fetchDetail(storyId: story.storyId)
+                            // 각 사진에 원래 storyId 세팅
+                            let photos = detail.photos.map { photo -> StoryPhotoSet in
+                                var p = photo
+                                p.ownerStoryId = story.storyId
+                                return p
+                            }
                             return await StoryItem(
                                 storyId: story.storyId,
                                 profileImage: story.profileImageUrl ?? "",
                                 bannerImage: story.thumbnailUrl ?? "",
                                 displayName: detail.username,
-                                username: detail.handle,
-                                photos: detail.photos,
+                                username: story.handle,
+                                photos: photos,
                                 createdAt: detail.createdAt ?? story.createdAt,
                                 isSeen: self.seenStoryIds.contains(story.storyId)
                             )

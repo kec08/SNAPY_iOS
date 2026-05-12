@@ -35,6 +35,9 @@ enum TokenStorage {
         let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
         try? FileManager.default.removeItem(at: cacheDir.appendingPathComponent("profile_image.jpg"))
         try? FileManager.default.removeItem(at: cacheDir.appendingPathComponent("banner_image.jpg"))
+
+        // 스토리 좋아요 캐시 초기화
+        StoryLikeCache.clear()
     }
 
     /// 토큰 정리 + 로그인 화면으로 강제 이동

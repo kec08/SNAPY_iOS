@@ -13,8 +13,9 @@ enum StoryLikeCache {
     private static var store: [String: Bool] = [:]
 
     static func key(storyId: Int, type: String) -> String { "\(storyId)-\(type)" }
-    static func get(storyId: Int, type: String) -> Bool { store[key(storyId: storyId, type: type)] ?? false }
+    static func get(storyId: Int, type: String) -> Bool? { store[key(storyId: storyId, type: type)] }
     static func set(storyId: Int, type: String, liked: Bool) { store[key(storyId: storyId, type: type)] = liked }
+    static func clear() { store.removeAll() }
 }
 
 struct StoryDetailView: View {
@@ -30,6 +31,7 @@ struct StoryDetailView: View {
     @State private var isPaused: Bool = false
     @State private var hideUI: Bool = false
     @State private var isLiked: Bool = false
+    @State private var isLikeToggling: Bool = false
     @State private var showHeartPop: Bool = false
     @State private var timer: Timer?
 
@@ -120,8 +122,9 @@ struct StoryDetailView: View {
 
                 // 하단 버튼 영역만큼 비움 (탭 전파 차단)
                 Color.clear
-                    .frame(height: 80)
-                    .allowsHitTesting(false)
+                    .frame(height: 120)
+                    .contentShape(Rectangle())
+                    .onTapGesture { } // 빈 탭으로 goToNext 차단
             }
 
             // 3) UI 오버레이 (프로그레스바, 프로필, 버튼)
@@ -198,55 +201,11 @@ struct StoryDetailView: View {
                     .allowsHitTesting(false)
                     .padding(.bottom, -100)
 
-                    // 하단 버튼
+                    // 하단 버튼 (현재 보이는 페이지만) — 탭 전파 차단
                     if userIndex == currentUserIndex {
-                        let myHandle = UserDefaults.standard.string(forKey: "myHandle") ?? ""
-                        let isMyStory = story.username == myHandle
-
-                        HStack(spacing: 20) {
-                            Spacer()
-
-                            if !isMyStory {
-                                Button {
-                                    triggerLike()
-                                } label: {
-                                    ZStack {
-                                        // 탭 피드백: 위로 튀어오르는 하트
-                                        if showHeartPop {
-                                            Image("Heart_img")
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(width: 36, height: 36)
-                                                .transition(.asymmetric(
-                                                    insertion: .scale(scale: 0.2).combined(with: .opacity),
-                                                    removal: .opacity.combined(with: .offset(y: -20))
-                                                ))
-                                                .offset(y: -50)
-                                        }
-
-                                        Image(systemName: isLiked ? "heart.fill" : "heart")
-                                            .font(.system(size: 28))
-                                            .foregroundColor(isLiked ? .red : .white)
-                                    }
-                                    .frame(width: 48, height: 48)
-                                    .contentShape(Rectangle())
-                                }
-                                .buttonStyle(.plain)
-                            }
-
-                            Button {
-                                // 공유
-                            } label: {
-                                Image(systemName: "paperplane")
-                                    .font(.system(size: 24))
-                                    .foregroundColor(.white)
-                                    .frame(width: 48, height: 48)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        .padding(.horizontal, 22)
-                        .padding(.bottom, 30)
+                        storyBottomButtons(story: story)
+                            .contentShape(Rectangle())
+                            .onTapGesture { } // 빈 탭으로 뒤쪽 goToNext 차단
                     }
                 }
             }
@@ -420,19 +379,101 @@ struct StoryDetailView: View {
         }
     }
 
+    // MARK: - 하단 버튼
+
+    @ViewBuilder
+    private func storyBottomButtons(story: StoryItem) -> some View {
+        let myHandle = UserDefaults.standard.string(forKey: "myHandle") ?? ""
+        let isMyStory = story.username == myHandle
+
+        if isMyStory {
+            // 내 스토리: 공유만
+            HStack(spacing: 20) {
+                Spacer()
+                Button {
+                    // 공유
+                } label: {
+                    Image(systemName: "paperplane")
+                        .font(.system(size: 24))
+                        .foregroundColor(.white)
+                        .frame(width: 48, height: 48)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 22)
+            .padding(.bottom, 30)
+        } else {
+            // 다른 사람 스토리: 하트 + 공유
+            HStack(spacing: 20) {
+                Spacer()
+
+                Button {
+                    triggerLike()
+                } label: {
+                    ZStack {
+                        if showHeartPop {
+                            Image("Heart_img")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 36, height: 36)
+                                .transition(.asymmetric(
+                                    insertion: .scale(scale: 0.2).combined(with: .opacity),
+                                    removal: .opacity.combined(with: .offset(y: -20))
+                                ))
+                                .offset(y: -50)
+                        }
+
+                        Image(systemName: isLiked ? "heart.fill" : "heart")
+                            .font(.system(size: 28))
+                            .foregroundColor(isLiked ? .red : .white)
+                    }
+                    .frame(width: 48, height: 48)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    // 공유
+                } label: {
+                    Image(systemName: "paperplane")
+                        .font(.system(size: 24))
+                        .foregroundColor(.white)
+                        .frame(width: 48, height: 48)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 22)
+            .padding(.bottom, 30)
+        }
+    }
+
     // MARK: - 좋아요
 
-    /// 햅틱 + 팝 애니메이션 + API 호출
     private func triggerLike() {
-        let willLike = !isLiked  // 토글 후 좋아요 상태
+        guard !isLikeToggling else { return }
 
-        // 짧은 햅틱 진동
+        let story = currentStory
+        let photos = story.photos
+        guard currentImageIndex < photos.count,
+              let type = photos[currentImageIndex].albumType else { return }
+        let storyId = photos[currentImageIndex].ownerStoryId ?? story.storyId
+
+        // 햅틱
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
 
-        // 좋아요일 때만 팝 애니메이션
-        if willLike {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
-                showHeartPop = true
+        // 즉시 UI 반영 (withAnimation 밖에서 직접 변경)
+        isLikeToggling = true
+        let wasLiked = isLiked
+        isLiked = !wasLiked
+
+        // 좋아요 팝 애니메이션 (다음 렌더링 사이클에서)
+        if !wasLiked {
+            DispatchQueue.main.async {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+                    showHeartPop = true
+                }
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
                 withAnimation(.easeOut(duration: 0.2)) {
@@ -441,46 +482,31 @@ struct StoryDetailView: View {
             }
         }
 
-        toggleLikeAPI()
-    }
-
-    private func toggleLikeAPI() {
-        let story = currentStory
-        let photos = story.photos
-        guard currentImageIndex < photos.count else {
-            print("[StoryDetail] guard 실패: currentImageIndex(\(currentImageIndex)) >= photos.count(\(photos.count))")
-            return
-        }
-        let photo = photos[currentImageIndex]
-        guard let type = photo.albumType else {
-            print("[StoryDetail] guard 실패: albumType nil (type=\(photo.type))")
-            return
-        }
-
-        // 즉시 UI 반영 (낙관적 업데이트)
-        isLiked.toggle()
-
+        // 서버 API 호출
         Task {
             do {
                 let result = try await StoryService.shared.toggleLike(
-                    storyId: story.storyId,
+                    storyId: storyId,
                     type: type
                 )
                 await MainActor.run {
                     isLiked = result.liked
-                    StoryLikeCache.set(storyId: story.storyId, type: type.rawValue, liked: result.liked)
+                    StoryLikeCache.set(storyId: storyId, type: type.rawValue, liked: result.liked)
+                    isLikeToggling = false
                 }
             } catch {
                 print("[StoryDetail] 좋아요 실패: \(error)")
                 await MainActor.run {
-                    isLiked.toggle()
+                    isLiked = wasLiked  // 원래 값으로 롤백
+                    isLikeToggling = false
                 }
             }
         }
     }
 
-    /// 로컬 캐시에서 좋아요 상태 복원
+    /// 캐시에서 좋아요 상태 복원 (서버 조회 제거 — 403 문제로 캐시 전용)
     private func loadLikeStatus() {
+        isLikeToggling = false
         let story = currentStory
         let photos = story.photos
         guard currentImageIndex < photos.count,
@@ -488,7 +514,10 @@ struct StoryDetailView: View {
             isLiked = false
             return
         }
-        isLiked = StoryLikeCache.get(storyId: story.storyId, type: type.rawValue)
+        let storyId = photos[currentImageIndex].ownerStoryId ?? story.storyId
+
+        // 캐시에 있으면 사용, 없으면 false
+        isLiked = StoryLikeCache.get(storyId: storyId, type: type.rawValue) ?? false
     }
 
     // MARK: - 제스처
