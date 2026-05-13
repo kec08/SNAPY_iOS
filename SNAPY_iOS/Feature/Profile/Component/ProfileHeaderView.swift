@@ -30,6 +30,7 @@ struct ProfileHeaderView: View {
                         Image(uiImage: bannerImage)
                             .resizable()
                             .scaledToFill()
+                            .frame(maxWidth: .infinity)
                             .frame(height: 200)
                             .clipped()
                     } else if let url = viewModel.bannerImageUrl, let imgUrl = URL(string: url) {
@@ -38,10 +39,12 @@ struct ProfileHeaderView: View {
                             .placeholder { Color.customDarkGray }
                             .fade(duration: 0.2)
                             .scaledToFill()
+                            .frame(maxWidth: .infinity)
                             .frame(height: 200)
                             .clipped()
                     } else {
                         Color.customDarkGray
+                            .frame(maxWidth: .infinity)
                             .frame(height: 200)
                     }
                 }

@@ -35,6 +35,7 @@ struct FriendProfileView: View {
     @State private var showBannerViewer = false
     @State private var showProfileViewer = false
     @State private var isRefreshing = false
+    @State private var shareImage: UIImage? = nil
     @StateObject private var guestbookVM = ProfileViewModel()
 
     init(name: String, handle: String, profileImageUrl: String?, bannerImageUrl: String? = nil, isFriend: Bool = false, mutualFriendsText: String? = nil, contactText: String? = nil) {
@@ -71,12 +72,14 @@ struct FriendProfileView: View {
                                 .placeholder { Image("Banner_img").resizable().scaledToFill() }
                                 .fade(duration: 0.2)
                                 .scaledToFill()
+                                .frame(maxWidth: .infinity)
                                 .frame(height: 200)
                                 .clipped()
                         } else {
                             Image("Banner_img")
                                 .resizable()
                                 .scaledToFill()
+                                .frame(maxWidth: .infinity)
                                 .frame(height: 200)
                                 .clipped()
                         }
@@ -222,7 +225,8 @@ struct FriendProfileView: View {
                                 ProfileFeedGrid(
                                     posts: feedPosts,
                                     displayName: name,
-                                    handle: handle
+                                    handle: handle,
+                                    profileImageUrl: profileImageUrl
                                 )
                             }
                         }
@@ -286,7 +290,24 @@ struct FriendProfileView: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                ShareLink(item: "SNAPY 프로필: @\(handle)\nhttps://snapy.app/@\(handle)") {
+                Button {
+                    Task {
+                        async let bannerImg = downloadImage(from: bannerImageUrl)
+                        async let profileImg = downloadImage(from: profileImageUrl)
+                        let card = ProfileShareCard(
+                            bannerImage: await bannerImg,
+                            profileImage: await profileImg,
+                            username: name,
+                            handle: handle,
+                            postCount: postCount,
+                            friendCount: friendCount,
+                            streakCount: streakCount
+                        )
+                        if let image = renderShareImage(card) {
+                            shareImage = image
+                        }
+                    }
+                } label: {
                     Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.textWhite)
@@ -396,6 +417,15 @@ struct FriendProfileView: View {
                 assetName: "Profile_img",
                 isCircle: true
             )
+        }
+        .sheet(isPresented: Binding(
+            get: { shareImage != nil },
+            set: { if !$0 { shareImage = nil } }
+        )) {
+            if let image = shareImage {
+                let text = "SNAPY 프로필: @\(handle)\n\nSNAPY에서 당신의 일상을 공유해보세요!"
+                ShareSheetView(items: [image, text])
+            }
         }
     }
 
