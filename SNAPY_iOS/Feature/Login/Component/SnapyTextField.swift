@@ -15,6 +15,7 @@ struct SnapyTextField: View {
     var isSecure: Bool = false
 
     @FocusState private var isFocused: Bool
+    @State private var showPassword: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -23,27 +24,39 @@ struct SnapyTextField: View {
                 .foregroundColor(isFocused ? Color.mainYellow : .customGray300)
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
 
-            ZStack(alignment: .leading) {
-                if text.isEmpty {
-                    Text(placeholder)
-                        .font(.system(size: 18))
-                        .foregroundColor(isFocused ? Color.textWhite : .customGray300)
-                        .animation(.easeInOut(duration: 0.2), value: isFocused)
+            HStack {
+                ZStack(alignment: .leading) {
+                    if text.isEmpty {
+                        Text(placeholder)
+                            .font(.system(size: 18))
+                            .foregroundColor(isFocused ? Color.textWhite : .customGray300)
+                            .animation(.easeInOut(duration: 0.2), value: isFocused)
+                    }
+
+                    if isSecure && !showPassword {
+                        SecureField("", text: $text)
+                            .font(.system(size: 18))
+                            .foregroundColor(Color.textWhite)
+                            .focused($isFocused)
+                    } else {
+                        TextField("", text: $text)
+                            .font(.system(size: 18))
+                            .foregroundColor(.white)
+                            .keyboardType(keyboardType)
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
+                            .focused($isFocused)
+                    }
                 }
 
                 if isSecure {
-                    SecureField("", text: $text)
-                        .font(.system(size: 18))
-                        .foregroundColor(Color.textWhite)
-                        .focused($isFocused)
-                } else {
-                    TextField("", text: $text)
-                        .font(.system(size: 18))
-                        .foregroundColor(.white)
-                        .keyboardType(keyboardType)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
-                        .focused($isFocused)
+                    Button {
+                        showPassword.toggle()
+                    } label: {
+                        Image(systemName: showPassword ? "eye.fill" : "eye.slash.fill")
+                            .font(.system(size: 16))
+                            .foregroundColor(.customGray300)
+                    }
                 }
             }
             .padding(.vertical, 12)
