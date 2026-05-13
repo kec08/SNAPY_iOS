@@ -62,27 +62,30 @@ struct FriendProfileView: View {
                         ProgressView()
                             .tint(.white)
                             .padding(.top, 60)
+                            .padding(.bottom, 30)
                     }
 
                     // MARK: 배너
                     Button { showBannerViewer = true } label: {
-                        if let url = bannerImageUrl, let imgUrl = URL(string: url) {
-                            KFImage(imgUrl)
-                                .resizable()
-                                .placeholder { Image("Banner_img").resizable().scaledToFill() }
-                                .fade(duration: 0.2)
-                                .scaledToFill()
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 200)
-                                .clipped()
-                        } else {
-                            Image("Banner_img")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 200)
-                                .clipped()
-                        }
+                        Color.clear
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 200)
+                            .overlay(
+                                Group {
+                                    if let url = bannerImageUrl, let imgUrl = URL(string: url) {
+                                        KFImage(imgUrl)
+                                            .resizable()
+                                            .placeholder { Image("Banner_img").resizable().scaledToFill() }
+                                            .fade(duration: 0.2)
+                                            .scaledToFill()
+                                    } else {
+                                        Image("Banner_img")
+                                            .resizable()
+                                            .scaledToFill()
+                                    }
+                                }
+                            )
+                            .clipShape(Rectangle())
                     }
 
                     // MARK: 프로필 정보
@@ -216,7 +219,9 @@ struct FriendProfileView: View {
                                 .padding(.horizontal, 22)
 
                             // 피드
-                            if feedPosts.isEmpty && !isLoading {
+                            if isLoading {
+                                ProfileFeedSkeletonGrid()
+                            } else if feedPosts.isEmpty {
                                 Text("이번달에 올린 게시물이 없습니다")
                                     .font(.system(size: 16))
                                     .foregroundColor(.customGray300)
@@ -230,7 +235,7 @@ struct FriendProfileView: View {
                                 )
                             }
                         }
-                    } else {
+                    } else if !isLoading {
                         // 비친구: 공개 프로필 안내
                         VStack(spacing: 12) {
                             Image(systemName: "person.2.fill")
@@ -250,22 +255,22 @@ struct FriendProfileView: View {
                         .padding(.top, 80)
                     }
                 }
-            }
-            .background(
-                GeometryReader { geo in
-                    Color.clear
-                        .onChange(of: geo.frame(in: .global).minY) { _, newValue in
-                            if newValue > 140 && !isRefreshing {
-                                isRefreshing = true
-                                Task {
-                                    await refreshProfile()
-                                    try? await Task.sleep(nanoseconds: 500_000_000)
-                                    isRefreshing = false
+                .background(
+                    GeometryReader { geo in
+                        Color.clear
+                            .onChange(of: geo.frame(in: .global).minY) { _, newValue in
+                                if newValue > 140 && !isRefreshing {
+                                    isRefreshing = true
+                                    Task {
+                                        await refreshProfile()
+                                        try? await Task.sleep(nanoseconds: 500_000_000)
+                                        isRefreshing = false
+                                    }
                                 }
                             }
-                        }
-                }
-            )
+                    }
+                )
+            }
             .ignoresSafeArea(edges: .top)
         }
         .navigationBarBackButtonHidden(true)
@@ -372,8 +377,6 @@ struct FriendProfileView: View {
                     }
                 }
             }
-            isLoading = false
-
             // 방명록 로드 (상대방 handle로)
             guestbookVM.handle = handle
             await guestbookVM.loadGuestbook()
@@ -382,6 +385,8 @@ struct FriendProfileView: View {
             if currentFriend {
                 await loadFriendFeed()
             }
+
+            isLoading = false
         }
         .sheet(isPresented: $showFriendSheet) {
             FriendRelationSheet(
