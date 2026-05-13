@@ -132,6 +132,8 @@ final class NotificationViewModel: ObservableObject {
         switch notification.type {
         case .storyLike:
             suffix = "님이 스토리에 좋아요를 눌렀습니다."
+        case .feedLike:
+            suffix = "님이 게시물에 좋아요를 눌렀습니다."
         case .friendRequest:
             suffix = "님이 친구 요청을 보냈습니다."
         case .friendAccepted:

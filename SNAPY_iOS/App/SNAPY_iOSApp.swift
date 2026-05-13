@@ -10,6 +10,8 @@ import GoogleSignIn
 
 @main
 struct SNAPY_iOSApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     init() {
         // URLCache 크기 확대 → AsyncImage 이미지 캐싱 성능 개선
         URLCache.shared = URLCache(

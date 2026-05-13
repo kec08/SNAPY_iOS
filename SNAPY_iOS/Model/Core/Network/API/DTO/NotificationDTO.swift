@@ -12,6 +12,7 @@ import Foundation
 enum NotificationType: String, Codable {
     case albumPhotoUploadReminder = "ALBUM_PHOTO_UPLOAD_REMINDER"
     case storyLike = "STORY_LIKE"
+    case feedLike = "FEED_LIKE"
     case friendRequest = "FRIEND_REQUEST"
     case friendAccepted = "FRIEND_ACCEPTED"
     case albumPublished = "ALBUM_PUBLISHED"

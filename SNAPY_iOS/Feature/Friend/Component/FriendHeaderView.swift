@@ -8,7 +8,13 @@
 import SwiftUI
 
 struct FriendHeaderView: View {
+    let pendingCount: Int
     let onTapFriendRequest: () -> Void
+
+    init(pendingCount: Int = 0, onTapFriendRequest: @escaping () -> Void) {
+        self.pendingCount = pendingCount
+        self.onTapFriendRequest = onTapFriendRequest
+    }
 
     var body: some View {
         ZStack {
@@ -19,11 +25,24 @@ struct FriendHeaderView: View {
             HStack {
                 Spacer()
                 Button(action: onTapFriendRequest) {
-                    Image(systemName: "person.badge.plus")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(.textWhite)
-                        .frame(width: 44, height: 44)
-                        .background(.ultraThinMaterial, in: Circle())
+                    ZStack(alignment: .topTrailing) {
+                        Image(systemName: "person.badge.plus")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundColor(.textWhite)
+                            .frame(width: 44, height: 44)
+                            .background(.ultraThinMaterial, in: Circle())
+
+                        if pendingCount > 0 {
+                            Text(pendingCount > 99 ? "99+" : "\(pendingCount)")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
+                                .background(Color.red)
+                                .clipShape(Capsule())
+                                .offset(x: 4, y: -2)
+                        }
+                    }
                 }
             }
         }

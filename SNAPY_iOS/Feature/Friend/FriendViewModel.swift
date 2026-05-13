@@ -33,6 +33,7 @@ final class FriendViewModel: ObservableObject {
     @Published var errorMessage: String? = nil
     @Published var isLoading = false
     @Published var isSearching = false
+    @Published var pendingRequestCount: Int = 0
 
     private var searchTask: Task<Void, Never>?
 
@@ -41,6 +42,10 @@ final class FriendViewModel: ObservableObject {
     /// 추후 /api/users/me/recommended-friends 로 교체할 것.
     func loadRecommendedFriends() async {
         isLoading = true
+        // 친구 요청 수 조회
+        if let requests = try? await FriendService.shared.getReceivedRequests() {
+            pendingRequestCount = requests.count
+        }
         do {
             let list = try await FriendService.shared.searchUsers(query: "")
             print("[FriendVM] 유저 조회 성공: \(list.count)명")

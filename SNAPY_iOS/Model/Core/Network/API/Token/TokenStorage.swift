@@ -22,6 +22,11 @@ enum TokenStorage {
     }
 
     static func clear() {
+        // 디바이스 토큰 서버에서 삭제
+        if let deviceToken = UserDefaults.standard.string(forKey: "deviceToken") {
+            Task { await PushService.shared.deleteToken(deviceToken) }
+        }
+
         accessToken = nil
         refreshToken = nil
 
@@ -54,6 +59,10 @@ extension Notification.Name {
     static let didLogout = Notification.Name("didLogout")
     /// 설정에서 직접 로그아웃 (알림 없이 바로 이동)
     static let didManualLogout = Notification.Name("didManualLogout")
+    /// 알림에서 카메라 열기 요청
+    static let openCamera = Notification.Name("openCamera")
+    /// 알림에서 프로필 탭 이동 요청
+    static let switchToProfileTab = Notification.Name("switchToProfileTab")
 }
 
 // JWT payload 디코딩용

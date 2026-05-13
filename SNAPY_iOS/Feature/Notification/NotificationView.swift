@@ -13,6 +13,12 @@ struct NotificationView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showOlderSection = false
 
+    // 네비게이션
+    @State private var navProfileHandle: String? = nil
+    @State private var navProfileName: String = ""
+    @State private var navProfileImage: String? = nil
+    @State private var showFriendRequest = false
+
     var body: some View {
         ZStack {
             Color.backgroundBlack.ignoresSafeArea()
@@ -35,19 +41,12 @@ struct NotificationView: View {
                     Text("알림")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(Color.textWhite)
-                        .padding(.leading, 16)
 
                     Spacer()
 
-                    // 전체 읽음
-                    Button {
-                        Task { await viewModel.markAllAsRead() }
-                    } label: {
-                        Text("모두 읽음")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(Color.customGray300)
-                    }
-                    .frame(width: 60)
+                    // 뒤로가기 버튼과 대칭용 여백
+                    Color.clear
+                        .frame(width: 40, height: 40)
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 14)
@@ -137,6 +136,21 @@ struct NotificationView: View {
                 }
             }
         }
+        .navigationDestination(isPresented: Binding(
+            get: { navProfileHandle != nil },
+            set: { if !$0 { navProfileHandle = nil } }
+        )) {
+            if let handle = navProfileHandle {
+                FriendProfileView(
+                    name: navProfileName,
+                    handle: handle,
+                    profileImageUrl: navProfileImage
+                )
+            }
+        }
+        .navigationDestination(isPresented: $showFriendRequest) {
+            FriendRequestView()
+        }
         .toolbar(.hidden, for: .navigationBar)
         .gesture(
             DragGesture()
@@ -148,6 +162,7 @@ struct NotificationView: View {
         )
         .task {
             await viewModel.loadNotifications()
+            await viewModel.markAllAsRead()
         }
     }
 
@@ -157,11 +172,17 @@ struct NotificationView: View {
     private func notificationRow(_ notification: NotificationData) -> some View {
         NotificationRow(
             notification: notification,
-            message: viewModel.message(for: notification)
+            message: viewModel.message(for: notification),
+            onProfileTap: {
+                guard let handle = notification.senderHandle else { return }
+                navProfileName = notification.senderUsername ?? ""
+                navProfileImage = notification.senderProfileImageUrl
+                navProfileHandle = handle
+            },
+            onContentTap: {
+                handleContentTap(notification)
+            }
         )
-        .onTapGesture {
-            Task { await viewModel.markAsRead(notification) }
-        }
         .onAppear {
             if notification.id == viewModel.notifications.last?.id {
                 Task { await viewModel.loadMore() }
@@ -170,6 +191,40 @@ struct NotificationView: View {
 
         Divider()
             .background(Color.white.opacity(0.06))
+    }
+
+    private func handleContentTap(_ notification: NotificationData) {
+        switch notification.type {
+        case .friendRequest:
+            showFriendRequest = true
+        case .friendAccepted:
+            guard let handle = notification.senderHandle else { return }
+            navProfileName = notification.senderUsername ?? ""
+            navProfileImage = notification.senderProfileImageUrl
+            navProfileHandle = handle
+        case .storyLike, .newStory:
+            guard let handle = notification.senderHandle else { return }
+            navProfileName = notification.senderUsername ?? ""
+            navProfileImage = notification.senderProfileImageUrl
+            navProfileHandle = handle
+        case .feedLike, .feedComment, .albumPublished:
+            guard let handle = notification.senderHandle else { return }
+            navProfileName = notification.senderUsername ?? ""
+            navProfileImage = notification.senderProfileImageUrl
+            navProfileHandle = handle
+        case .guestbookCreated:
+            // 내 프로필(방명록)로 이동
+            dismiss()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                NotificationCenter.default.post(name: .switchToProfileTab, object: nil)
+            }
+        case .albumPhotoUploadReminder:
+            // 카메라 열기
+            dismiss()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                NotificationCenter.default.post(name: .openCamera, object: nil)
+            }
+        }
     }
 
     // MARK: - 날짜별 그룹핑
@@ -254,6 +309,8 @@ enum NotificationDateParser {
 struct NotificationRow: View {
     let notification: NotificationData
     let message: AttributedString
+    var onProfileTap: (() -> Void)? = nil
+    var onContentTap: (() -> Void)? = nil
 
     private var isServiceNotification: Bool {
         notification.type == .albumPhotoUploadReminder
@@ -271,13 +328,15 @@ struct NotificationRow: View {
                     .clipShape(Circle())
             } else if let urlString = notification.senderProfileImageUrl,
                let url = URL(string: urlString) {
-                KFImage(url)
-                    .resizable()
-                    .placeholder { Color.customDarkGray }
-                    .fade(duration: 0.2)
-                    .scaledToFill()
-                    .frame(width: 44, height: 44)
-                    .clipShape(Circle())
+                Button { onProfileTap?() } label: {
+                    KFImage(url)
+                        .resizable()
+                        .placeholder { Color.customDarkGray }
+                        .fade(duration: 0.2)
+                        .scaledToFill()
+                        .frame(width: 44, height: 44)
+                        .clipShape(Circle())
+                }
             } else {
                 Image(systemName: notificationIcon)
                     .font(.system(size: 18))
@@ -287,16 +346,41 @@ struct NotificationRow: View {
                     .clipShape(Circle())
             }
 
-            // 메시지
-            VStack(alignment: .leading, spacing: 4) {
-                Text(message)
-                    .foregroundColor(Color.textWhite)
-                    .lineLimit(2)
+            // 메시지 (탭 → 컨텐츠 이동)
+            Button {
+                onContentTap?()
+            } label: {
+                VStack(alignment: .leading, spacing: 4) {
+                    if isServiceNotification {
+                        Text("앨범에 사진을 올려주세요!")
+                            .font(.system(size: 14, weight: .regular))
+                            .foregroundColor(Color.textWhite)
+                    } else {
+                        HStack(spacing: 0) {
+                            if let name = notification.senderUsername ?? notification.senderHandle {
+                                Button {
+                                    onProfileTap?()
+                                } label: {
+                                    Text(name)
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(Color.textWhite)
+                                }
+                                .buttonStyle(.plain)
 
-                Text(timeAgo(notification.createdAt))
-                    .font(.system(size: 12))
-                    .foregroundColor(Color.customGray300)
+                                Text(messageSuffix)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(Color.textWhite)
+                            }
+                        }
+                        .lineLimit(2)
+                    }
+
+                    Text(timeAgo(notification.createdAt))
+                        .font(.system(size: 12))
+                        .foregroundColor(Color.customGray300)
+                }
             }
+            .buttonStyle(.plain)
 
             Spacer()
 
@@ -312,9 +396,24 @@ struct NotificationRow: View {
         .background(notification.read ? Color.clear : Color.white.opacity(0.03))
     }
 
+    private var messageSuffix: String {
+        switch notification.type {
+        case .storyLike:        return "님이 스토리에 좋아요를 눌렀습니다."
+        case .feedLike:         return "님이 게시물에 좋아요를 눌렀습니다."
+        case .friendRequest:    return "님이 친구 요청을 보냈습니다."
+        case .friendAccepted:   return "님이 친구 요청을 수락했습니다."
+        case .albumPublished:   return "님의 앨범이 발행되었습니다."
+        case .newStory:         return "님이 새 스토리를 올렸습니다."
+        case .feedComment:      return "님이 댓글을 남겼습니다."
+        case .guestbookCreated: return "님이 방명록을 남겼습니다."
+        case .albumPhotoUploadReminder: return ""
+        }
+    }
+
     private var notificationIcon: String {
         switch notification.type {
         case .storyLike:        return "heart.fill"
+        case .feedLike:         return "heart.fill"
         case .friendRequest:    return "person.badge.plus"
         case .friendAccepted:   return "person.2.fill"
         case .albumPublished:   return "book.fill"

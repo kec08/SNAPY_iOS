@@ -66,6 +66,10 @@
 		BC706F702F9527F30093C0B8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F6F2F9527F20093C0B8 /* SettingsView.swift */; };
 		BC706F722F95280D0093C0B8 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC706F712F95280A0093C0B8 /* SettingsViewModel.swift */; };
 		BC8A27CB2FB0EA3A00073FDE /* FriendSkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A27CA2FB0EA3800073FDE /* FriendSkeletonView.swift */; };
+		BC8A28CE2FB322DB00073FDE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28CD2FB322D500073FDE /* AppDelegate.swift */; };
+		BC8A28D02FB3231400073FDE /* PushService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28CF2FB3231200073FDE /* PushService.swift */; };
+		BC8A28D32FB3235F00073FDE /* PushAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28D22FB3235E00073FDE /* PushAPI.swift */; };
+		BC8A28D72FB4168A00073FDE /* ShareCardViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28D62FB4168800073FDE /* ShareCardViews.swift */; };
 		BCA00F012FA0000100FEED01 /* FeedDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F002FA0000100FEED01 /* FeedDTO.swift */; };
 		BCA00F032FA0000100FEED02 /* FeedAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F022FA0000100FEED02 /* FeedAPI.swift */; };
 		BCA00F052FA0000100FEED03 /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F042FA0000100FEED03 /* FeedService.swift */; };
@@ -211,6 +215,10 @@
 		BC706F712F95280A0093C0B8 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		BC706F772F95A71B0093C0B8 /* SNAPY_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SNAPY_iOS.entitlements; sourceTree = "<group>"; };
 		BC8A27CA2FB0EA3800073FDE /* FriendSkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendSkeletonView.swift; sourceTree = "<group>"; };
+		BC8A28CD2FB322D500073FDE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		BC8A28CF2FB3231200073FDE /* PushService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushService.swift; sourceTree = "<group>"; };
+		BC8A28D22FB3235E00073FDE /* PushAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushAPI.swift; sourceTree = "<group>"; };
+		BC8A28D62FB4168800073FDE /* ShareCardViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardViews.swift; sourceTree = "<group>"; };
 		BCA00F002FA0000100FEED01 /* FeedDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDTO.swift; sourceTree = "<group>"; };
 		BCA00F022FA0000100FEED02 /* FeedAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedAPI.swift; sourceTree = "<group>"; };
 		BCA00F042FA0000100FEED03 /* FeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedService.swift; sourceTree = "<group>"; };
@@ -362,6 +370,7 @@
 		BC1DC2E12F68CF730016A4CD /* API */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A28D12FB3234700073FDE /* Push */,
 				BCBCF4422FAC3E010058E92D /* Notification */,
 				BCA00F0E2FA2000100CMNT04 /* Comment */,
 				BCA00F062FA0000100FEED04 /* Feed */,
@@ -379,6 +388,7 @@
 		BC1DC2E82F68CF730016A4CD /* Service */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A28CF2FB3231200073FDE /* PushService.swift */,
 				BCBCF4452FAC3E370058E92D /* NotificationService.swift */,
 				BCA00F0C2FA2000100CMNT03 /* CommentService.swift */,
 				BCA00F042FA0000100FEED03 /* FeedService.swift */,
@@ -516,6 +526,14 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
+		BC8A28D12FB3234700073FDE /* Push */ = {
+			isa = PBXGroup;
+			children = (
+				BC8A28D22FB3235E00073FDE /* PushAPI.swift */,
+			);
+			path = Push;
+			sourceTree = "<group>";
+		};
 		BCA00F062FA0000100FEED04 /* Feed */ = {
 			isa = PBXGroup;
 			children = (
@@ -527,6 +545,7 @@
 		BCA00F092FA1000100CARD02 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A28D62FB4168800073FDE /* ShareCardViews.swift */,
 				BC8A27CA2FB0EA3800073FDE /* FriendSkeletonView.swift */,
 				BC65863B2FAB905700D827CF /* FeedSkeletonView.swift */,
 				BCA00F082FA1000100CARD01 /* FeedCardView.swift */,
@@ -629,6 +648,7 @@
 		BCD815922F69285F0028AE50 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A28CD2FB322D500073FDE /* AppDelegate.swift */,
 				BCD815B02F6934780028AE50 /* AppState.swift */,
 				BCD815AE2F69346D0028AE50 /* MainTabView.swift */,
 				BCD815AA2F6934390028AE50 /* RootView.swift */,
@@ -1003,6 +1023,7 @@
 				BCD815A32F6929550028AE50 /* SplashView.swift in Sources */,
 				BC6674E72F73A564009CBF8D /* AlbumStrick.swift in Sources */,
 				BC706F632F90A6CA0093C0B8 /* HomeFeedEndView.swift in Sources */,
+				BC8A28CE2FB322DB00073FDE /* AppDelegate.swift in Sources */,
 				BCD816DC2F6A41A50028AE50 /* ProfileViewModel.swift in Sources */,
 				BC6676CD2F840615009CBF8D /* ProfileEditView.swift in Sources */,
 				BC1DC2F12F68CF730016A4CD /* Color+Extensions.swift in Sources */,
@@ -1044,6 +1065,7 @@
 				BCAAFF122F98DD0C00A6B597 /* PastMonthCard.swift in Sources */,
 				BC706E722F8E92110093C0B8 /* FriendListView.swift in Sources */,
 				BCD815AB2F69343D0028AE50 /* RootView.swift in Sources */,
+				BC8A28D32FB3235F00073FDE /* PushAPI.swift in Sources */,
 				BC706F5B2F8FEF910093C0B8 /* HomeFeedCard.swift in Sources */,
 				BC706E4D2F8BF9D90093C0B8 /* ProfileAPI.swift in Sources */,
 				BCD816D82F6A41940028AE50 /* FriendViewModel.swift in Sources */,
@@ -1087,12 +1109,14 @@
 				BC706F612F906B600093C0B8 /* HomeHeader.swift in Sources */,
 				BCED9C1E2F6E61A9008E47BB /* CameraPreviewView.swift in Sources */,
 				BC706E552F8CFDA30093C0B8 /* FriendHeaderView.swift in Sources */,
+				BC8A28D02FB3231400073FDE /* PushService.swift in Sources */,
 				BC1DC2FB2F68CF730016A4CD /* AuthService.swift in Sources */,
 				BCCAD6782F6BA34400ED71E0 /* InfoView.swift in Sources */,
 				BC65863C2FAB905900D827CF /* FeedSkeletonView.swift in Sources */,
 				BC706F702F9527F30093C0B8 /* SettingsView.swift in Sources */,
 				BC6676BD2F7D6370009CBF8D /* DraggablePIP.swift in Sources */,
 				BCCAD6742F6B9F7500ED71E0 /* registerCompleteView.swift in Sources */,
+				BC8A28D72FB4168A00073FDE /* ShareCardViews.swift in Sources */,
 				BC706DFD2F87C1FA0093C0B8 /* AlbumCalendarView.swift in Sources */,
 				BC706F6C2F93E8E40093C0B8 /* StoryAPI.swift in Sources */,
 				BCAAFF0E2F98911100A6B597 /* CommentSheetView.swift in Sources */,

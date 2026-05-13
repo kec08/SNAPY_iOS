@@ -18,7 +18,7 @@ struct FriendView: View {
                 Color.backgroundBlack.ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    FriendHeaderView {
+                    FriendHeaderView(pendingCount: viewModel.pendingRequestCount) {
                         showFriendRequest = true
                     }
 

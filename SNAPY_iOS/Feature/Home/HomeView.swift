@@ -109,6 +109,10 @@ struct HomeView: View {
                             }
                         }
                     }
+                    // 디바이스 토큰 서버 등록
+                    if let deviceToken = UserDefaults.standard.string(forKey: "deviceToken") {
+                        Task { await PushService.shared.registerToken(deviceToken) }
+                    }
                     Task {
                         async let stories: () = viewModel.loadStories()
                         async let feed: () = viewModel.loadFeed()

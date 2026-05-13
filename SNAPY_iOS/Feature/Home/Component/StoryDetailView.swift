@@ -34,6 +34,7 @@ struct StoryDetailView: View {
     @State private var isLikeToggling: Bool = false
     @State private var showHeartPop: Bool = false
     @State private var timer: Timer?
+    @State private var shareImage: UIImage? = nil
 
     // 좌우 드래그
     @State private var dragX: CGFloat = 0.0
@@ -92,6 +93,15 @@ struct StoryDetailView: View {
         }
         .onDisappear {
             stopTimer()
+        }
+        .sheet(isPresented: Binding(
+            get: { shareImage != nil },
+            set: { if !$0 { shareImage = nil; isPaused = false } }
+        )) {
+            if let image = shareImage {
+                let text = "SNAPY 스토리: @\(currentStory.username)\n\nSNAPY에서 당신의 일상을 공유해보세요!"
+                ShareSheetView(items: [image, text])
+            }
         }
     }
 
@@ -379,6 +389,33 @@ struct StoryDetailView: View {
         }
     }
 
+    // MARK: - 공유
+
+    private func shareStory() {
+        let story = currentStory
+        let photos = story.photos
+        guard currentImageIndex < photos.count else { return }
+        let photo = photos[currentImageIndex]
+
+        isPaused = true
+        Task {
+            async let profileImg = downloadImage(from: story.profileImage.isImageURL ? story.profileImage : nil)
+            async let backImg = downloadImage(from: photo.backImageUrl)
+            async let frontImg = downloadImage(from: photo.frontImageUrl)
+
+            let card = StoryShareCard(
+                profileImage: await profileImg,
+                displayName: story.displayName,
+                handle: story.username,
+                backImage: await backImg,
+                frontImage: await frontImg
+            )
+            if let image = renderShareImage(card) {
+                shareImage = image
+            }
+        }
+    }
+
     // MARK: - 하단 버튼
 
     @ViewBuilder
@@ -391,7 +428,7 @@ struct StoryDetailView: View {
             HStack(spacing: 20) {
                 Spacer()
                 Button {
-                    // 공유
+                    shareStory()
                 } label: {
                     Image(systemName: "paperplane")
                         .font(.system(size: 24))
@@ -434,7 +471,7 @@ struct StoryDetailView: View {
                 .buttonStyle(.plain)
 
                 Button {
-                    // 공유
+                    shareStory()
                 } label: {
                     Image(systemName: "paperplane")
                         .font(.system(size: 24))
