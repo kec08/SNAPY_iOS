@@ -63,7 +63,7 @@ struct FeedCardView: View {
                                                         endPoint: .bottomTrailing
                                                     )
                                                 ),
-                                            lineWidth: 2
+                                            lineWidth: 1.5
                                         )
                                 }
                             }

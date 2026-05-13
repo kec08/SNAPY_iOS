@@ -83,6 +83,12 @@ struct MainTabView: View {
                 showCamera = false
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .openCamera)) { _ in
+            tryOpenCamera()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .switchToProfileTab)) { _ in
+            selectedTab = 4
+        }
     }
 
     private func tryOpenCamera() {
