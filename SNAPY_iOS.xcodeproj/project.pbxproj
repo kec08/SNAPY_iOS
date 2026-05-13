@@ -70,6 +70,7 @@
 		BC8A28D02FB3231400073FDE /* PushService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28CF2FB3231200073FDE /* PushService.swift */; };
 		BC8A28D32FB3235F00073FDE /* PushAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28D22FB3235E00073FDE /* PushAPI.swift */; };
 		BC8A28D72FB4168A00073FDE /* ShareCardViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28D62FB4168800073FDE /* ShareCardViews.swift */; };
+		BC8A28DD2FB4C2D900073FDE /* UIImage+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28DC2FB4C2D800073FDE /* UIImage+Extensions.swift */; };
 		BCA00F012FA0000100FEED01 /* FeedDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F002FA0000100FEED01 /* FeedDTO.swift */; };
 		BCA00F032FA0000100FEED02 /* FeedAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F022FA0000100FEED02 /* FeedAPI.swift */; };
 		BCA00F052FA0000100FEED03 /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F042FA0000100FEED03 /* FeedService.swift */; };
@@ -219,6 +220,7 @@
 		BC8A28CF2FB3231200073FDE /* PushService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushService.swift; sourceTree = "<group>"; };
 		BC8A28D22FB3235E00073FDE /* PushAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushAPI.swift; sourceTree = "<group>"; };
 		BC8A28D62FB4168800073FDE /* ShareCardViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardViews.swift; sourceTree = "<group>"; };
+		BC8A28DC2FB4C2D800073FDE /* UIImage+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extensions.swift"; sourceTree = "<group>"; };
 		BCA00F002FA0000100FEED01 /* FeedDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDTO.swift; sourceTree = "<group>"; };
 		BCA00F022FA0000100FEED02 /* FeedAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedAPI.swift; sourceTree = "<group>"; };
 		BCA00F042FA0000100FEED03 /* FeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedService.swift; sourceTree = "<group>"; };
@@ -328,6 +330,7 @@
 		BC1DC2CF2F68CF730016A4CD /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A28DC2FB4C2D800073FDE /* UIImage+Extensions.swift */,
 				BC1DC2CD2F68CF730016A4CD /* Color+Extensions.swift */,
 				BC1DC2CE2F68CF730016A4CD /* Date+Extensions.swift */,
 			);
@@ -1021,6 +1024,7 @@
 			files = (
 				BC1DC2EE2F68CF730016A4CD /* TokenStorage.swift in Sources */,
 				BCD815A32F6929550028AE50 /* SplashView.swift in Sources */,
+				BC8A28DD2FB4C2D900073FDE /* UIImage+Extensions.swift in Sources */,
 				BC6674E72F73A564009CBF8D /* AlbumStrick.swift in Sources */,
 				BC706F632F90A6CA0093C0B8 /* HomeFeedEndView.swift in Sources */,
 				BC8A28CE2FB322DB00073FDE /* AppDelegate.swift in Sources */,

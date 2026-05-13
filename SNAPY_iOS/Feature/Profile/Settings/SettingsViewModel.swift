@@ -64,6 +64,22 @@ final class SettingsViewModel: ObservableObject {
         }
     }
 
+    // MARK: - 회원탈퇴
+
+    @Published var deleteError: String? = nil
+
+    func deleteAccount() {
+        Task {
+            do {
+                try await AuthService.shared.deleteAccount()
+                NotificationCenter.default.post(name: .didManualLogout, object: nil)
+            } catch {
+                print("[Settings] 회원탈퇴 실패: \(error)")
+                deleteError = error.localizedDescription
+            }
+        }
+    }
+
     // MARK: - 로그아웃
 
     func logout() {

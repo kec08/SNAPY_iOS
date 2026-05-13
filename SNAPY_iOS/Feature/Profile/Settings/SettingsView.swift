@@ -11,6 +11,9 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = SettingsViewModel()
     @State private var showLogoutAlert = false
+    @State private var showDeleteAlert = false
+    @State private var showDeleteConfirm = false
+    @State private var deleteConfirmText = ""
 
     var body: some View {
         ZStack {
@@ -99,6 +102,16 @@ struct SettingsView: View {
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.actionRed)
                 }
+                .padding(.bottom, 50)
+
+                // 회원탈퇴
+                Button {
+                    showDeleteAlert = true
+                } label: {
+                    Text("회원탈퇴")
+                        .font(.system(size: 14, weight: .regular))
+                        .foregroundColor(.customGray300)
+                }
                 .padding(.bottom, 60)
             }
         }
@@ -113,6 +126,25 @@ struct SettingsView: View {
             }
         } message: {
             Text("정말 로그아웃 하시겠습니까?")
+        }
+        .alert("회원탈퇴", isPresented: $showDeleteAlert) {
+            Button("취소", role: .cancel) { }
+            Button("탈퇴하기", role: .destructive) {
+                showDeleteConfirm = true
+            }
+        } message: {
+            Text("정말 탈퇴하시겠습니까?")
+        }
+        .navigationDestination(isPresented: $showDeleteConfirm) {
+            DeleteAccountView(viewModel: viewModel)
+        }
+        .alert("탈퇴 실패", isPresented: Binding(
+            get: { viewModel.deleteError != nil },
+            set: { if !$0 { viewModel.deleteError = nil } }
+        )) {
+            Button("확인", role: .cancel) {}
+        } message: {
+            Text(viewModel.deleteError ?? "")
         }
     }
 
@@ -148,6 +180,126 @@ struct SettingsView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
+    }
+}
+
+// MARK: - 회원탈퇴 확인 화면
+
+struct DeleteAccountView: View {
+    @ObservedObject var viewModel: SettingsViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var confirmText = ""
+    @FocusState private var isFocused: Bool
+
+    private var isConfirmed: Bool {
+        confirmText == "탈퇴하겠습니다."
+    }
+
+    var body: some View {
+        ZStack {
+            Color.backgroundBlack.ignoresSafeArea()
+
+            VStack(alignment: .leading, spacing: 0) {
+                Text("회원탈퇴")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(.textWhite)
+                    .padding(.top, 24)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("탈퇴 시 아래 내용이 적용됩니다.")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.textWhite)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        bulletText("게시물, 스토리, 앨범, 댓글 등 모든 데이터가 삭제됩니다.")
+                        bulletText("친구 관계 및 방명록이 모두 해제됩니다.")
+                        bulletText("삭제된 데이터는 복구할 수 없습니다.")
+                    }
+
+                    Divider()
+                        .background(Color.customGray500)
+                        .padding(.vertical, 8)
+
+                    HStack(spacing: 6) {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 14))
+                            .foregroundColor(.MainYellow)
+                        Text("탈퇴 후 3개월 이내에 다시 로그인하면 계정을 복구할 수 있습니다.")
+                            .font(.system(size: 13))
+                            .foregroundColor(.customGray300)
+                    }
+                }
+                .padding(.top, 28)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("탈퇴를 확인하려면 아래에 \"탈퇴하겠습니다.\"를 입력하세요.")
+                        .font(.system(size: 14))
+                        .foregroundColor(.customGray300)
+
+                    TextField("탈퇴하겠습니다.", text: $confirmText)
+                        .font(.system(size: 17))
+                        .foregroundColor(.textWhite)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .background(Color(white: 0.15))
+                        .cornerRadius(10)
+                        .focused($isFocused)
+                }
+                .padding(.top, 32)
+
+                Spacer()
+
+                Button {
+                    viewModel.deleteAccount()
+                } label: {
+                    Text("탈퇴하기")
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
+                        .background(isConfirmed ? Color.actionRed : Color.customGray500)
+                        .foregroundColor(isConfirmed ? .white : .customGray300)
+                        .cornerRadius(12)
+                }
+                .disabled(!isConfirmed)
+                .padding(.bottom, 40)
+            }
+            .padding(.horizontal, 24)
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button { dismiss() } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.textWhite)
+                        .frame(width: 40, height: 40)
+                        .background(.ultraThinMaterial, in: Circle())
+                }
+            }
+        }
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width > 80 && abs(value.translation.height) < 100 {
+                        dismiss()
+                    }
+                }
+        )
+        .onTapGesture {
+            isFocused = false
+        }
+    }
+
+    private func bulletText(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            Text("•")
+                .font(.system(size: 14))
+                .foregroundColor(.customGray300)
+            Text(text)
+                .font(.system(size: 14))
+                .foregroundColor(.customGray300)
+                .lineSpacing(4)
+        }
     }
 }
 

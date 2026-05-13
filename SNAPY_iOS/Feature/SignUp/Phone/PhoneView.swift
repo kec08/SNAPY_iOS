@@ -11,7 +11,9 @@ struct PhoneView: View {
     var onBack: () -> Void
     var onSignNextTap: () -> Void
     @EnvironmentObject var signUpVM: SiginUpViewModel
-    let carriers = ["SKT", "KT", "LG U+", "알뜰폰"]
+    @State private var codeSent = false
+    @State private var isSending = false
+    @State private var sendError: String?
 
     var body: some View {
         ZStack {
@@ -33,41 +35,6 @@ struct PhoneView: View {
                     .padding(.top, 16)
 
                 VStack(spacing: 28) {
-                    // 통신사 선택
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("통신사")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-
-                        Menu {
-                            ForEach(carriers, id: \.self) { carrier in
-                                Button(carrier) {
-                                    signUpVM.registerCarrier = carrier
-                                }
-                            }
-                        } label: {
-                            HStack {
-                                Text(signUpVM.registerCarrier.isEmpty ? "통신사 선택" : signUpVM.registerCarrier)
-                                    .foregroundColor(
-                                        signUpVM.registerCarrier.isEmpty
-                                        ? .customGray300
-                                        : .textWhite
-                                    )
-                                    .font(.system(size: 18))
-
-                                Spacer()
-
-                                Image(systemName: "chevron.down")
-                                    .foregroundColor(.gray)
-                            }
-                        }
-
-                        Rectangle()
-                            .fill(Color.textWhite)
-                            .frame(height: 2)
-                            .padding(.top, 8)
-                    }
-
                     // 전화번호 입력
                     VStack(alignment: .leading, spacing: 8) {
                         Text("휴대폰 번호")
@@ -89,17 +56,18 @@ struct PhoneView: View {
                                 .keyboardType(.phonePad)
                                 .frame(maxWidth: .infinity)
 
-                            Button("인증번호 받기") {
-                                // TODO
+                            Button(codeSent ? "재발송" : "인증번호 받기") {
+                                requestCode()
                             }
                             .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.textWhite)
+                            .foregroundColor(signUpVM.registerPhone.count == 11 ? .textWhite : .customGray300)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 10)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.gray, lineWidth: 1)
+                                    .stroke(signUpVM.registerPhone.count == 11 ? Color.gray : Color.customGray500, lineWidth: 1)
                             )
+                            .disabled(signUpVM.registerPhone.count != 11 || isSending)
                         }
 
                         Rectangle()
@@ -113,6 +81,18 @@ struct PhoneView: View {
 
                         if let msg = signUpVM.phoneValidationMessage {
                             Text(msg)
+                                .font(.system(size: 12))
+                                .foregroundColor(.red)
+                        }
+
+                        if codeSent {
+                            Text("인증번호가 발송되었습니다.")
+                                .font(.system(size: 12))
+                                .foregroundColor(.MainYellow)
+                        }
+
+                        if let error = sendError {
+                            Text(error)
                                 .font(.system(size: 12))
                                 .foregroundColor(.red)
                         }
@@ -147,6 +127,28 @@ struct PhoneView: View {
                 #selector(UIResponder.resignFirstResponder),
                 to: nil, from: nil, for: nil
             )
+        }
+    }
+
+    private func requestCode() {
+        let digits = signUpVM.registerPhone
+        guard digits.count == 11 else { return }
+        isSending = true
+        sendError = nil
+
+        Task {
+            do {
+                try await ProfileService.shared.requestPhoneCode(digits)
+                await MainActor.run {
+                    codeSent = true
+                    isSending = false
+                }
+            } catch {
+                await MainActor.run {
+                    sendError = error.localizedDescription
+                    isSending = false
+                }
+            }
         }
     }
 }

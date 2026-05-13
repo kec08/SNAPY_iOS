@@ -165,10 +165,11 @@ final class HomeViewModel: ObservableObject {
                                 p.ownerStoryId = story.storyId
                                 return p
                             }
+                            let bannerImg = photos.first?.backImageUrl ?? story.thumbnailUrl ?? ""
                             return await StoryItem(
                                 storyId: story.storyId,
                                 profileImage: story.profileImageUrl ?? "",
-                                bannerImage: story.thumbnailUrl ?? "",
+                                bannerImage: bannerImg,
                                 displayName: detail.username,
                                 username: story.handle,
                                 photos: photos,

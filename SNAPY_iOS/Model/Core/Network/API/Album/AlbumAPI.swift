@@ -25,7 +25,7 @@ enum AlbumAPI {
 extension AlbumAPI: TargetType {
 
     var baseURL: URL {
-        return URL(string: "http://3.36.67.129:8080")!
+        return URL(string: "https://snapy.api.krafte.net")!
     }
 
     var path: String {
@@ -61,8 +61,10 @@ extension AlbumAPI: TargetType {
     var task: Moya.Task {
         switch self {
         case let .upload(front, back, type):
-            let frontData = front.jpegData(compressionQuality: 0.85) ?? Data()
-            let backData  = back.jpegData(compressionQuality: 0.85)  ?? Data()
+            let frontResized = front.resizedToFit(maxDimension: 1080)
+            let backResized = back.resizedToFit(maxDimension: 1080)
+            let frontData = frontResized.jpegData(compressionQuality: 0.7) ?? Data()
+            let backData  = backResized.jpegData(compressionQuality: 0.7)  ?? Data()
 
             let parts: [Moya.MultipartFormData] = [
                 Moya.MultipartFormData(

@@ -143,7 +143,7 @@ struct LoginView: View {
         } message: {
             Text(authVM.errorMessage ?? "")
         }
-        .onChange(of: authVM.errorMessage) { newValue in
+        .onChange(of: authVM.errorMessage) { _, newValue in
             if newValue != nil {
                 showErrorAlert = true
             }

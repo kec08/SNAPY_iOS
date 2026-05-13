@@ -20,7 +20,8 @@ enum ProfileAPI {
     case updatePastAlbumVisibility(Visibility)            // PATCH /api/users/me/settings/past-album-visibility
     case fetchGuestbook(handle: String)                  // GET  /api/users/{handle}/guestbook
     case postGuestbook(handle: String, image: UIImage)   // POST /api/users/{handle}/guestbook
-    case updatePhone(phone: String)                      // PATCH /api/users/me/phone
+    case requestPhoneCode(phone: String)                  // POST  /api/users/me/phone/verification-code
+    case updatePhone(phone: String, code: String)         // PATCH /api/users/me/phone
     case updateHandle(handle: String)                    // PATCH /api/users/me/handle
     case updateUsername(username: String)                 // PATCH /api/users/me/username
     case checkHandle(handle: String)                     // GET   /api/users/handle/check
@@ -29,7 +30,7 @@ enum ProfileAPI {
 extension ProfileAPI: TargetType {
 
     var baseURL: URL {
-        return URL(string: "http://3.36.67.129:8080")!
+        return URL(string: "https://snapy.api.krafte.net")!
     }
 
     var path: String {
@@ -52,6 +53,8 @@ extension ProfileAPI: TargetType {
             return "/api/users/\(handle)/guestbook"
         case .postGuestbook(let handle, _):
             return "/api/users/\(handle)/guestbook"
+        case .requestPhoneCode:
+            return "/api/users/me/phone/verification-code"
         case .updatePhone:
             return "/api/users/me/phone"
         case .updateHandle:
@@ -67,7 +70,7 @@ extension ProfileAPI: TargetType {
         switch self {
         case .fetchMyProfile, .fetchUserProfile, .fetchSettings, .fetchGuestbook, .checkHandle:
             return .get
-        case .postGuestbook:
+        case .postGuestbook, .requestPhoneCode:
             return .post
         case .updateProfileImage, .updateBackgroundImage,
              .updateFeedVisibility, .updatePastAlbumVisibility, .updatePhone,
@@ -88,7 +91,8 @@ extension ProfileAPI: TargetType {
             )
 
         case .postGuestbook(let handle, let image):
-            let imageData = image.jpegData(compressionQuality: 0.85) ?? Data()
+            let resized = image.resizedToFit(maxDimension: 1080)
+            let imageData = resized.jpegData(compressionQuality: 0.7) ?? Data()
             print("[ProfileAPI] 방명록 POST - handle: \(handle)")
             print("[ProfileAPI] 방명록 POST - imageData size: \(imageData.count) bytes")
             let formData = Moya.MultipartFormData(
@@ -100,7 +104,9 @@ extension ProfileAPI: TargetType {
             return .uploadMultipart([formData])
 
         case .updateProfileImage(let image), .updateBackgroundImage(let image):
-            let imageData = image.jpegData(compressionQuality: 0.85) ?? Data()
+            let resized = image.resizedToFit(maxDimension: 1080)
+            let imageData = resized.jpegData(compressionQuality: 0.7) ?? Data()
+            print("[ProfileAPI] 이미지 업로드 size: \(imageData.count / 1024)KB")
             let formData = Moya.MultipartFormData(
                 provider: .data(imageData),
                 name: "image",
@@ -115,9 +121,14 @@ extension ProfileAPI: TargetType {
         case .updatePastAlbumVisibility(let v):
             let body = UpdateVisibilityRequest(visibility: v.rawValue)
             return .requestJSONEncodable(body)
-        case .updatePhone(let phone):
+        case .requestPhoneCode(let phone):
             return .requestParameters(
                 parameters: ["phone": phone],
+                encoding: JSONEncoding.default
+            )
+        case .updatePhone(let phone, let code):
+            return .requestParameters(
+                parameters: ["phone": phone, "code": code],
                 encoding: JSONEncoding.default
             )
         case .updateHandle(let handle):

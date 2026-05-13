@@ -309,7 +309,7 @@ struct ProfileShareCard: View {
 @MainActor
 func renderShareImage<V: View>(_ view: V) -> UIImage? {
     let renderer = ImageRenderer(content: view)
-    renderer.scale = UIScreen.main.scale
+    renderer.scale = 3.0
     return renderer.uiImage
 }
 

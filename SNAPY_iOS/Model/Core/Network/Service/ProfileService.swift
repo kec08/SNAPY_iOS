@@ -141,10 +141,20 @@ final class ProfileService {
         return data
     }
 
-    // MARK: - 전화번호 등록
+    // MARK: - 인증번호 요청
 
-    func updatePhone(_ phone: String) async throws {
-        let response = try await requestWithRefresh(.updatePhone(phone: phone))
+    func requestPhoneCode(_ phone: String) async throws {
+        let response = try await requestWithRefresh(.requestPhoneCode(phone: phone))
+        print("[ProfileService] 인증번호 요청 응답 코드 \(response.statusCode)")
+        guard (200..<300).contains(response.statusCode) else {
+            throw ProfileError.serverError(extractMessage(from: response))
+        }
+    }
+
+    // MARK: - 전화번호 등록 (인증번호 포함)
+
+    func updatePhone(_ phone: String, code: String) async throws {
+        let response = try await requestWithRefresh(.updatePhone(phone: phone, code: code))
         print("[ProfileService] 전화번호 등록 응답 코드 \(response.statusCode)")
         guard (200..<300).contains(response.statusCode) else {
             throw ProfileError.serverError(extractMessage(from: response))
@@ -210,6 +220,9 @@ final class ProfileService {
     // MARK: - 에러 메시지 추출
 
     private func extractMessage(from response: Response) -> String {
+        if response.statusCode == 413 {
+            return "이미지 파일이 너무 큽니다. 다른 사진을 선택해주세요."
+        }
         if let spring = try? JSONDecoder().decode(SpringError.self, from: response.data) {
             return spring.message ?? "서버 오류 (\(response.statusCode))"
         }

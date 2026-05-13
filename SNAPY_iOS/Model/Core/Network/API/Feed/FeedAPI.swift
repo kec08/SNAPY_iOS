@@ -16,7 +16,7 @@ enum FeedAPI {
 extension FeedAPI: TargetType {
 
     var baseURL: URL {
-        URL(string: "http://3.36.67.129:8080")!
+        URL(string: "https://snapy.api.krafte.net")!
     }
 
     var path: String {

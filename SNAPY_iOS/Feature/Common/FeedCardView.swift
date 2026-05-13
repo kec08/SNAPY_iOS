@@ -286,7 +286,7 @@ struct FeedCardView: View {
         if let backUrl = urlString, let url = URL(string: backUrl) {
             KFImage(url)
                 .resizable()
-                .downsampling(size: CGSize(width: UIScreen.main.bounds.width, height: 540))
+                .downsampling(size: CGSize(width: 390, height: 540))
                 .placeholder { Color.customGray500 }
                 .fade(duration: 0.15)
                 .scaledToFill()

@@ -44,9 +44,8 @@ final class SiginUpViewModel: ObservableObject {
     }
 
     var isPhoneValid: Bool {
-        return !registerCarrier.isEmpty
-        && registerPhone.count >= 10
-        && verificationCode.count >= 4
+        return registerPhone.count == 11
+        && verificationCode.count == 6
     }
 
     var isProfileValid: Bool {
@@ -169,10 +168,9 @@ final class SiginUpViewModel: ObservableObject {
 
         do {
             let response = try await authService.signup(
-                username: registerUsername,
-                handle: registerUserID,
+                username: registerUsername.isEmpty ? "SNAPY_user" : registerUsername,
+                handle: registerUserID.isEmpty ? "user_\(Int.random(in: 10000...99999))" : registerUserID,
                 email: registerEmail,
-                phone: registerPhone,
                 password: registerPassword
             )
 
@@ -184,7 +182,7 @@ final class SiginUpViewModel: ObservableObject {
                 return
             }
 
-            // 회원가입 성공 후 자동 로그인 (연락처 동기화에 토큰 필요)
+            // 회원가입 성공 후 자동 로그인 (전화번호 인증에 토큰 필요)
             do {
                 _ = try await authService.login(
                     email: registerEmail,
@@ -192,7 +190,7 @@ final class SiginUpViewModel: ObservableObject {
                 )
                 print("[SignUp] 자동 로그인 성공")
             } catch {
-                print("[SignUp] 자동 로그인 실패: \(error) — 연락처 동기화 불가")
+                print("[SignUp] 자동 로그인 실패: \(error)")
             }
 
             await MainActor.run {
@@ -202,6 +200,46 @@ final class SiginUpViewModel: ObservableObject {
         } catch {
             await MainActor.run {
                 errorMessage = translateError(error.localizedDescription)
+                isLoading = false
+            }
+        }
+    }
+
+    // MARK: - 이름/핸들 서버 저장
+
+    func saveInfo() async {
+        await MainActor.run {
+            isLoading = true
+            errorMessage = nil
+        }
+
+        do {
+            // 핸들 중복 확인 후 업데이트
+            if !registerUserID.isEmpty {
+                let available = try await ProfileService.shared.checkHandle(registerUserID)
+                if !available {
+                    await MainActor.run {
+                        errorMessage = "이미 사용 중인 사용자 ID입니다."
+                        isLoading = false
+                    }
+                    return
+                }
+                try await ProfileService.shared.updateHandle(registerUserID)
+                print("[SignUp] 핸들 업데이트 성공: \(registerUserID)")
+            }
+            if !registerUsername.isEmpty {
+                try await ProfileService.shared.updateUsername(registerUsername)
+                print("[SignUp] 이름 업데이트 성공: \(registerUsername)")
+            }
+            // 전화번호는 PhoneView에서 이미 등록됨
+            await MainActor.run {
+                UserDefaults.standard.set(registerUserID, forKey: "myHandle")
+                isLoading = false
+            }
+        } catch {
+            print("[SignUp] saveInfo 실패: \(error)")
+            await MainActor.run {
+                errorMessage = error.localizedDescription
                 isLoading = false
             }
         }

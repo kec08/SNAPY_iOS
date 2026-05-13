@@ -7,6 +7,7 @@
 
 import Foundation
 import Moya
+import GoogleSignIn
 
 enum AuthError: Error, LocalizedError {
     case noRefreshToken
@@ -173,11 +174,10 @@ final class AuthService {
         username: String,
         handle: String,
         email: String,
-        phone: String,
         password: String
     ) async throws -> SignUpResponse {
         let result = await provider.requestAsync(
-            .signup(username: username, handle: handle, email: email, phone: phone, password: password)
+            .signup(username: username, handle: handle, email: email, password: password)
         )
         switch result {
         case .success(let response):
@@ -244,6 +244,31 @@ final class AuthService {
 
         case .failure(let error):
             print("[AuthService] 재발급 네트워크 실패: \(error)")
+            throw error
+        }
+    }
+
+    // MARK: - 회원탈퇴
+    func deleteAccount() async throws {
+        let result = await provider.requestAsync(.deleteAccount)
+        switch result {
+        case .success(let response):
+            print("[AuthService] 회원탈퇴 응답 코드 \(response.statusCode)")
+            if let body = String(data: response.data, encoding: .utf8) {
+                print("[AuthService] 회원탈퇴 응답 \(body)")
+            }
+            guard (200..<300).contains(response.statusCode) else {
+                if let parsed = try? JSONDecoder().decode(BaseResponse<EmptyData>.self, from: response.data) {
+                    throw AuthError.serverError(parsed.message)
+                }
+                throw AuthError.serverError("회원탈퇴에 실패했습니다. (\(response.statusCode))")
+            }
+            // Google 연결 해제
+            await MainActor.run {
+                GIDSignIn.sharedInstance.disconnect { _ in }
+            }
+            TokenStorage.clear()
+        case .failure(let error):
             throw error
         }
     }
