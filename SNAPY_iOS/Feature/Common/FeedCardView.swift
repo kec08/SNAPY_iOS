@@ -35,6 +35,7 @@ struct FeedCardView: View {
     @State private var currentPage = 0
     @State private var showComments = false
     @State private var heartAnimations: [HeartAnimation] = []
+    @State private var shareImage: UIImage? = nil
     @State private var heartTapCount: Int = 0
 
     var body: some View {
@@ -173,7 +174,7 @@ struct FeedCardView: View {
                 }
 
                 Button {
-                    // 공유
+                    shareFeed()
                 } label: {
                     Image(systemName: "paperplane")
                         .font(.system(size: 20))
@@ -193,6 +194,15 @@ struct FeedCardView: View {
             CommentSheetView(albumId: albumId, commentCount: $commentCount)
                 .presentationDetents([.large])
                 .presentationDragIndicator(.hidden)
+        }
+        .sheet(isPresented: Binding(
+            get: { shareImage != nil },
+            set: { if !$0 { shareImage = nil } }
+        )) {
+            if let image = shareImage {
+                let text = "SNAPY 피드: @\(handle)\n\nSNAPY에서 당신의 일상을 공유해보세요!"
+                ShareSheetView(items: [image, text])
+            }
         }
         .onAppear {
             guard albumId > 0, commentCount == 0 else { return }
@@ -290,6 +300,36 @@ struct FeedCardView: View {
                 .clipped()
         } else {
             Color.customGray500
+        }
+    }
+
+    // MARK: - 공유
+
+    private func shareFeed() {
+        let photo = photos.indices.contains(currentPage) ? photos[currentPage] : photos.first
+        let profileUrl: String? = {
+            switch profileImageSource {
+            case .url(let url): return url
+            default: return nil
+            }
+        }()
+
+        Task {
+            async let profileImg = downloadImage(from: profileUrl)
+            async let backImg = downloadImage(from: photo?.backImageUrl)
+            async let frontImg = downloadImage(from: photo?.frontImageUrl)
+
+            let card = FeedShareCard(
+                profileImage: await profileImg,
+                displayName: displayName,
+                handle: handle,
+                date: date,
+                backImage: await backImg,
+                frontImage: await frontImg
+            )
+            if let image = renderShareImage(card) {
+                shareImage = image
+            }
         }
     }
 

@@ -69,6 +69,7 @@
 		BC8A28CE2FB322DB00073FDE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28CD2FB322D500073FDE /* AppDelegate.swift */; };
 		BC8A28D02FB3231400073FDE /* PushService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28CF2FB3231200073FDE /* PushService.swift */; };
 		BC8A28D32FB3235F00073FDE /* PushAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28D22FB3235E00073FDE /* PushAPI.swift */; };
+		BC8A28D72FB4168A00073FDE /* ShareCardViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28D62FB4168800073FDE /* ShareCardViews.swift */; };
 		BCA00F012FA0000100FEED01 /* FeedDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F002FA0000100FEED01 /* FeedDTO.swift */; };
 		BCA00F032FA0000100FEED02 /* FeedAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F022FA0000100FEED02 /* FeedAPI.swift */; };
 		BCA00F052FA0000100FEED03 /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F042FA0000100FEED03 /* FeedService.swift */; };
@@ -217,6 +218,7 @@
 		BC8A28CD2FB322D500073FDE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BC8A28CF2FB3231200073FDE /* PushService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushService.swift; sourceTree = "<group>"; };
 		BC8A28D22FB3235E00073FDE /* PushAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushAPI.swift; sourceTree = "<group>"; };
+		BC8A28D62FB4168800073FDE /* ShareCardViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardViews.swift; sourceTree = "<group>"; };
 		BCA00F002FA0000100FEED01 /* FeedDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDTO.swift; sourceTree = "<group>"; };
 		BCA00F022FA0000100FEED02 /* FeedAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedAPI.swift; sourceTree = "<group>"; };
 		BCA00F042FA0000100FEED03 /* FeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedService.swift; sourceTree = "<group>"; };
@@ -543,6 +545,7 @@
 		BCA00F092FA1000100CARD02 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A28D62FB4168800073FDE /* ShareCardViews.swift */,
 				BC8A27CA2FB0EA3800073FDE /* FriendSkeletonView.swift */,
 				BC65863B2FAB905700D827CF /* FeedSkeletonView.swift */,
 				BCA00F082FA1000100CARD01 /* FeedCardView.swift */,
@@ -1113,6 +1116,7 @@
 				BC706F702F9527F30093C0B8 /* SettingsView.swift in Sources */,
 				BC6676BD2F7D6370009CBF8D /* DraggablePIP.swift in Sources */,
 				BCCAD6742F6B9F7500ED71E0 /* registerCompleteView.swift in Sources */,
+				BC8A28D72FB4168A00073FDE /* ShareCardViews.swift in Sources */,
 				BC706DFD2F87C1FA0093C0B8 /* AlbumCalendarView.swift in Sources */,
 				BC706F6C2F93E8E40093C0B8 /* StoryAPI.swift in Sources */,
 				BCAAFF0E2F98911100A6B597 /* CommentSheetView.swift in Sources */,

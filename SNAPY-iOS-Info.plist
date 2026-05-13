@@ -13,6 +13,11 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>1020178958015-4hpunjp0nggtit2idai2961j14sea0dj.apps.googleusercontent.com</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

@@ -16,6 +16,7 @@ struct ProfileHeaderView: View {
     @State private var showProfileViewer = false
     @State private var showFriendList = false
     @State private var showStreakSheet = false
+    @State private var shareImage: UIImage? = nil
 
     var body: some View {
         VStack(spacing: 0) {
@@ -132,7 +133,9 @@ struct ProfileHeaderView: View {
                             .cornerRadius(8)
                     }
 
-                    ShareLink(item: "SNAPY 프로필: @\(viewModel.handle)\nhttps://snapy.app/@\(viewModel.handle)") {
+                    Button {
+                        shareProfile()
+                    } label: {
                         Text("프로필 공유")
                             .font(.system(size: 14, weight: .semibold))
                             .frame(maxWidth: .infinity)
@@ -175,6 +178,35 @@ struct ProfileHeaderView: View {
             )
             .presentationDetents([.fraction(0.3)])
             .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: Binding(
+            get: { shareImage != nil },
+            set: { if !$0 { shareImage = nil } }
+        )) {
+            if let image = shareImage {
+                let text = "SNAPY 프로필: @\(viewModel.handle)\n\nSNAPY에서 당신의 일상을 공유해보세요!"
+                ShareSheetView(items: [image, text])
+            }
+        }
+    }
+
+    private func shareProfile() {
+        Task {
+            async let bannerImg = downloadImage(from: viewModel.bannerImageUrl)
+            async let profileImg = downloadImage(from: viewModel.profileImageUrl)
+
+            let card = ProfileShareCard(
+                bannerImage: await bannerImg,
+                profileImage: await profileImg,
+                username: viewModel.username,
+                handle: viewModel.handle,
+                postCount: viewModel.postCount,
+                friendCount: viewModel.friendCount,
+                streakCount: viewModel.streakCount
+            )
+            if let image = renderShareImage(card) {
+                shareImage = image
+            }
         }
     }
 
