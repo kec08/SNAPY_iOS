@@ -13,6 +13,11 @@ struct ProfileEditView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
+        let profileImg = viewModel.profileImage
+        let profileUrl = viewModel.profileImageUrl
+        let bannerImg = viewModel.bannerImage
+        let bannerUrl = viewModel.bannerImageUrl
+
         ZStack {
             Color.backgroundBlack.ignoresSafeArea()
 
@@ -22,11 +27,11 @@ struct ProfileEditView: View {
                     VStack(spacing: 8) {
                         PhotosPicker(selection: $viewModel.profilePickerItem, matching: .images) {
                             Group {
-                                if let profileImage = viewModel.profileImage {
+                                if let profileImage = profileImg {
                                     Image(uiImage: profileImage)
                                         .resizable()
                                         .scaledToFill()
-                                } else if let url = viewModel.profileImageUrl {
+                                } else if let url = profileUrl {
                                     AsyncImage(url: URL(string: url)) { phase in
                                         switch phase {
                                         case .success(let img): img.resizable().scaledToFill()
@@ -68,11 +73,11 @@ struct ProfileEditView: View {
                     VStack(spacing: 8) {
                         PhotosPicker(selection: $viewModel.bannerPickerItem, matching: .images) {
                             Group {
-                                if let bannerImage = viewModel.bannerImage {
+                                if let bannerImage = bannerImg {
                                     Image(uiImage: bannerImage)
                                         .resizable()
                                         .scaledToFill()
-                                } else if let url = viewModel.bannerImageUrl {
+                                } else if let url = bannerUrl {
                                     AsyncImage(url: URL(string: url)) { phase in
                                         switch phase {
                                         case .success(let img): img.resizable().scaledToFill()

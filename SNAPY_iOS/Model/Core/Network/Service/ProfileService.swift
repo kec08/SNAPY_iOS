@@ -220,6 +220,9 @@ final class ProfileService {
     // MARK: - 에러 메시지 추출
 
     private func extractMessage(from response: Response) -> String {
+        if response.statusCode == 413 {
+            return "이미지 파일이 너무 큽니다. 다른 사진을 선택해주세요."
+        }
         if let spring = try? JSONDecoder().decode(SpringError.self, from: response.data) {
             return spring.message ?? "서버 오류 (\(response.statusCode))"
         }

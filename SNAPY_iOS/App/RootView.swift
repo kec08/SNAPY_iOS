@@ -115,7 +115,20 @@ struct RootView: View {
                         screen = .registerPassword
                     },
                     onSignNextTap: {
-                        screen = .registerInfo
+                        Task {
+                            if !signUpVM.registerPhone.isEmpty && !signUpVM.verificationCode.isEmpty {
+                                do {
+                                    try await ProfileService.shared.updatePhone(
+                                        signUpVM.registerPhone,
+                                        code: signUpVM.verificationCode
+                                    )
+                                    print("[SignUp] 전화번호 등록 성공")
+                                } catch {
+                                    print("[SignUp] 전화번호 등록 실패: \(error)")
+                                }
+                            }
+                            screen = .registerInfo
+                        }
                     }
                 )
                 .environmentObject(signUpVM)
@@ -248,17 +261,17 @@ private extension RootView {
             let profile = try await ProfileService.shared.fetchMyProfile()
             UserDefaults.standard.set(profile.handle, forKey: "myHandle")
 
-            // handle이 기본값이거나 비어있으면 → 이름/핸들 설정
-            if profile.handle.isEmpty {
-                print("[AutoLogin] 핸들 미설정 → oauthInfo")
-                return .oauthInfo
+            // handle이 비어있거나 임시값(user_로 시작)이면 → 전화번호부터
+            if profile.handle.isEmpty || profile.handle.hasPrefix("user_") {
+                print("[AutoLogin] 프로필 미완성 (handle=\(profile.handle)) → registerPhone")
+                return .registerPhone
             }
 
             print("[AutoLogin] 프로필 완성 → 메인")
             return .main
         } catch {
-            print("[AutoLogin] 프로필 조회 실패: \(error) → oauthInfo")
-            return .oauthInfo
+            print("[AutoLogin] 프로필 조회 실패: \(error) → registerPhone")
+            return .registerPhone
         }
     }
 }

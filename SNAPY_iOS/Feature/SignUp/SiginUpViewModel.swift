@@ -231,11 +231,7 @@ final class SiginUpViewModel: ObservableObject {
                 try await ProfileService.shared.updateUsername(registerUsername)
                 print("[SignUp] 이름 업데이트 성공: \(registerUsername)")
             }
-            // 전화번호 등록 (인증코드 포함)
-            if !registerPhone.isEmpty && !verificationCode.isEmpty {
-                try await ProfileService.shared.updatePhone(registerPhone, code: verificationCode)
-                print("[SignUp] 전화번호 등록 성공")
-            }
+            // 전화번호는 PhoneView에서 이미 등록됨
             await MainActor.run {
                 UserDefaults.standard.set(registerUserID, forKey: "myHandle")
                 isLoading = false
