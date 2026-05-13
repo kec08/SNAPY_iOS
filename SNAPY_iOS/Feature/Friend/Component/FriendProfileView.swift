@@ -130,15 +130,17 @@ struct FriendProfileView: View {
                             .padding(.top, 10)
                         }
 
-                        // 겹친구 > 연락처 우선순위로 표시
-                        if let mutual = mutualFriendsText {
-                            Text(mutual)
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(.textWhite)
-                        } else if let contact = contactText {
-                            Text(contact)
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(.customGray300)
+                        if !currentFriend {
+                            // 비친구: 겹친구 > 연락처 표시
+                            if let mutual = mutualFriendsText {
+                                Text(mutual)
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(.textWhite)
+                            } else if let contact = contactText {
+                                Text(contact)
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(.customGray300)
+                            }
                         }
 
                         // @handle

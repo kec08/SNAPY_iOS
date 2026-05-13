@@ -13,6 +13,11 @@ struct NotificationView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showOlderSection = false
 
+    // 네비게이션
+    @State private var navProfileHandle: String? = nil
+    @State private var navProfileName: String = ""
+    @State private var navProfileImage: String? = nil
+
     var body: some View {
         ZStack {
             Color.backgroundBlack.ignoresSafeArea()
@@ -137,6 +142,18 @@ struct NotificationView: View {
                 }
             }
         }
+        .navigationDestination(isPresented: Binding(
+            get: { navProfileHandle != nil },
+            set: { if !$0 { navProfileHandle = nil } }
+        )) {
+            if let handle = navProfileHandle {
+                FriendProfileView(
+                    name: navProfileName,
+                    handle: handle,
+                    profileImageUrl: navProfileImage
+                )
+            }
+        }
         .toolbar(.hidden, for: .navigationBar)
         .gesture(
             DragGesture()
@@ -157,10 +174,18 @@ struct NotificationView: View {
     private func notificationRow(_ notification: NotificationData) -> some View {
         NotificationRow(
             notification: notification,
-            message: viewModel.message(for: notification)
+            message: viewModel.message(for: notification),
+            onProfileTap: {
+                // 이름 탭 → 보낸 사람 프로필로 이동
+                guard let handle = notification.senderHandle else { return }
+                navProfileName = notification.senderUsername ?? ""
+                navProfileImage = notification.senderProfileImageUrl
+                navProfileHandle = handle
+            }
         )
         .onTapGesture {
             Task { await viewModel.markAsRead(notification) }
+            handleNotificationTap(notification)
         }
         .onAppear {
             if notification.id == viewModel.notifications.last?.id {
@@ -170,6 +195,35 @@ struct NotificationView: View {
 
         Divider()
             .background(Color.white.opacity(0.06))
+    }
+
+    private func handleNotificationTap(_ notification: NotificationData) {
+        guard let handle = notification.senderHandle else { return }
+        switch notification.type {
+        case .friendRequest, .friendAccepted:
+            // 보낸 사람 프로필로 이동
+            navProfileName = notification.senderUsername ?? ""
+            navProfileImage = notification.senderProfileImageUrl
+            navProfileHandle = handle
+        case .storyLike, .newStory:
+            // 보낸 사람 프로필로 이동 (스토리 직접 이동은 복잡해서 프로필로)
+            navProfileName = notification.senderUsername ?? ""
+            navProfileImage = notification.senderProfileImageUrl
+            navProfileHandle = handle
+        case .feedLike, .feedComment, .albumPublished:
+            // 보낸 사람 프로필로 이동
+            navProfileName = notification.senderUsername ?? ""
+            navProfileImage = notification.senderProfileImageUrl
+            navProfileHandle = handle
+        case .guestbookCreated:
+            // 보낸 사람 프로필로 이동
+            navProfileName = notification.senderUsername ?? ""
+            navProfileImage = notification.senderProfileImageUrl
+            navProfileHandle = handle
+        case .albumPhotoUploadReminder:
+            // 서비스 알림은 이동 없음
+            break
+        }
     }
 
     // MARK: - 날짜별 그룹핑
@@ -254,6 +308,7 @@ enum NotificationDateParser {
 struct NotificationRow: View {
     let notification: NotificationData
     let message: AttributedString
+    var onProfileTap: (() -> Void)? = nil
 
     private var isServiceNotification: Bool {
         notification.type == .albumPhotoUploadReminder
@@ -271,13 +326,15 @@ struct NotificationRow: View {
                     .clipShape(Circle())
             } else if let urlString = notification.senderProfileImageUrl,
                let url = URL(string: urlString) {
-                KFImage(url)
-                    .resizable()
-                    .placeholder { Color.customDarkGray }
-                    .fade(duration: 0.2)
-                    .scaledToFill()
-                    .frame(width: 44, height: 44)
-                    .clipShape(Circle())
+                Button { onProfileTap?() } label: {
+                    KFImage(url)
+                        .resizable()
+                        .placeholder { Color.customDarkGray }
+                        .fade(duration: 0.2)
+                        .scaledToFill()
+                        .frame(width: 44, height: 44)
+                        .clipShape(Circle())
+                }
             } else {
                 Image(systemName: notificationIcon)
                     .font(.system(size: 18))
