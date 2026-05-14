@@ -26,24 +26,27 @@ struct ProfileHeaderView: View {
                 Button {
                     showBannerViewer = true
                 } label: {
-                    if let bannerImage = viewModel.bannerImage {
-                        Image(uiImage: bannerImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(height: 200)
-                            .clipped()
-                    } else if let url = viewModel.bannerImageUrl, let imgUrl = URL(string: url) {
-                        KFImage(imgUrl)
-                            .resizable()
-                            .placeholder { Color.customDarkGray }
-                            .fade(duration: 0.2)
-                            .scaledToFill()
-                            .frame(height: 200)
-                            .clipped()
-                    } else {
-                        Color.customDarkGray
-                            .frame(height: 200)
-                    }
+                    Color.clear
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 200)
+                        .overlay(
+                            Group {
+                                if let bannerImage = viewModel.bannerImage {
+                                    Image(uiImage: bannerImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                } else if let url = viewModel.bannerImageUrl, let imgUrl = URL(string: url) {
+                                    KFImage(imgUrl)
+                                        .resizable()
+                                        .placeholder { Color.customDarkGray }
+                                        .fade(duration: 0.2)
+                                        .scaledToFill()
+                                } else {
+                                    Color.customDarkGray
+                                }
+                            }
+                        )
+                        .clipShape(Rectangle())
                 }
             }
 

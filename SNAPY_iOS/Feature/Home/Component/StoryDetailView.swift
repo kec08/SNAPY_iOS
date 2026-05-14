@@ -35,6 +35,7 @@ struct StoryDetailView: View {
     @State private var showHeartPop: Bool = false
     @State private var timer: Timer?
     @State private var shareImage: UIImage? = nil
+    @State private var navProfileHandle: String? = nil
 
     // 좌우 드래그
     @State private var dragX: CGFloat = 0.0
@@ -56,6 +57,7 @@ struct StoryDetailView: View {
     }
 
     var body: some View {
+        NavigationStack {
         GeometryReader { geo in
             ZStack {
                 Color.black.ignoresSafeArea()
@@ -103,6 +105,20 @@ struct StoryDetailView: View {
                 ShareSheetView(items: [image, text])
             }
         }
+        .navigationDestination(isPresented: Binding(
+            get: { navProfileHandle != nil },
+            set: { if !$0 { navProfileHandle = nil; startTimer() } }
+        )) {
+            if let handle = navProfileHandle {
+                FriendProfileView(
+                    name: currentStory.displayName,
+                    handle: handle,
+                    profileImageUrl: currentStory.profileImage.isImageURL ? currentStory.profileImage : nil
+                )
+            }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        } // NavigationStack
     }
 
     // MARK: - 개별 스토리 페이지
@@ -169,20 +185,31 @@ struct StoryDetailView: View {
 
                         // 프로필 정보
                         HStack(spacing: 12) {
-                            profileImageView(name: story.profileImage)
-                                .frame(width: 40, height: 40)
-                                .clipped()
-                                .clipShape(Circle())
+                            Button {
+                                let myHandle = UserDefaults.standard.string(forKey: "myHandle") ?? ""
+                                if story.username != myHandle {
+                                    stopTimer()
+                                    navProfileHandle = story.username
+                                }
+                            } label: {
+                                HStack(spacing: 12) {
+                                    profileImageView(name: story.profileImage)
+                                        .frame(width: 40, height: 40)
+                                        .clipped()
+                                        .clipShape(Circle())
 
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(story.displayName)
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(.textWhite)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(story.displayName)
+                                            .font(.system(size: 14, weight: .bold))
+                                            .foregroundColor(.textWhite)
 
-                                Text(story.username)
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundColor(.customGray200)
+                                        Text(story.username)
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(.customGray200)
+                                    }
+                                }
                             }
+                            .buttonStyle(.plain)
 
                             if let timeText = currentPhotoTimeText(for: story, imageIndex: userIndex == currentUserIndex ? currentImageIndex : 0), !timeText.isEmpty {
                                 Text(timeText)
@@ -195,7 +222,6 @@ struct StoryDetailView: View {
                             Spacer()
                         }
                         .padding(.horizontal, 14)
-                        .allowsHitTesting(false)
                     }
                     .padding(.top, 16)
 
