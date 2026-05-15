@@ -173,6 +173,8 @@ struct RootView: View {
             case .oauthPhone:
                 OAuthPhoneView(onNext: {
                     screen = .oauthInfo
+                }, onBack: {
+                    screen = .login
                 })
 
             case .oauthInfo:
@@ -263,15 +265,15 @@ private extension RootView {
 
             // handle이 비어있거나 임시값(user_로 시작)이면 → 전화번호부터
             if profile.handle.isEmpty || profile.handle.hasPrefix("user_") {
-                print("[AutoLogin] 프로필 미완성 (handle=\(profile.handle)) → registerPhone")
-                return .registerPhone
+                print("[AutoLogin] 프로필 미완성 (handle=\(profile.handle)) → oauthPhone")
+                return .oauthPhone
             }
 
             print("[AutoLogin] 프로필 완성 → 메인")
             return .main
         } catch {
-            print("[AutoLogin] 프로필 조회 실패: \(error) → registerPhone")
-            return .registerPhone
+            print("[AutoLogin] 프로필 조회 실패: \(error) → oauthPhone")
+            return .oauthPhone
         }
     }
 }
