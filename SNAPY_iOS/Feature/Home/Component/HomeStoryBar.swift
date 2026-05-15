@@ -116,7 +116,9 @@ struct HomeStoryBar: View {
                 .resizable()
                 .scaledToFill()
         } else {
-            Color.customGray500
+            Image("Profile_img")
+                .resizable()
+                .scaledToFill()
         }
     }
 }

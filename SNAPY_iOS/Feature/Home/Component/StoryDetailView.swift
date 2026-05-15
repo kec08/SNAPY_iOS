@@ -295,11 +295,15 @@ struct StoryDetailView: View {
         if name.isImageURL, let url = URL(string: name) {
             KFImage(url)
                 .resizable()
-                .placeholder { Color.customGray500 }
+                .placeholder { Image("Profile_img").resizable().scaledToFill() }
                 .fade(duration: 0.2)
                 .scaledToFill()
-        } else {
+        } else if !name.isEmpty {
             Image(name)
+                .resizable()
+                .scaledToFill()
+        } else {
+            Image("Profile_img")
                 .resizable()
                 .scaledToFill()
         }
