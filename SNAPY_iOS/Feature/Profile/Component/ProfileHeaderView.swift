@@ -26,6 +26,7 @@ struct ProfileHeaderView: View {
             ZStack(alignment: .bottomLeading) {
                 // 배너
                 Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     showBannerViewer = true
                 } label: {
                     Color.clear
@@ -101,6 +102,7 @@ struct ProfileHeaderView: View {
                         }
                     }
                     .onLongPressGesture {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         showProfileViewer = true
                     }
 

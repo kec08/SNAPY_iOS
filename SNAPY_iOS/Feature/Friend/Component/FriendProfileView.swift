@@ -23,6 +23,9 @@ struct FriendProfileView: View {
     @State private var friendCount: Int = 0
     @State private var postCount: Int = 0
     @State private var streakCount: Int = 0
+    @State private var maxStreak: Int = 0
+    @State private var showFriendList = false
+    @State private var showStreakSheet = false
     @State private var isLoading = true
     @State private var mutualFriendsText: String?
     @State private var contactText: String?
@@ -68,7 +71,7 @@ struct FriendProfileView: View {
                     }
 
                     // MARK: 배너
-                    Button { showBannerViewer = true } label: {
+                    Button { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showBannerViewer = true } label: {
                         Color.clear
                             .frame(maxWidth: .infinity)
                             .frame(height: 200)
@@ -135,6 +138,7 @@ struct FriendProfileView: View {
                                 }
                             }
                             .onLongPressGesture {
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                 showProfileViewer = true
                             }
 
@@ -147,18 +151,23 @@ struct FriendProfileView: View {
 
                                 HStack(spacing: 65) {
                                     statItem(value: postCount, label: "게시물")
-                                    statItem(value: friendCount, label: "친구")
 
-                                    VStack(spacing: 6) {
-                                        Image("Strick_fire")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(height: 26)
-                                        Text("\(streakCount)")
-                                            .font(.system(size: 18, weight: .bold))
-                                            .foregroundColor(.textWhite)
+                                    Button { showFriendList = true } label: {
+                                        statItem(value: friendCount, label: "친구")
                                     }
-                                    .padding(.bottom, 8)
+
+                                    Button { showStreakSheet = true } label: {
+                                        VStack(spacing: 6) {
+                                            Image(streakCount >= 5 ? "Strick_sequence_fire" : "Strick_fire")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(height: 26)
+                                            Text("\(streakCount)")
+                                                .font(.system(size: 18, weight: .bold))
+                                                .foregroundColor(.textWhite)
+                                        }
+                                        .padding(.bottom, 8)
+                                    }
                                 }
                             }
                             .padding(.top, 10)
@@ -360,6 +369,8 @@ struct FriendProfileView: View {
                 profileImageUrl = profile.profileImageUrl
                 bannerImageUrl = profile.backgroundImageUrl
                 friendCount = profile.friendCount ?? 0
+                streakCount = profile.currentStreak ?? 0
+                maxStreak = profile.maxStreak ?? 0
             } catch {
                 print("[FriendProfile] 프로필 로드 실패: \(error)")
             }
@@ -435,6 +446,17 @@ struct FriendProfileView: View {
                 }
             )
             .presentationDetents([.fraction(0.35)])
+            .presentationDragIndicator(.visible)
+        }
+        .navigationDestination(isPresented: $showFriendList) {
+            FriendListView(handle: handle)
+        }
+        .sheet(isPresented: $showStreakSheet) {
+            StreakSheet(
+                currentStreak: streakCount,
+                maxStreak: maxStreak
+            )
+            .presentationDetents([.fraction(0.3)])
             .presentationDragIndicator(.visible)
         }
         .fullScreenCover(isPresented: $showBannerViewer) {
@@ -521,6 +543,8 @@ struct FriendProfileView: View {
             profileImageUrl = profile.profileImageUrl
             bannerImageUrl = profile.backgroundImageUrl
             friendCount = profile.friendCount ?? 0
+            streakCount = profile.currentStreak ?? 0
+            maxStreak = profile.maxStreak ?? 0
         } catch {
             print("[FriendProfile] 새로고침 프로필 실패: \(error)")
         }
