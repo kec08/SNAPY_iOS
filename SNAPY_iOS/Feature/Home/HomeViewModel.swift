@@ -302,6 +302,7 @@ final class HomeViewModel: ObservableObject {
             for id in old.storyIds {
                 seenStoryIds.insert(id)
             }
+            SeenStoryStore.markSeen(old.storyIds)
             stories[idx] = StoryItem(
                 storyId: old.storyId,
                 storyIds: old.storyIds,
@@ -313,6 +314,14 @@ final class HomeViewModel: ObservableObject {
                 createdAt: old.createdAt,
                 isSeen: true
             )
+
+            // 피드의 스토리 테두리도 갱신
+            let handle = old.username
+            for i in feedPosts.indices {
+                if feedPosts[i].handle == handle {
+                    feedPosts[i].isStorySeen = true
+                }
+            }
         }
     }
 
@@ -361,7 +370,7 @@ final class HomeViewModel: ObservableObject {
                 let matchedStory = stories.first(where: { $0.username == item.authorHandle })
                 let profileImg = profileImageMap[item.authorHandle] ?? matchedStory?.profileImage ?? ""
                 let hasStory = matchedStory != nil
-                let seen = matchedStory.map { seenStoryIds.contains($0.storyId) } ?? true
+                let seen = matchedStory.map { $0.storyIds.allSatisfy { SeenStoryStore.isSeen($0) } } ?? true
 
                 return HomeFeedPost(
                     albumId: item.albumId,
