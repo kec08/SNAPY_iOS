@@ -338,11 +338,10 @@ struct NotificationRow: View {
                         .clipShape(Circle())
                 }
             } else {
-                Image(systemName: notificationIcon)
-                    .font(.system(size: 18))
-                    .foregroundColor(.MainYellow)
+                Image("Profile_img")
+                    .resizable()
+                    .scaledToFill()
                     .frame(width: 44, height: 44)
-                    .background(Color(white: 0.2))
                     .clipShape(Circle())
             }
 

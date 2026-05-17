@@ -121,6 +121,29 @@ struct StoryItem: Identifiable {
     }
 }
 
+// MARK: - 스토리 Seen 상태 (전역)
+
+enum SeenStoryStore {
+    static var ids: Set<Int> {
+        get { Set((UserDefaults.standard.array(forKey: "seenStoryIds") as? [Int]) ?? []) }
+        set { UserDefaults.standard.set(Array(newValue), forKey: "seenStoryIds") }
+    }
+
+    static func isSeen(_ storyId: Int) -> Bool { ids.contains(storyId) }
+
+    static func markSeen(_ storyId: Int) {
+        var current = ids
+        current.insert(storyId)
+        ids = current
+    }
+
+    static func markSeen(_ storyIds: [Int]) {
+        var current = ids
+        storyIds.forEach { current.insert($0) }
+        ids = current
+    }
+}
+
 // MARK: - ViewModel
 
 @MainActor
@@ -134,10 +157,10 @@ final class HomeViewModel: ObservableObject {
     private var nextCursor: Int? = nil
     private(set) var hasMoreFeed: Bool = true
 
-    /// 이미 본 스토리 ID (로컬 관리 — 서버에 isSeen API가 없으므로)
+    /// 이미 본 스토리 ID (전역 SeenStoryStore 사용)
     private var seenStoryIds: Set<Int> {
-        get { Set((UserDefaults.standard.array(forKey: "seenStoryIds") as? [Int]) ?? []) }
-        set { UserDefaults.standard.set(Array(newValue), forKey: "seenStoryIds") }
+        get { SeenStoryStore.ids }
+        set { SeenStoryStore.ids = newValue }
     }
 
     init() {}

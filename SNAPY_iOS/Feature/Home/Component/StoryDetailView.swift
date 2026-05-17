@@ -86,8 +86,11 @@ struct StoryDetailView: View {
         .background(Color.black.opacity(1.0 - Double(max(dragY, 0)) / 400.0))
         .statusBarHidden()
         .onAppear {
+            guard !stories.isEmpty, initialIndex < stories.count else {
+                dismiss()
+                return
+            }
             currentUserIndex = initialIndex
-            // 새로 올린 사진부터 시작
             currentImageIndex = stories[initialIndex].unseenStartIndex
             startTimer()
             onStorySeen?(stories[initialIndex].storyId)
@@ -295,11 +298,15 @@ struct StoryDetailView: View {
         if name.isImageURL, let url = URL(string: name) {
             KFImage(url)
                 .resizable()
-                .placeholder { Color.customGray500 }
+                .placeholder { Image("Profile_img").resizable().scaledToFill() }
                 .fade(duration: 0.2)
                 .scaledToFill()
-        } else {
+        } else if !name.isEmpty {
             Image(name)
+                .resizable()
+                .scaledToFill()
+        } else {
+            Image("Profile_img")
                 .resizable()
                 .scaledToFill()
         }

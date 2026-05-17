@@ -17,6 +17,8 @@ struct ProfileHeaderView: View {
     @State private var showFriendList = false
     @State private var showStreakSheet = false
     @State private var shareImage: UIImage? = nil
+    @State private var myStory: StoryItem? = nil
+    @State private var showStory = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -24,6 +26,7 @@ struct ProfileHeaderView: View {
             ZStack(alignment: .bottomLeading) {
                 // 배너
                 Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     showBannerViewer = true
                 } label: {
                     Color.clear
@@ -54,11 +57,8 @@ struct ProfileHeaderView: View {
             VStack(alignment: .leading, spacing: 16) {
                 
                 HStack(alignment: .center) {
-                    // 프로필 이미지
-                    Button {
-                        showProfileViewer = true
-                    } label: {
-                        Group {
+                    // 프로필 이미지 (탭→스토리, 꾹→프로필 확대)
+                    Group {
                             if let profileImage = viewModel.profileImage {
                                 Image(uiImage: profileImage)
                                     .resizable()
@@ -75,9 +75,37 @@ struct ProfileHeaderView: View {
                         }
                         .frame(width: 96, height: 96)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.backgroundBlack, lineWidth: 3))
+                        .padding(5)
+                        .overlay(
+                            Group {
+                                if let story = myStory {
+                                    Circle()
+                                        .stroke(
+                                            story.storyIds.allSatisfy({ SeenStoryStore.isSeen($0) })
+                                                ? AnyShapeStyle(Color.customGray500)
+                                                : AnyShapeStyle(
+                                                    LinearGradient(
+                                                        colors: [Color(hex: "FFC83D"), Color(hex: "FF9F1C")],
+                                                        startPoint: .topLeading,
+                                                        endPoint: .bottomTrailing
+                                                    )
+                                                ),
+                                            lineWidth: 2.5
+                                        )
+                                }
+                            }
+                        )
+                    .onTapGesture {
+                        if let story = myStory {
+                            showStory = true
+                            SeenStoryStore.markSeen(story.storyIds)
+                        }
                     }
-                    
+                    .onLongPressGesture {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        showProfileViewer = true
+                    }
+
                     Spacer()
                         .frame(width: 30)
                     
@@ -171,6 +199,18 @@ struct ProfileHeaderView: View {
                 isCircle: true
             )
         }
+        // 스토리 보기
+        .fullScreenCover(isPresented: $showStory) {
+            if let story = myStory {
+                StoryDetailView(
+                    stories: [story],
+                    initialIndex: 0
+                )
+            }
+        }
+        .task {
+            await loadMyStory()
+        }
         .navigationDestination(isPresented: $showFriendList) {
             FriendListView(handle: viewModel.handle)
         }
@@ -190,6 +230,56 @@ struct ProfileHeaderView: View {
                 let text = "SNAPY 프로필: @\(viewModel.handle)\n\nSNAPY에서 당신의 일상을 공유해보세요!"
                 ShareSheetView(items: [image, text])
             }
+        }
+    }
+
+    private func loadMyStory() async {
+        do {
+            let list = try await StoryService.shared.fetchStories()
+            let myHandle = viewModel.handle
+            // 내 스토리만 필터
+            let myStories = list.filter { $0.handle == myHandle }
+            guard !myStories.isEmpty else {
+                myStory = nil
+                return
+            }
+
+            // 상세 조회 + 합치기
+            var allPhotos: [StoryPhotoSet] = []
+            var latestStory = myStories[0]
+            for story in myStories.sorted(by: { $0.storyId < $1.storyId }) {
+                do {
+                    let detail = try await StoryService.shared.fetchDetail(storyId: story.storyId)
+                    let photos = detail.photos.map { photo -> StoryPhotoSet in
+                        var p = photo
+                        p.ownerStoryId = story.storyId
+                        return p
+                    }
+                    allPhotos.append(contentsOf: photos)
+                    if story.storyId > latestStory.storyId { latestStory = story }
+                } catch {
+                    print("[ProfileHeader] 스토리 상세 실패: \(error)")
+                }
+            }
+
+            guard !allPhotos.isEmpty else {
+                myStory = nil
+                return
+            }
+
+            myStory = StoryItem(
+                storyId: latestStory.storyId,
+                profileImage: latestStory.profileImageUrl ?? "",
+                bannerImage: latestStory.thumbnailUrl ?? "",
+                displayName: viewModel.username,
+                username: myHandle,
+                photos: allPhotos,
+                createdAt: latestStory.createdAt,
+                isSeen: true
+            )
+        } catch {
+            print("[ProfileHeader] 스토리 로드 실패: \(error)")
+            myStory = nil
         }
     }
 

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct OAuthPhoneView: View {
     var onNext: () -> Void
+    var onBack: (() -> Void)? = nil
     @State private var phone = ""
     @State private var code = ""
     @State private var codeSent = false
@@ -20,6 +21,25 @@ struct OAuthPhoneView: View {
             Color.backgroundBlack.ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
+                // 뒤로가기
+                if let onBack {
+                    HStack {
+                        Button {
+                            TokenStorage.clear()
+                            onBack()
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.textWhite)
+                                .frame(width: 40, height: 40)
+                                .background(.ultraThinMaterial, in: Circle())
+                        }
+                        Spacer()
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 20)
+                }
+
                 // 헤더
                 HStack(spacing: 12) {
                     Image("Login_Logo")
@@ -31,7 +51,7 @@ struct OAuthPhoneView: View {
                         .scaledToFit()
                         .frame(width: 130, height: 28)
                 }
-                .padding(.top, 34)
+                .padding(.top, onBack != nil ? 16 : 34)
                 .padding(.horizontal, 24)
 
                 Text("서비스 이용을 위해\n휴대폰 번호를 등록해주세요")

@@ -246,9 +246,9 @@ struct FeedCardView: View {
     }
 
     private var defaultProfileImage: some View {
-        Image(systemName: "person.circle.fill")
+        Image("Profile_img")
             .resizable()
-            .foregroundColor(.customGray300)
+            .scaledToFill()
     }
 
     // MARK: - 사진 (back 배경 + front 드래그 PIP)

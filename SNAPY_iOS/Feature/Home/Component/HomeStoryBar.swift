@@ -11,6 +11,7 @@ import Kingfisher
 private struct StoryPresentation: Identifiable {
     let id = UUID()
     let index: Int
+    let stories: [StoryItem]
 }
 
 struct HomeStoryBar: View {
@@ -28,11 +29,13 @@ struct HomeStoryBar: View {
     }
 
     var body: some View {
+        let currentSorted = sortedStories
+
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 13) {
-                ForEach(Array(sortedStories.enumerated()), id: \.element.id) { index, story in
+                ForEach(Array(currentSorted.enumerated()), id: \.element.id) { index, story in
                     Button {
-                        storyPresentation = StoryPresentation(index: index)
+                        storyPresentation = StoryPresentation(index: index, stories: currentSorted)
                     } label: {
                         storyCard(story: story)
                     }
@@ -43,7 +46,7 @@ struct HomeStoryBar: View {
         }
         .fullScreenCover(item: $storyPresentation) { presentation in
             StoryDetailView(
-                stories: sortedStories,
+                stories: presentation.stories,
                 initialIndex: presentation.index,
                 onStorySeen: onStorySeen
             )
@@ -116,7 +119,9 @@ struct HomeStoryBar: View {
                 .resizable()
                 .scaledToFill()
         } else {
-            Color.customGray500
+            Image("Profile_img")
+                .resizable()
+                .scaledToFill()
         }
     }
 }
