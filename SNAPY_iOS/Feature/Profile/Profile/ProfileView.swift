@@ -108,6 +108,9 @@ struct ProfileView: View {
             .task {
                 await viewModel.loadProfile()
             }
+            .onReceive(NotificationCenter.default.publisher(for: .didPublishAlbum)) { _ in
+                Task { await viewModel.loadFeed() }
+            }
             .sheet(isPresented: Binding(
                 get: { shareImage != nil },
                 set: { if !$0 { shareImage = nil } }

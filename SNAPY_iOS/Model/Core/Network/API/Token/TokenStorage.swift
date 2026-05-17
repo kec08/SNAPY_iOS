@@ -63,6 +63,8 @@ extension Notification.Name {
     static let openCamera = Notification.Name("openCamera")
     /// 알림에서 프로필 탭 이동 요청
     static let switchToProfileTab = Notification.Name("switchToProfileTab")
+    /// 앨범 게시 완료 → 프로필 피드 갱신
+    static let didPublishAlbum = Notification.Name("didPublishAlbum")
 }
 
 // JWT payload 디코딩용
