@@ -129,18 +129,40 @@ enum SeenStoryStore {
         set { UserDefaults.standard.set(Array(newValue), forKey: "seenStoryIds") }
     }
 
+    /// 읽은 시간 (storyId → timestamp)
+    private static var seenTimes: [Int: TimeInterval] {
+        get { (UserDefaults.standard.dictionary(forKey: "seenStoryTimes") as? [String: TimeInterval])?.reduce(into: [:]) { $0[Int($1.key) ?? 0] = $1.value } ?? [:] }
+        set { UserDefaults.standard.set(newValue.reduce(into: [String: TimeInterval]()) { $0["\($1.key)"] = $1.value }, forKey: "seenStoryTimes") }
+    }
+
     static func isSeen(_ storyId: Int) -> Bool { ids.contains(storyId) }
+
+    /// 읽은 시간 반환 (없으면 0)
+    static func seenTime(_ storyId: Int) -> TimeInterval {
+        seenTimes[storyId] ?? 0
+    }
 
     static func markSeen(_ storyId: Int) {
         var current = ids
         current.insert(storyId)
         ids = current
+        var times = seenTimes
+        if times[storyId] == nil {
+            times[storyId] = Date().timeIntervalSince1970
+        }
+        seenTimes = times
     }
 
     static func markSeen(_ storyIds: [Int]) {
         var current = ids
-        storyIds.forEach { current.insert($0) }
+        var times = seenTimes
+        let now = Date().timeIntervalSince1970
+        storyIds.forEach {
+            current.insert($0)
+            if times[$0] == nil { times[$0] = now }
+        }
         ids = current
+        seenTimes = times
     }
 }
 
@@ -222,9 +244,13 @@ final class HomeViewModel: ObservableObject {
             for (_, userStories) in grouped {
                 let sorted = userStories.sorted { $0.storyId > $1.storyId }
                 let latest = sorted[0]
-                // 과거→최신 순서로 사진 정렬
+                // 과거→최신 순서로 사진 정렬 (createdAt 기준)
                 let chronological = userStories.sorted { $0.storyId < $1.storyId }
-                let allPhotos = chronological.flatMap { $0.photos }
+                let allPhotos = chronological.flatMap { $0.photos }.sorted {
+                    let d0 = Self.parseStoryDate($0.createdAt) ?? .distantPast
+                    let d1 = Self.parseStoryDate($1.createdAt) ?? .distantPast
+                    return d0 < d1  // 과거 → 최신
+                }
                 let allIds = sorted.map { $0.storyId }
                 let allSeen = sorted.allSatisfy { $0.isSeen }
 
@@ -256,7 +282,11 @@ final class HomeViewModel: ObservableObject {
                 ))
             }
 
-            stories = merged.sorted { $0.storyId > $1.storyId }
+            stories = merged.sorted {
+                let date0 = Self.parseStoryDate($0.createdAt) ?? .distantPast
+                let date1 = Self.parseStoryDate($1.createdAt) ?? .distantPast
+                return date0 > date1
+            }
             print("[HomeViewModel] 스토리 \(stories.count)개 로드 완료 (합친 후)")
         } catch {
             print("[HomeViewModel] 스토리 목록 로드 실패: \(error)")
@@ -272,6 +302,7 @@ final class HomeViewModel: ObservableObject {
             for id in old.storyIds {
                 seenStoryIds.insert(id)
             }
+            SeenStoryStore.markSeen(old.storyIds)
             stories[idx] = StoryItem(
                 storyId: old.storyId,
                 storyIds: old.storyIds,
@@ -283,6 +314,14 @@ final class HomeViewModel: ObservableObject {
                 createdAt: old.createdAt,
                 isSeen: true
             )
+
+            // 피드의 스토리 테두리도 갱신
+            let handle = old.username
+            for i in feedPosts.indices {
+                if feedPosts[i].handle == handle {
+                    feedPosts[i].isStorySeen = true
+                }
+            }
         }
     }
 
@@ -331,7 +370,7 @@ final class HomeViewModel: ObservableObject {
                 let matchedStory = stories.first(where: { $0.username == item.authorHandle })
                 let profileImg = profileImageMap[item.authorHandle] ?? matchedStory?.profileImage ?? ""
                 let hasStory = matchedStory != nil
-                let seen = matchedStory.map { seenStoryIds.contains($0.storyId) } ?? true
+                let seen = matchedStory.map { $0.storyIds.allSatisfy { SeenStoryStore.isSeen($0) } } ?? true
 
                 return HomeFeedPost(
                     albumId: item.albumId,
@@ -362,12 +401,41 @@ final class HomeViewModel: ObservableObject {
         }
     }
 
-    /// "2026-04-28" → "4월 28일"
+    /// "2026-04-28" → 오늘이면 "방금 전"/"3시간 전", 아니면 "4월 28일"
+    private static func parseStoryDate(_ dateStr: String?) -> Date? {
+        guard let dateStr else { return nil }
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let d = iso.date(from: dateStr) { return d }
+        iso.formatOptions = [.withInternetDateTime]
+        if let d = iso.date(from: dateStr) { return d }
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.timeZone = TimeZone(identifier: "Asia/Seoul")
+        for fmt in ["yyyy-MM-dd'T'HH:mm:ss.SSSSSS", "yyyy-MM-dd'T'HH:mm:ss"] {
+            df.dateFormat = fmt
+            if let d = df.date(from: dateStr) { return d }
+        }
+        return nil
+    }
+
     private static func formatAlbumDate(_ dateString: String) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = Locale(identifier: "ko_KR")
+        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
         guard let date = formatter.date(from: dateString) else { return dateString }
+
+        let cal = Calendar.current
+        if cal.isDateInToday(date) {
+            let seconds = Int(-date.timeIntervalSinceNow)
+            if seconds < 60 { return "방금 전" }
+            if seconds < 3600 { return "\(seconds / 60)분 전" }
+            let hours = seconds / 3600
+            if hours < 24 { return "\(hours)시간 전" }
+        }
+        if cal.isDateInYesterday(date) { return "어제" }
+
         let display = DateFormatter()
         display.dateFormat = "M월 d일"
         display.locale = Locale(identifier: "ko_KR")

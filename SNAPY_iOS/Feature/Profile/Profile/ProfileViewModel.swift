@@ -346,9 +346,28 @@ final class ProfileViewModel: ObservableObject {
         }
     }
 
-    /// "2026-04-20" → "2026.04.20"
+    /// "2026-04-20" → 오늘이면 "방금 전"/"3시간 전", 어제면 "어제", 그 외 "4월 20일"
     private static func formatAlbumDate(_ dateStr: String) -> String {
-        dateStr.replacingOccurrences(of: "-", with: ".")
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+        guard let date = formatter.date(from: dateStr) else { return dateStr }
+
+        let cal = Calendar.current
+        if cal.isDateInToday(date) {
+            let seconds = Int(-date.timeIntervalSinceNow)
+            if seconds < 60 { return "방금 전" }
+            if seconds < 3600 { return "\(seconds / 60)분 전" }
+            let hours = seconds / 3600
+            if hours < 24 { return "\(hours)시간 전" }
+        }
+        if cal.isDateInYesterday(date) { return "어제" }
+
+        let display = DateFormatter()
+        display.dateFormat = "M월 d일"
+        display.locale = Locale(identifier: "ko_KR")
+        return display.string(from: date)
     }
 
     // MARK: - 수정 모드

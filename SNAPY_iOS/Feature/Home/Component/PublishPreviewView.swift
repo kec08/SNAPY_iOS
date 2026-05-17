@@ -144,17 +144,20 @@ struct PublishPreviewView: View {
                 .scrollTargetBehavior(.viewAligned)
                 .frame(width: geo.size.width, height: cardHeight)
             }
+            .frame(height: UIScreen.main.bounds.width * 0.72 * 1.45)
 
             Spacer()
 
             // 이미 게시한 앨범이면 안내문구, 그 외엔 에러 메시지(있다면)
             if isAlreadyPublished {
-                Text("오늘은 이미 게시했어요!\n내일 다시 만나요 🐧")
+                Text("오늘은 이미 게시했어요!\n내일 다시 만나요")
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.customGray300)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 10)
+                    .padding(.top, 6)
+                    .padding(.bottom, 12)
                     .lineSpacing(4)
             } else if let errorMessage {
                 Text(errorMessage)
@@ -196,7 +199,7 @@ struct PublishPreviewView: View {
 
         // 이미 게시한 앨범이면 차단
         if photoStore.hasPublished(albumId: albumId) {
-            errorMessage = "오늘은 이미 게시했어요!\n내일 다시 만나요 🐧"
+            errorMessage = "오늘은 이미 게시했어요!\n내일 다시 만나요"
             return
         }
 
@@ -220,6 +223,7 @@ struct PublishPreviewView: View {
                 _ = try await AlbumService.shared.publish(albumId: albumId)
                 photoStore.markPublished(albumId: albumId)
                 homeViewModel.prependPublishedPost(photos: photosToPost)
+                NotificationCenter.default.post(name: .didPublishAlbum, object: nil)
                 isPublishing = false
                 dismiss()
             } catch let error as AlbumError {

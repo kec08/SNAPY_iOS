@@ -18,7 +18,11 @@ struct AlbumCalendarView: View {
 
     @State private var months: [Date] = []
 
-    private let calendar = Calendar.current
+    private var calendar: Calendar {
+        var cal = Calendar.current
+        cal.firstWeekday = 1  // 일요일 시작 고정
+        return cal
+    }
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 7)
     private let dayLabels = ["일", "월", "화", "수", "목", "금", "토"]
 
@@ -104,24 +108,27 @@ struct AlbumCalendarView: View {
                 .padding(.bottom, 12)
 
             LazyVGrid(columns: columns, spacing: 4) {
+                // 요일 헤더
                 ForEach(dayLabels, id: \.self) { day in
                     Text(day)
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.customGray300)
                         .frame(maxWidth: .infinity)
                 }
-            }
 
-            LazyVGrid(columns: columns, spacing: 4) {
+                // 1일 앞의 빈 칸
                 let firstWeekday = firstWeekdayOfMonth(month)
-                ForEach(0..<firstWeekday, id: \.self) { _ in
+                ForEach(0..<firstWeekday, id: \.self) { i in
                     Color.clear
                         .frame(width: 50, height: 70)
+                        .id("empty_\(year)_\(monthNum)_\(i)")
                 }
 
+                // 날짜 셀
                 let daysInMonth = numberOfDays(in: month)
                 ForEach(1...daysInMonth, id: \.self) { day in
                     dayCell(year: year, month: monthNum, day: day)
+                        .id("day_\(year)_\(monthNum)_\(day)")
                 }
             }
         }

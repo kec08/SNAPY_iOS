@@ -21,10 +21,22 @@ struct HomeStoryBar: View {
 
     private var sortedStories: [StoryItem] {
         stories.sorted {
-            if $0.isSeen != $1.isSeen {
-                return !$0.isSeen  // 안 본 스토리 먼저
+            let seen0 = $0.storyIds.allSatisfy { SeenStoryStore.isSeen($0) }
+            let seen1 = $1.storyIds.allSatisfy { SeenStoryStore.isSeen($0) }
+
+            // 1순위: 안 본 스토리(노란 테두리)가 앞
+            if seen0 != seen1 {
+                return !seen0
             }
-            return $0.storyId > $1.storyId  // 같은 그룹 내 최신순
+
+            // 2순위: 본 스토리는 읽은 순서 — 최근에 읽은 게 뒤로
+            if seen0 && seen1 {
+                let time0 = $0.storyIds.map { SeenStoryStore.seenTime($0) }.max() ?? 0
+                let time1 = $1.storyIds.map { SeenStoryStore.seenTime($0) }.max() ?? 0
+                return time0 < time1  // 최근에 읽은 게 뒤
+            }
+
+            return false
         }
     }
 
