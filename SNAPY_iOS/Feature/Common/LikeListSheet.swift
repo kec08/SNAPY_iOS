@@ -157,6 +157,7 @@ struct LikeListSheet: View {
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 10)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
