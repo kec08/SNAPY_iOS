@@ -20,10 +20,10 @@ struct LikeListSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             Text("좋아요")
-                .font(.system(size: 18, weight: .bold))
+                .font(.system(size: 16, weight: .bold))
                 .foregroundColor(.textWhite)
-                .padding(.top, 20)
-                .padding(.bottom, 16)
+                .padding(.top, 24)
+                .padding(.bottom, 14)
 
             if isLoading {
                 Spacer()
@@ -157,6 +157,7 @@ struct LikeListSheet: View {
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 10)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -178,6 +179,17 @@ struct LikeListSheet: View {
 
         likeUsers = likes.sorted { ($0.likedAt ?? "") > ($1.likedAt ?? "") }
         myFriends = Set(friends.map { $0.handle })
+
+        // 친구가 아닌 유저들의 요청 상태 확인
+        for user in likeUsers {
+            if user.handle != myHandle && !myFriends.contains(user.handle) {
+                if let status = try? await FriendService.shared.getRequestStatus(handle: user.handle),
+                   status == .pending {
+                    requestedHandles.insert(user.handle)
+                }
+            }
+        }
+
         isLoading = false
     }
 }

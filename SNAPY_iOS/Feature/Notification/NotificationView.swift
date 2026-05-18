@@ -247,10 +247,11 @@ struct NotificationView: View {
             loadAndShowUserStory(handle: handle)
 
         case .feedLike, .feedComment:
-            // 좋아요/댓글 달린 내 앨범으로 이동
-            guard let albumId = notification.referenceId else { return }
+            // 좋아요/댓글 달린 내 앨범으로 이동 (referenceType이 albumId)
+            guard let albumIdStr = notification.referenceType,
+                  let albumId = Int(albumIdStr) else { return }
             loadAndShowFeed(
-                albumId: Int(albumId),
+                albumId: albumId,
                 handle: UserDefaults.standard.string(forKey: "myHandle") ?? "",
                 name: "나",
                 profileUrl: nil
@@ -258,10 +259,14 @@ struct NotificationView: View {
 
         case .albumPublished:
             // 발행된 앨범으로 이동
-            guard let albumId = notification.referenceId,
-                  let handle = notification.senderHandle else { return }
+            let albumId: Int? = {
+                if let refType = notification.referenceType, let id = Int(refType) { return id }
+                if let refId = notification.referenceId { return Int(refId) }
+                return nil
+            }()
+            guard let albumId, let handle = notification.senderHandle else { return }
             loadAndShowFeed(
-                albumId: Int(albumId),
+                albumId: albumId,
                 handle: handle,
                 name: notification.senderUsername ?? "",
                 profileUrl: notification.senderProfileImageUrl

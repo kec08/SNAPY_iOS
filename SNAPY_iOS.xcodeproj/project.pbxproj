@@ -72,6 +72,7 @@
 		BC8A28D72FB4168A00073FDE /* ShareCardViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28D62FB4168800073FDE /* ShareCardViews.swift */; };
 		BC8A28DD2FB4C2D900073FDE /* UIImage+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A28DC2FB4C2D800073FDE /* UIImage+Extensions.swift */; };
 		BC8A2B7B2FBAE5FF00073FDE /* LikeListSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2B7A2FBAE5FE00073FDE /* LikeListSheet.swift */; };
+		BC8A2B7D2FBB2A6200073FDE /* FriendProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2B7C2FBB2A5E00073FDE /* FriendProfileViewModel.swift */; };
 		BCA00F012FA0000100FEED01 /* FeedDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F002FA0000100FEED01 /* FeedDTO.swift */; };
 		BCA00F032FA0000100FEED02 /* FeedAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F022FA0000100FEED02 /* FeedAPI.swift */; };
 		BCA00F052FA0000100FEED03 /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F042FA0000100FEED03 /* FeedService.swift */; };
@@ -223,6 +224,7 @@
 		BC8A28D62FB4168800073FDE /* ShareCardViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardViews.swift; sourceTree = "<group>"; };
 		BC8A28DC2FB4C2D800073FDE /* UIImage+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extensions.swift"; sourceTree = "<group>"; };
 		BC8A2B7A2FBAE5FE00073FDE /* LikeListSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikeListSheet.swift; sourceTree = "<group>"; };
+		BC8A2B7C2FBB2A5E00073FDE /* FriendProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendProfileViewModel.swift; sourceTree = "<group>"; };
 		BCA00F002FA0000100FEED01 /* FeedDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDTO.swift; sourceTree = "<group>"; };
 		BCA00F022FA0000100FEED02 /* FeedAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedAPI.swift; sourceTree = "<group>"; };
 		BCA00F042FA0000100FEED03 /* FeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedService.swift; sourceTree = "<group>"; };
@@ -539,6 +541,15 @@
 			path = Push;
 			sourceTree = "<group>";
 		};
+		BC8A2B7E2FBB2AAF00073FDE /* FriendProfile */ = {
+			isa = PBXGroup;
+			children = (
+				BC8A2B7C2FBB2A5E00073FDE /* FriendProfileViewModel.swift */,
+				BC706E5A2F8D396F0093C0B8 /* FriendProfileView.swift */,
+			);
+			path = FriendProfile;
+			sourceTree = "<group>";
+		};
 		BCA00F062FA0000100FEED04 /* Feed */ = {
 			isa = PBXGroup;
 			children = (
@@ -810,8 +821,8 @@
 		BCD816CF2F6A415A0028AE50 /* Component */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A2B7E2FBB2AAF00073FDE /* FriendProfile */,
 				BC706E5C2F8D48280093C0B8 /* FriendRelationSheet.swift */,
-				BC706E5A2F8D396F0093C0B8 /* FriendProfileView.swift */,
 				BC706E582F8D09940093C0B8 /* FriendRequestView.swift */,
 				BC706E562F8D096E0093C0B8 /* FriendRequestRow.swift */,
 				BC706E522F8CFD700093C0B8 /* FriendHeaderView.swift */,
@@ -1109,6 +1120,7 @@
 				BCD815A72F692FB50028AE50 /* LoginViewModel.swift in Sources */,
 				BC6473732F86AD4900FA15EA /* AlbumDTO.swift in Sources */,
 				BC6676C92F833C2B009CBF8D /* ImageCarousel.swift in Sources */,
+				BC8A2B7D2FBB2A6200073FDE /* FriendProfileViewModel.swift in Sources */,
 				BC6676C02F7D7086009CBF8D /* AlbumMissCard.swift in Sources */,
 				BCBCF4442FAC3E180058E92D /* NotificationAPI.swift in Sources */,
 				BC6674E52F72F50D009CBF8D /* AlbumHeader.swift in Sources */,
