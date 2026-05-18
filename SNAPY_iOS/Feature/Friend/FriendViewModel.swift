@@ -16,6 +16,8 @@ struct SuggestedFriend: Identifiable {
     let handle: String
     let profileImageUrl: String?
     var mutualText: String?
+    var mutualCount: Int = 0
+    var isContact: Bool = false
     var requestState: FriendRequestState = .none
 }
 
@@ -54,25 +56,31 @@ final class FriendViewModel: ObservableObject {
 
             // 먼저 연락처 정보만으로 리스트 표시
             suggestedFriends = filtered.map { friend in
-                SuggestedFriend(
+                let isContact = contactHandles.contains(friend.handle)
+                return SuggestedFriend(
                     name: friend.username,
                     handle: friend.handle,
                     profileImageUrl: friend.profileImageUrl,
-                    mutualText: contactHandles.contains(friend.handle) ? "연락처에 있음" : nil
+                    mutualText: isContact ? "연락처에 있음" : nil,
+                    isContact: isContact
                 )
             }
+            sortFriends()
             isLoading = false
 
-            // 겹친구 정보를 비동기로 업데이트 (우선순위: 겹친구 > 연락처 > nil)
+            // 겹친구 정보를 비동기로 업데이트
             for friend in filtered {
                 Task { [weak self] in
                     guard let self else { return }
                     let mutuals = (try? await FriendService.shared.getMutualFriends(handle: friend.handle)) ?? []
-                    if !mutuals.isEmpty, let text = self.buildMutualText(mutuals: mutuals, isContact: false) {
-                        print("[FriendVM] 겹친구 \(friend.handle): \(mutuals.count)명")
+                    if !mutuals.isEmpty {
                         if let idx = self.suggestedFriends.firstIndex(where: { $0.handle == friend.handle }) {
-                            self.suggestedFriends[idx].mutualText = text
+                            self.suggestedFriends[idx].mutualCount = mutuals.count
+                            if let text = self.buildMutualText(mutuals: mutuals, isContact: false) {
+                                self.suggestedFriends[idx].mutualText = text
+                            }
                         }
+                        self.sortFriends()
                     }
                 }
             }
@@ -82,6 +90,22 @@ final class FriendViewModel: ObservableObject {
             errorMessage = error.localizedDescription
         }
         isLoading = false
+    }
+
+    /// 정렬: 겹친구 많은 순 > 연락처 > 나머지(등록순 유지)
+    private func sortFriends() {
+        suggestedFriends.sort { a, b in
+            // 1순위: 겹친구 많은 순
+            if a.mutualCount != b.mutualCount {
+                return a.mutualCount > b.mutualCount
+            }
+            // 2순위: 연락처에 있는 사람 먼저
+            if a.isContact != b.isContact {
+                return a.isContact
+            }
+            // 3순위: 기존 순서 유지 (등록순)
+            return false
+        }
     }
 
     /// 우선순위: 겹친구 텍스트 > 연락처에 있음 > nil
