@@ -153,7 +153,7 @@ struct FeedCardView: View {
                         onLike?()
                     } label: {
                         Image(systemName: isLiked ? "heart.fill" : "heart")
-                            .font(.system(size: 26))
+                            .font(.system(size: 24))
                             .foregroundColor(isLiked ? .red : .white)
                     }
                     Button {

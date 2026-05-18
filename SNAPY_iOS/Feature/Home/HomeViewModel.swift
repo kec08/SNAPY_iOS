@@ -377,7 +377,7 @@ final class HomeViewModel: ObservableObject {
                     profileImage: profileImg,
                     displayName: item.authorName,
                     handle: item.authorHandle,
-                    date: Self.formatAlbumDate(item.albumDate),
+                    date: Self.formatPublishedAt(item.publishedAt) ?? Self.formatAlbumDate(item.albumDate),
                     photos: item.photos.map { photo in
                         FeedPhoto(
                             frontImageUrl: photo.frontImageUrl,
@@ -417,6 +417,27 @@ final class HomeViewModel: ObservableObject {
             if let d = df.date(from: dateStr) { return d }
         }
         return nil
+    }
+
+    /// publishedAt(ISO8601) → "방금 전" / "3시간 전" / "어제" / "5월 17일"
+    private static func formatPublishedAt(_ dateString: String?) -> String? {
+        guard let dateString, !dateString.isEmpty else { return nil }
+        guard let date = parseStoryDate(dateString) else { return nil }
+
+        let seconds = Int(Date().timeIntervalSince(date))
+        if seconds < 0 { return "방금 전" }
+        if seconds < 60 { return "방금 전" }
+        if seconds < 3600 { return "\(seconds / 60)분 전" }
+        let hours = seconds / 3600
+        if hours < 24 { return "\(hours)시간 전" }
+
+        let cal = Calendar.current
+        if cal.isDateInYesterday(date) { return "어제" }
+
+        let display = DateFormatter()
+        display.dateFormat = "M월 d일"
+        display.locale = Locale(identifier: "ko_KR")
+        return display.string(from: date)
     }
 
     private static func formatAlbumDate(_ dateString: String) -> String {

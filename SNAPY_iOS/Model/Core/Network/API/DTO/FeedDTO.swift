@@ -20,6 +20,7 @@ struct CursorResponse<T: Codable>: Codable {
 struct FeedItemData: Codable, Identifiable {
     let albumId: Int
     let albumDate: String
+    let publishedAt: String?
     let photoCount: Int
     let likeCount: Int?
     let liked: Bool?
