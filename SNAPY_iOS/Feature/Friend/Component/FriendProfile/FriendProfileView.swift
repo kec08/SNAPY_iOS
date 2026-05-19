@@ -111,54 +111,57 @@ struct FriendProfileView: View {
                     }
                 }
         )
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+        .safeAreaInset(edge: .top) {
+            HStack {
                 Button { dismiss() } label: {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.textWhite)
-                        .frame(width: 36, height: 36)
-                        .background(.ultraThinMaterial, in: Circle())
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(Color.primary)
                 }
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    Task {
-                        if let image = await viewModel.shareProfile() {
-                            shareImage = image
-                        }
-                    }
-                } label: {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.textWhite)
-                        .frame(width: 36, height: 36)
-                        .background(.ultraThinMaterial, in: Circle())
-                }
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button(role: .destructive) {
-                        showReportSheet = true
-                    } label: {
-                        Label("신고", systemImage: "exclamationmark.triangle")
-                    }
+                .buttonStyle(.glass)
 
-                    Button(role: .destructive) {
-                        showBlockAlert = true
+                Spacer()
+
+                HStack(spacing: 8) {
+                    Button {
+                        Task {
+                            if let image = await viewModel.shareProfile() {
+                                shareImage = image
+                            }
+                        }
                     } label: {
-                        Label("차단", systemImage: "nosign")
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(Color.primary)
                     }
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.textWhite)
-                        .frame(width: 36, height: 36)
-                        .background(.ultraThinMaterial, in: Circle())
+                    .buttonStyle(.glass)
+
+                    Menu {
+                        Button(role: .destructive) {
+                            showReportSheet = true
+                        } label: {
+                            Label("신고", systemImage: "exclamationmark.triangle")
+                        }
+
+                        Button(role: .destructive) {
+                            showBlockAlert = true
+                        } label: {
+                            Label("차단", systemImage: "nosign")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(Color.primary)
+                            .padding(.vertical, 10)
+                    }
+                    .buttonStyle(.glass)
                 }
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 4)
+            .background(Color.clear)
         }
-        .toolbarBackground(Color.clear, for: .navigationBar)
+        .toolbar(.hidden, for: .navigationBar)
         .task {
             guestbookVM.handle = viewModel.handle
             async let loadTask: () = viewModel.loadAll()
