@@ -317,20 +317,29 @@ struct FeedCardView: View {
 
     private func shareFeed() {
         let photo = photos.indices.contains(currentPage) ? photos[currentPage] : photos.first
-        let profileUrl: String? = {
-            switch profileImageSource {
-            case .url(let url): return url
-            default: return nil
-            }
-        }()
 
         Task {
-            async let profileImg = downloadImage(from: profileUrl)
+            let profileImg: UIImage? = {
+                switch profileImageSource {
+                case .uiImage(let image): return image
+                default: return nil
+                }
+            }()
+
+            let profileUrl: String? = {
+                switch profileImageSource {
+                case .url(let url): return url
+                default: return nil
+                }
+            }()
+
+            let downloadedProfileImg = await downloadImage(from: profileUrl)
+            let finalProfileImg = profileImg ?? downloadedProfileImg
             async let backImg = downloadImage(from: photo?.backImageUrl)
             async let frontImg = downloadImage(from: photo?.frontImageUrl)
 
             let card = FeedShareCard(
-                profileImage: await profileImg,
+                profileImage: finalProfileImg,
                 displayName: displayName,
                 handle: handle,
                 date: date,
