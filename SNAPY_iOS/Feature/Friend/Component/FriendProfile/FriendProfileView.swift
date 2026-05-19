@@ -21,6 +21,9 @@ struct FriendProfileView: View {
     @State private var showStory = false
     @State private var isRefreshing = false
     @State private var shareImage: UIImage? = nil
+    @State private var showReportSheet = false
+    @State private var showBlockAlert = false
+    @State private var showMoreMenu = false
 
     init(name: String, handle: String, profileImageUrl: String?,
          bannerImageUrl: String? = nil, isFriend: Bool = false,
@@ -133,6 +136,27 @@ struct FriendProfileView: View {
                         .background(.ultraThinMaterial, in: Circle())
                 }
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(role: .destructive) {
+                        showReportSheet = true
+                    } label: {
+                        Label("신고", systemImage: "exclamationmark.triangle")
+                    }
+
+                    Button(role: .destructive) {
+                        showBlockAlert = true
+                    } label: {
+                        Label("차단", systemImage: "nosign")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.textWhite)
+                        .frame(width: 36, height: 36)
+                        .background(.ultraThinMaterial, in: Circle())
+                }
+            }
         }
         .toolbarBackground(Color.clear, for: .navigationBar)
         .task {
@@ -179,6 +203,19 @@ struct FriendProfileView: View {
                 let text = "SNAPY 프로필: @\(viewModel.handle)\n\nSNAPY에서 당신의 일상을 공유해보세요!"
                 ShareSheetView(items: [image, text])
             }
+        }
+        .sheet(isPresented: $showReportSheet) {
+            ReportView(reportType: .USER, targetId: viewModel.handle)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.hidden)
+        }
+        .alert("이 사용자를 차단하시겠습니까?", isPresented: $showBlockAlert) {
+            Button("취소", role: .cancel) { }
+            Button("차단", role: .destructive) {
+                print("[Block] 차단: \(viewModel.handle)")
+            }
+        } message: {
+            Text("차단하면 상대방의 게시물, 스토리가 표시되지 않으며 상대방도 내 콘텐츠를 볼 수 없습니다.")
         }
         .fullScreenCover(isPresented: $showStory) {
             if let story = viewModel.friendStory {

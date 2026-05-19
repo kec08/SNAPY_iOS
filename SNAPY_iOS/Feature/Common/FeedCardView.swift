@@ -38,6 +38,7 @@ struct FeedCardView: View {
     @State private var shareImage: UIImage? = nil
     @State private var heartTapCount: Int = 0
     @State private var showLikeList = false
+    @State private var showReport = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -187,6 +188,14 @@ struct FeedCardView: View {
                 }
 
                 Spacer()
+
+                Button {
+                    showReport = true
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 20))
+                        .foregroundColor(.customGray300)
+                }
             }
             .padding(.horizontal, 14)
             .padding(.bottom, 20)
@@ -197,6 +206,11 @@ struct FeedCardView: View {
         }
         .sheet(isPresented: $showComments) {
             CommentSheetView(albumId: albumId, commentCount: $commentCount)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.hidden)
+        }
+        .sheet(isPresented: $showReport) {
+            ReportView(reportType: .FEED, targetId: "\(albumId)")
                 .presentationDetents([.large])
                 .presentationDragIndicator(.hidden)
         }
