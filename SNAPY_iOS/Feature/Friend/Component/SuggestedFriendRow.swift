@@ -13,6 +13,7 @@ struct SuggestedFriendRow: View {
     let onAdd: () -> Void
     let onCancel: () -> Void
     let onHide: () -> Void
+    var onStatusCheck: ((String) -> Void)? = nil
 
     @State private var showProfile = false
 
@@ -90,6 +91,11 @@ struct SuggestedFriendRow: View {
         .padding(.vertical, 10)
         .contentShape(Rectangle())
         .onTapGesture { showProfile = true }
+        .onChange(of: showProfile) { _, isShowing in
+            if !isShowing {
+                onStatusCheck?(friend.handle)
+            }
+        }
         .navigationDestination(isPresented: $showProfile) {
             FriendProfileView(
                 name: friend.name,

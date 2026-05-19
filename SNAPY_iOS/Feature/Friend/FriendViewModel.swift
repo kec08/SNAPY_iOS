@@ -152,24 +152,44 @@ final class FriendViewModel: ObservableObject {
                 guard !Task.isCancelled else { return }
                 let contactHandles = Set(UserDefaults.standard.stringArray(forKey: "contactSyncedHandles") ?? [])
 
-                // 먼저 연락처 정보만으로 결과 표시
-                searchResults = results.map { user in
-                    SuggestedFriend(
+                let myHandle = UserDefaults.standard.string(forKey: "myHandle") ?? ""
+
+                // 먼저 연락처 정보만으로 결과 표시 (자기 자신 제외)
+                searchResults = results.filter { $0.handle != myHandle }.map { user in
+                    let isContact = contactHandles.contains(user.handle)
+                    return SuggestedFriend(
                         name: user.username,
                         handle: user.handle,
                         profileImageUrl: user.profileImageUrl,
-                        mutualText: contactHandles.contains(user.handle) ? "연락처에 있음" : nil
+                        mutualText: isContact ? "연락처에 있음" : nil,
+                        isContact: isContact
                     )
                 }
 
-                // 겹친구 정보 비동기 업데이트
-                for user in results {
+                // 친구 요청 상태 + 겹친구 정보 비동기 업데이트
+                for user in results where user.handle != myHandle {
                     Task { [weak self] in
                         guard let self, !Task.isCancelled else { return }
+
+                        // 친구 요청 상태 확인
+                        if let status = try? await FriendService.shared.getRequestStatus(handle: user.handle) {
+                            if let idx = self.searchResults.firstIndex(where: { $0.handle == user.handle }) {
+                                if status == .pending {
+                                    self.searchResults[idx].requestState = .requested
+                                } else if status == .friend {
+                                    // 이미 친구면 목록에서 제거
+                                    self.searchResults.removeAll { $0.handle == user.handle }
+                                    return
+                                }
+                            }
+                        }
+
+                        // 겹친구 정보
                         let mutuals = (try? await FriendService.shared.getMutualFriends(handle: user.handle)) ?? []
                         if !mutuals.isEmpty, let text = self.buildMutualText(mutuals: mutuals, isContact: false) {
                             if let idx = self.searchResults.firstIndex(where: { $0.handle == user.handle }) {
                                 self.searchResults[idx].mutualText = text
+                                self.searchResults[idx].mutualCount = mutuals.count
                             }
                         }
                     }
@@ -185,19 +205,29 @@ final class FriendViewModel: ObservableObject {
 
     /// 추가 버튼 → 서버에 친구 요청 보내기
     func sendRequest(to friend: SuggestedFriend) {
-        guard let idx = suggestedFriends.firstIndex(where: { $0.id == friend.id }) else { return }
-        suggestedFriends[idx].requestState = .requested
+        // 추천 친구 목록
+        if let idx = suggestedFriends.firstIndex(where: { $0.id == friend.id }) {
+            suggestedFriends[idx].requestState = .requested
+        }
+        // 검색 결과
+        if let idx = searchResults.firstIndex(where: { $0.id == friend.id }) {
+            searchResults[idx].requestState = .requested
+        }
 
         Task {
             do {
                 try await FriendService.shared.sendRequest(handle: friend.handle)
             } catch {
-                // 409 (이미 요청/이미 친구) 면 요청됨 상태 유지
                 let msg = error.localizedDescription
                 if msg.contains("409") || msg.contains("이미") || msg.contains("conflict") {
                     // 이미 보낸 상태이므로 .requested 유지
                 } else {
-                    suggestedFriends[idx].requestState = .none
+                    if let idx = suggestedFriends.firstIndex(where: { $0.id == friend.id }) {
+                        suggestedFriends[idx].requestState = .none
+                    }
+                    if let idx = searchResults.firstIndex(where: { $0.id == friend.id }) {
+                        searchResults[idx].requestState = .none
+                    }
                     errorMessage = msg
                 }
             }
@@ -206,16 +236,50 @@ final class FriendViewModel: ObservableObject {
 
     /// 취소 버튼 → 서버에 요청 취소
     func cancelRequest(to friend: SuggestedFriend) {
-        guard let idx = suggestedFriends.firstIndex(where: { $0.id == friend.id }) else { return }
-        suggestedFriends[idx].requestState = .none
+        // 추천 친구 목록에서 찾기
+        if let idx = suggestedFriends.firstIndex(where: { $0.id == friend.id }) {
+            suggestedFriends[idx].requestState = .none
+        }
+        // 검색 결과에서도 찾기
+        if let idx = searchResults.firstIndex(where: { $0.id == friend.id }) {
+            searchResults[idx].requestState = .none
+        }
 
         Task {
             do {
                 try await FriendService.shared.cancelRequest(handle: friend.handle)
             } catch {
                 // 실패 시 원복
-                suggestedFriends[idx].requestState = .requested
+                if let idx = suggestedFriends.firstIndex(where: { $0.id == friend.id }) {
+                    suggestedFriends[idx].requestState = .requested
+                }
+                if let idx = searchResults.firstIndex(where: { $0.id == friend.id }) {
+                    searchResults[idx].requestState = .requested
+                }
                 errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    /// 프로필에서 돌아왔을 때 요청 상태 갱신
+    func refreshRequestStatus(handle: String) {
+        Task {
+            guard let status = try? await FriendService.shared.getRequestStatus(handle: handle) else { return }
+            let newState: FriendRequestState = status == .pending ? .requested : .none
+
+            if let idx = suggestedFriends.firstIndex(where: { $0.handle == handle }) {
+                if status == .friend {
+                    suggestedFriends.remove(at: idx)
+                } else {
+                    suggestedFriends[idx].requestState = newState
+                }
+            }
+            if let idx = searchResults.firstIndex(where: { $0.handle == handle }) {
+                if status == .friend {
+                    searchResults.remove(at: idx)
+                } else {
+                    searchResults[idx].requestState = newState
+                }
             }
         }
     }
