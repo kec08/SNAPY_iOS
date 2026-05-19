@@ -16,7 +16,7 @@ enum FriendAPI {
     case processRequest(requestId: Int, action: FriendRequestAction) // PATCH  /api/friend-requests/{requestId}
     case getRequestStatus(handle: String)                   // GET    /api/friend-requests/{handle}
     case removeFriend(handle: String)                       // DELETE /api/friends/{handle}
-    case getRecommendedFriends                              // GET    /api/users/me/recommended-friends
+    case getRecommendedFriends                              // GET    /api/friends/recommendations
     case searchUsers(query: String)                         // GET    /api/users?q=
     case syncContacts(phones: [String])                     // POST   /api/contacts/sync
     case getFriends(handle: String)                         // GET    /api/users/{handle}/friends
@@ -40,7 +40,7 @@ extension FriendAPI: TargetType {
         case .removeFriend(let handle):
             return "/api/friends/\(handle)"
         case .getRecommendedFriends:
-            return "/api/users/me/recommended-friends"
+            return "/api/friends/recommendations"
         case .searchUsers:
             return "/api/users"
         case .syncContacts:

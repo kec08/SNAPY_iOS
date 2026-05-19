@@ -95,7 +95,8 @@ struct FriendView: View {
                                         friend: friend,
                                         onAdd: { viewModel.sendRequest(to: friend) },
                                         onCancel: { viewModel.cancelRequest(to: friend) },
-                                        onHide: { withAnimation(.easeInOut(duration: 0.3)) { viewModel.hideFriend(friend) } }
+                                        onHide: { withAnimation(.easeInOut(duration: 0.3)) { viewModel.hideFriend(friend) } },
+                                        onStatusCheck: { handle in viewModel.refreshRequestStatus(handle: handle) }
                                     )
                                     .transition(.opacity.combined(with: .offset(x: -50)))
                                 }

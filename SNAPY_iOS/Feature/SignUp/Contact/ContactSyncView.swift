@@ -7,112 +7,245 @@
 
 import SwiftUI
 import Contacts
+import Kingfisher
 
 struct ContactSyncView: View {
     var onDoneTap: () -> Void
 
-    @State private var showContactPicker = false
+    @State private var synced = false
+    @State private var isSyncing = false
+    @State private var contactUsers: [ContactUserData] = []
+    @State private var requestedHandles: Set<String> = []
 
     var body: some View {
         ZStack {
             Color.backgroundBlack.ignoresSafeArea()
 
-            VStack(alignment: .leading, spacing: 0) {
-                // MARK: 헤더
-                HStack(spacing: 12) {
-                    Image("Login_Logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 40, height: 40)
-
-                    Text("SNAPY")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.textWhite)
-                }
-                .padding(.top, 60)
-                .padding(.horizontal, 24)
-
-                // 설명 텍스트
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("친구들에게 SNAPY를 공유하고")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(Color.textWhite)
-                    Text("함께 더 재미있게 즐겨보세요!")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(Color.textWhite)
-                }
-                .padding(.top, 16)
-                .padding(.horizontal, 24)
-
-                Spacer()
-
-                // MARK: 연락처 아이콘
-                HStack {
-                    Spacer()
-                    Image("Contact_icon")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 180, height: 180)
-                    Spacer()
-                }
-
-                Spacer()
-
-                // MARK: 연락처 연동 버튼
-                SnapyButton(title: "연락처 연동하기") {
-                    requestContactAccess()
-                }
-                .padding(.bottom, 10)
-
-                // 건너뛰기
-                Button {
-                    onDoneTap()
-                } label: {
-                    Text("건너뛰기")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.customGray300)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 16)
-                }
-                .padding(.bottom, 24)
+            if !synced {
+                syncPromptView
+            } else {
+                contactResultView
             }
         }
     }
 
-    /// 연락처 접근 권한 요청 → iOS 시스템 UI 가 자동으로 뜸
-    /// 허용 후 연락처를 읽어서 서버 동기화
+    // MARK: - 동기화 전 화면
+
+    private var syncPromptView: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 12) {
+                Image("Login_Logo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 40, height: 40)
+
+                Text("SNAPY")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.textWhite)
+            }
+            .padding(.top, 60)
+            .padding(.horizontal, 24)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("친구들에게 SNAPY를 공유하고")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(Color.textWhite)
+                Text("함께 더 재미있게 즐겨보세요!")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(Color.textWhite)
+            }
+            .padding(.top, 16)
+            .padding(.horizontal, 24)
+
+            Spacer()
+
+            HStack {
+                Spacer()
+                Image("Contact_icon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 180, height: 180)
+                Spacer()
+            }
+
+            Spacer()
+
+            SnapyButton(title: isSyncing ? "동기화 중..." : "연락처 연동하기", isEnabled: !isSyncing) {
+                requestContactAccess()
+            }
+            .padding(.bottom, 10)
+
+            Button {
+                onDoneTap()
+            } label: {
+                Text("건너뛰기")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.customGray300)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 16)
+            }
+            .padding(.bottom, 24)
+        }
+    }
+
+    // MARK: - 동기화 후 친구 추가 화면
+
+    private var contactResultView: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 12) {
+                Image("Login_Logo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 40, height: 40)
+
+                Text("SNAPY")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.textWhite)
+            }
+            .padding(.top, 60)
+            .padding(.horizontal, 24)
+
+            if contactUsers.isEmpty {
+                VStack(spacing: 12) {
+                    Spacer()
+                    Text("연락처에 SNAPY를 사용하는\n친구가 아직 없어요")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.customGray300)
+                        .multilineTextAlignment(.center)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
+            } else {
+                Text("내 연락처에서 SNAPY를 사용하는 친구")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.textWhite)
+                    .padding(.top, 24)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 12)
+
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(contactUsers) { user in
+                            contactRow(user: user)
+                        }
+                    }
+                }
+            }
+
+            Spacer()
+
+            SnapyButton(title: "시작하기") {
+                onDoneTap()
+            }
+            .padding(.bottom, 24)
+        }
+    }
+
+    // MARK: - 연락처 유저 Row
+
+    @ViewBuilder
+    private func contactRow(user: ContactUserData) -> some View {
+        let isRequested = requestedHandles.contains(user.handle)
+
+        HStack(spacing: 12) {
+            if let url = user.profileImageUrl, let imgUrl = URL(string: url) {
+                KFImage(imgUrl)
+                    .resizable()
+                    .placeholder { Image("Profile_img").resizable().scaledToFill() }
+                    .scaledToFill()
+                    .frame(width: 44, height: 44)
+                    .clipShape(Circle())
+            } else {
+                Image("Profile_img")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 44, height: 44)
+                    .clipShape(Circle())
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(user.username)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.textWhite)
+                Text("@\(user.handle)")
+                    .font(.system(size: 13))
+                    .foregroundColor(.customGray300)
+            }
+
+            Spacer()
+
+            if isRequested {
+                Text("요청됨")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.customGray300)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.customDarkGray)
+                    .cornerRadius(6)
+            } else {
+                Button {
+                    requestedHandles.insert(user.handle)
+                    Task {
+                        do {
+                            try await FriendService.shared.sendRequest(handle: user.handle)
+                        } catch {
+                            // 409 등 이미 요청됨
+                            requestedHandles.insert(user.handle)
+                        }
+                    }
+                } label: {
+                    Text("친구 추가")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.backgroundBlack)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.MainYellow)
+                        .cornerRadius(6)
+                }
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 10)
+    }
+
+    // MARK: - 연락처 동기화
+
     private func requestContactAccess() {
+        isSyncing = true
         let store = CNContactStore()
         store.requestAccess(for: .contacts) { granted, error in
             if granted {
-                let phones = self.fetchAllPhoneNumbers(store: store)
+                let phones = fetchAllPhoneNumbers(store: store)
                 print("[ContactSync] 연락처 \(phones.count)개 번호 가져옴")
                 Task {
                     do {
                         let contacts = try await FriendService.shared.syncContacts(phones: phones)
-                        // 가입된 유저 handle 목록 저장 (친구 화면에서 "연락처에 있는 친구" 표시용)
                         let handles = contacts.map { $0.handle }
                         await MainActor.run {
                             UserDefaults.standard.set(handles, forKey: "contactSyncedHandles")
+                            contactUsers = contacts
+                            isSyncing = false
+                            synced = true
                         }
                         print("[ContactSync] 가입된 유저 \(contacts.count)명 동기화 완료")
                     } catch {
                         print("[ContactSync] 동기화 실패: \(error)")
-                    }
-                    await MainActor.run {
-                        onDoneTap()
+                        await MainActor.run {
+                            isSyncing = false
+                            synced = true
+                        }
                     }
                 }
             } else {
                 print("[ContactSync] 연락처 권한 거부")
                 Task { @MainActor in
+                    isSyncing = false
                     onDoneTap()
                 }
             }
         }
     }
 
-    /// 연락처에서 전화번호 전체 추출
     private func fetchAllPhoneNumbers(store: CNContactStore) -> [String] {
         let keys = [CNContactPhoneNumbersKey] as [CNKeyDescriptor]
         let request = CNContactFetchRequest(keysToFetch: keys)

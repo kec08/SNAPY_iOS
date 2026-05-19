@@ -50,22 +50,36 @@ struct FriendRequestView: View {
                         .padding(.top, 16)
                     }
 
-                    // MARK: 추천 친구 섹션 (요청이 없을 때만)
-                    if requests.isEmpty {
-                        Text("추천 친구")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.textWhite)
-                            .padding(.horizontal, 22)
-                            .padding(.top, 24)
-                            .padding(.bottom, 12)
+                    // MARK: 추천 친구 섹션
+                    Divider()
+                        .background(Color.customGray500)
+                        .padding(.top, 20)
 
+                    Text("추천 친구")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.textWhite)
+                        .padding(.horizontal, 22)
+                        .padding(.top, 20)
+                        .padding(.bottom, 12)
+
+                    if viewModel.isLoading {
+                        FriendSkeletonList()
+                    } else if viewModel.filteredFriends.isEmpty {
+                        Text("추천 친구가 없습니다")
+                            .font(.system(size: 14))
+                            .foregroundColor(.customGray300)
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 20)
+                    } else {
                         ForEach(viewModel.filteredFriends) { friend in
                             SuggestedFriendRow(
                                 friend: friend,
                                 onAdd: { viewModel.sendRequest(to: friend) },
                                 onCancel: { viewModel.cancelRequest(to: friend) },
-                                onHide: { viewModel.hideFriend(friend) }
+                                onHide: { withAnimation(.easeInOut(duration: 0.3)) { viewModel.hideFriend(friend) } },
+                                onStatusCheck: { handle in viewModel.refreshRequestStatus(handle: handle) }
                             )
+                            .transition(.opacity.combined(with: .offset(x: -50)))
                         }
                     }
                 }
@@ -101,6 +115,7 @@ struct FriendRequestView: View {
         .toolbarColorScheme(.dark, for: .navigationBar)
         .task {
             await loadRequests()
+            await viewModel.loadRecommendedFriends()
         }
     }
 
