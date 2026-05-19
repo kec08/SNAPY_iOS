@@ -20,7 +20,14 @@ struct HomeStoryBar: View {
     @State private var storyPresentation: StoryPresentation?
 
     private var sortedStories: [StoryItem] {
-        stories.sorted {
+        let myHandle = UserDefaults.standard.string(forKey: "myHandle") ?? ""
+
+        return stories.sorted {
+            // 0순위: 내 스토리 항상 맨 앞
+            let isMe0 = $0.username == myHandle
+            let isMe1 = $1.username == myHandle
+            if isMe0 != isMe1 { return isMe0 }
+
             let seen0 = $0.storyIds.allSatisfy { SeenStoryStore.isSeen($0) }
             let seen1 = $1.storyIds.allSatisfy { SeenStoryStore.isSeen($0) }
 
@@ -33,7 +40,7 @@ struct HomeStoryBar: View {
             if seen0 && seen1 {
                 let time0 = $0.storyIds.map { SeenStoryStore.seenTime($0) }.max() ?? 0
                 let time1 = $1.storyIds.map { SeenStoryStore.seenTime($0) }.max() ?? 0
-                return time0 < time1  // 최근에 읽은 게 뒤
+                return time0 < time1
             }
 
             return false
