@@ -38,6 +38,8 @@ struct StoryDetailView: View {
     @State private var navProfileHandle: String? = nil
     @State private var likeUsers: [StoryLikeUserData] = []
     @State private var showLikeSheet = false
+    @State private var showReport = false
+    @State private var showStoryMenu = false
 
     // 좌우 드래그
     @State private var dragX: CGFloat = 0.0
@@ -60,6 +62,7 @@ struct StoryDetailView: View {
 
     var body: some View {
         NavigationStack {
+        ZStack {
         GeometryReader { geo in
             ZStack {
                 Color.black.ignoresSafeArea()
@@ -87,6 +90,44 @@ struct StoryDetailView: View {
         }
         .background(Color.black.opacity(1.0 - Double(max(dragY, 0)) / 400.0))
         .statusBarHidden()
+
+        // MARK: 신고 메뉴 오버레이 (제스처 영역 바깥)
+        if showStoryMenu {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    showStoryMenu = false
+                    isPaused = false
+                }
+
+            VStack(spacing: 0) {
+                Button {
+                    showStoryMenu = false
+                    showReport = true
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 14))
+                        Text("신고")
+                            .font(.system(size: 15, weight: .medium))
+                    }
+                    .foregroundColor(.red)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 12)
+                }
+            }
+            .frame(width: 100)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(.ultraThinMaterial)
+            )
+            .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 6)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            .padding(.top, 70)
+            .padding(.trailing, 20)
+            .transition(.opacity.combined(with: .scale(scale: 0.85, anchor: .topTrailing)))
+        }
+        } // ZStack
         .onAppear {
             guard !stories.isEmpty, initialIndex < stories.count else {
                 dismiss()
@@ -124,6 +165,15 @@ struct StoryDetailView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
+        .fullScreenCover(isPresented: $showReport) {
+            isPaused = false
+            startTimer()
+        } content: {
+            ReportView(
+                reportType: .STORY,
+                targetId: "\(currentStory.storyId)"
+            )
+        }
         .sheet(isPresented: $showLikeSheet, onDismiss: { isPaused = false }) {
             StoryLikeListSheet(likeUsers: likeUsers)
                 .presentationDetents([.medium, .large])
@@ -255,6 +305,25 @@ struct StoryDetailView: View {
                             }
 
                             Spacer()
+
+                            // 신고 버튼 (다른 사람 스토리만)
+                            if story.username != (UserDefaults.standard.string(forKey: "myHandle") ?? "") {
+                                Button {
+                                    isPaused = true
+                                    showStoryMenu = true
+                                } label: {
+                                    Image(systemName: "ellipsis")
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .frame(width: 36, height: 36)
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+                                .highPriorityGesture(TapGesture().onEnded {
+                                    isPaused = true
+                                    showStoryMenu = true
+                                })
+                            }
                         }
                         .padding(.horizontal, 14)
                     }

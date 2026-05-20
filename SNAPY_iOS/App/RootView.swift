@@ -11,6 +11,7 @@ enum AppScreen {
     case splash
     case login
     case snapyLogin
+    case termsAgreement
     case registerEmail
     case registerPassword
     case registerPhone
@@ -44,7 +45,7 @@ struct RootView: View {
                         screen = .snapyLogin
                     },
                     onRegisterTap: {
-                        screen = .registerEmail
+                        screen = .termsAgreement
                     },
                     onGoogleLoginSuccess: {
                         screen = .oauthPhone
@@ -77,15 +78,25 @@ struct RootView: View {
                         }
                     },
                     onRegisterTap: {
-                        screen = .registerEmail
+                        screen = .termsAgreement
                     }
                 )
                 .environmentObject(authVM)
 
+            case .termsAgreement:
+                TermsAgreementView(
+                    onBack: {
+                        screen = .login
+                    },
+                    onAgreed: {
+                        screen = .registerEmail
+                    }
+                )
+
             case .registerEmail:
                 EmailView(
                     onBack: {
-                        screen = .login
+                        screen = .termsAgreement
                     },
                     onSignNextTap: {
                         screen = .registerPassword
