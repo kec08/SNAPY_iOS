@@ -76,7 +76,11 @@ struct FriendProfileView: View {
                     profileInfoSection
 
                     // MARK: 하단 콘텐츠
-                    if viewModel.currentFriend {
+                    if viewModel.isBlocked {
+                        blockedSection
+                    } else if viewModel.isBlockedBy {
+                        blockedBySection
+                    } else if viewModel.currentFriend {
                         friendContentSection
                     } else if !viewModel.isLoading {
                         nonFriendSection
@@ -210,7 +214,7 @@ struct FriendProfileView: View {
         .alert("이 사용자를 차단하시겠습니까?", isPresented: $showBlockAlert) {
             Button("취소", role: .cancel) { }
             Button("차단", role: .destructive) {
-                print("[Block] 차단: \(viewModel.handle)")
+                Task { await viewModel.blockUser() }
             }
         } message: {
             Text("차단하면 상대방의 게시물, 스토리가 표시되지 않으며 상대방도 내 콘텐츠를 볼 수 없습니다.")
@@ -229,7 +233,7 @@ struct FriendProfileView: View {
         VStack(alignment: .leading, spacing: 16) {
             profileImageAndStats
 
-            if !viewModel.currentFriend {
+            if !viewModel.currentFriend && !viewModel.isBlocked && !viewModel.isBlockedBy {
                 if let mutual = viewModel.mutualFriendsText {
                     Text(mutual)
                         .font(.system(size: 13, weight: .medium))
@@ -246,11 +250,14 @@ struct FriendProfileView: View {
                 .foregroundColor(.textWhite)
 
             if viewModel.isLoading {
-                // 로딩 중에는 버튼 숨김
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.customDarkGray)
                     .frame(maxWidth: .infinity)
                     .frame(height: 36)
+            } else if viewModel.isBlocked {
+                unblockButton
+            } else if viewModel.isBlockedBy {
+                EmptyView()
             } else if viewModel.currentFriend {
                 friendButton
             } else {
@@ -403,6 +410,68 @@ struct FriendProfileView: View {
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.textWhite)
             Text("지금 친구 추가하고 친구의 SNAP을 만나보세요.")
+                .font(.system(size: 14))
+                .foregroundColor(.customGray300)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 80)
+    }
+
+    // MARK: - 차단 해제 버튼
+
+    private var unblockButton: some View {
+        Button {
+            Task { await viewModel.unblockUser() }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "arrow.uturn.backward")
+                    .font(.system(size: 13))
+                Text("차단 해제")
+                    .font(.system(size: 14, weight: .semibold))
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 40)
+            .foregroundColor(.backgroundBlack)
+            .background(Color.mainYellow)
+            .cornerRadius(8)
+        }
+    }
+
+    // MARK: - 내가 차단한 유저 화면
+
+    @ViewBuilder
+    private var blockedSection: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "nosign")
+                .font(.system(size: 40))
+                .foregroundColor(.customGray300)
+                .padding(.bottom, 8)
+            Text("차단된 프로필입니다")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundColor(.textWhite)
+            Text("차단을 해제하면 다시 이 사용자의\n콘텐츠를 볼 수 있습니다.")
+                .font(.system(size: 14))
+                .foregroundColor(.customGray300)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 80)
+    }
+
+    // MARK: - 상대가 나를 차단한 화면
+
+    @ViewBuilder
+    private var blockedBySection: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "eye.slash")
+                .font(.system(size: 40))
+                .foregroundColor(.customGray300)
+                .padding(.bottom, 8)
+            Text("이 프로필을 볼 수 없습니다")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundColor(.textWhite)
+            Text("이 사용자의 콘텐츠를 확인할 수 없습니다.")
                 .font(.system(size: 14))
                 .foregroundColor(.customGray300)
         }

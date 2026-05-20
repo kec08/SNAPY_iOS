@@ -26,6 +26,8 @@ final class FriendProfileViewModel: ObservableObject {
     @Published var currentFriend: Bool
     @Published var isFriendRequested = false
     @Published var isLoading = true
+    @Published var isBlocked = false
+    @Published var isBlockedBy = false
 
     @Published var feedPosts: [FeedPost] = []
     @Published var friendStory: StoryItem? = nil
@@ -45,14 +47,18 @@ final class FriendProfileViewModel: ObservableObject {
     // MARK: - 전체 로드
 
     func loadAll() async {
-        await loadFriendStory()
         await loadProfile()
+
+        // 차단 관계이면 추가 데이터 로드 불필요
+        if isBlocked || isBlockedBy {
+            isLoading = false
+            return
+        }
+
+        await loadFriendStory()
         await checkFriendStatus()
         await loadFriendCount()
         await loadMutualFriends()
-
-        let guestbookHandle = handle
-        _ = guestbookHandle // guestbook은 View의 guestbookVM에서 처리
 
         if currentFriend {
             await loadFriendFeed()
@@ -72,6 +78,8 @@ final class FriendProfileViewModel: ObservableObject {
             friendCount = profile.friendCount ?? 0
             streakCount = profile.currentStreak ?? 0
             maxStreak = profile.maxStreak ?? 0
+            isBlocked = profile.blocked ?? false
+            isBlockedBy = profile.blockedBy ?? false
         } catch {
             print("[FriendProfileVM] 프로필 로드 실패: \(error)")
         }
@@ -272,6 +280,33 @@ final class FriendProfileViewModel: ObservableObject {
             cancelFriendRequest()
         } else {
             sendFriendRequest()
+        }
+    }
+
+    // MARK: - 차단
+
+    func blockUser() async {
+        do {
+            try await BlockService.shared.blockUser(handle: handle)
+            isBlocked = true
+            currentFriend = false
+            isFriendRequested = false
+            feedPosts = []
+            friendStory = nil
+        } catch {
+            print("[FriendProfileVM] 차단 실패: \(error)")
+        }
+    }
+
+    func unblockUser() async {
+        do {
+            try await BlockService.shared.unblockUser(handle: handle)
+            isBlocked = false
+            // 차단 해제 후 비친구 상태로 전환
+            await loadProfile()
+            await checkFriendStatus()
+        } catch {
+            print("[FriendProfileVM] 차단 해제 실패: \(error)")
         }
     }
 

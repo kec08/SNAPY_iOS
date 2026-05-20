@@ -76,6 +76,10 @@
 		BC8A2BFF2FBCBA0400073FDE /* ReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2BFE2FBCBA0100073FDE /* ReportView.swift */; };
 		BC8A2C012FBCBA2300073FDE /* TermsAgreementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2C002FBCBA1B00073FDE /* TermsAgreementView.swift */; };
 		BC8A2C032FBD325600073FDE /* TermsContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2C022FBD325500073FDE /* TermsContent.swift */; };
+		BC8A2C092FBDB1FF00073FDE /* BlockAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2C082FBDB1F100073FDE /* BlockAPI.swift */; };
+		BC8A2C0B2FBDB21C00073FDE /* BlockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2C0A2FBDB21700073FDE /* BlockService.swift */; };
+		BC8A2C0D2FBDB22F00073FDE /* BlockDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2C0C2FBDB22B00073FDE /* BlockDTO.swift */; };
+		BC8A2C0F2FBDFF2400073FDE /* BlockedUsersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2C0E2FBDFF2300073FDE /* BlockedUsersView.swift */; };
 		BCA00F012FA0000100FEED01 /* FeedDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F002FA0000100FEED01 /* FeedDTO.swift */; };
 		BCA00F032FA0000100FEED02 /* FeedAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F022FA0000100FEED02 /* FeedAPI.swift */; };
 		BCA00F052FA0000100FEED03 /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F042FA0000100FEED03 /* FeedService.swift */; };
@@ -231,6 +235,10 @@
 		BC8A2BFE2FBCBA0100073FDE /* ReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportView.swift; sourceTree = "<group>"; };
 		BC8A2C002FBCBA1B00073FDE /* TermsAgreementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsAgreementView.swift; sourceTree = "<group>"; };
 		BC8A2C022FBD325500073FDE /* TermsContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsContent.swift; sourceTree = "<group>"; };
+		BC8A2C082FBDB1F100073FDE /* BlockAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockAPI.swift; sourceTree = "<group>"; };
+		BC8A2C0A2FBDB21700073FDE /* BlockService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockService.swift; sourceTree = "<group>"; };
+		BC8A2C0C2FBDB22B00073FDE /* BlockDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockDTO.swift; sourceTree = "<group>"; };
+		BC8A2C0E2FBDFF2300073FDE /* BlockedUsersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedUsersView.swift; sourceTree = "<group>"; };
 		BCA00F002FA0000100FEED01 /* FeedDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDTO.swift; sourceTree = "<group>"; };
 		BCA00F022FA0000100FEED02 /* FeedAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedAPI.swift; sourceTree = "<group>"; };
 		BCA00F042FA0000100FEED03 /* FeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedService.swift; sourceTree = "<group>"; };
@@ -358,6 +366,7 @@
 		BC1DC2DA2F68CF730016A4CD /* DTO */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A2C0C2FBDB22B00073FDE /* BlockDTO.swift */,
 				BCBCF4352FAC3D5A0058E92D /* NotificationDTO.swift */,
 				BCA00F082FA2000100CMNT01 /* CommentDTO.swift */,
 				BCA00F002FA0000100FEED01 /* FeedDTO.swift */,
@@ -383,6 +392,7 @@
 		BC1DC2E12F68CF730016A4CD /* API */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A2C072FBDB1EB00073FDE /* Block */,
 				BC8A28D12FB3234700073FDE /* Push */,
 				BCBCF4422FAC3E010058E92D /* Notification */,
 				BCA00F0E2FA2000100CMNT04 /* Comment */,
@@ -401,6 +411,7 @@
 		BC1DC2E82F68CF730016A4CD /* Service */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A2C0A2FBDB21700073FDE /* BlockService.swift */,
 				BC8A28CF2FB3231200073FDE /* PushService.swift */,
 				BCBCF4452FAC3E370058E92D /* NotificationService.swift */,
 				BCA00F0C2FA2000100CMNT03 /* CommentService.swift */,
@@ -534,6 +545,7 @@
 		BC706F762F9528310093C0B8 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A2C0E2FBDFF2300073FDE /* BlockedUsersView.swift */,
 				BC706F712F95280A0093C0B8 /* SettingsViewModel.swift */,
 				BC706F6F2F9527F20093C0B8 /* SettingsView.swift */,
 			);
@@ -555,6 +567,14 @@
 				BC706E5A2F8D396F0093C0B8 /* FriendProfileView.swift */,
 			);
 			path = FriendProfile;
+			sourceTree = "<group>";
+		};
+		BC8A2C072FBDB1EB00073FDE /* Block */ = {
+			isa = PBXGroup;
+			children = (
+				BC8A2C082FBDB1F100073FDE /* BlockAPI.swift */,
+			);
+			path = Block;
 			sourceTree = "<group>";
 		};
 		BCA00F062FA0000100FEED04 /* Feed */ = {
@@ -1057,6 +1077,7 @@
 				BCBCF4462FAC3E380058E92D /* NotificationService.swift in Sources */,
 				BCCAD60C2F6B062F00ED71E0 /* PasswordView.swift in Sources */,
 				BCBCF4342FAC209C0058E92D /* GoogleLoginButton.swift in Sources */,
+				BC8A2C092FBDB1FF00073FDE /* BlockAPI.swift in Sources */,
 				BCAA007F2F9A381E00A6B597 /* GuestbookDTO.swift in Sources */,
 				BCD815AF2F69346D0028AE50 /* MainTabView.swift in Sources */,
 				BC706E5F2F8DC0E20093C0B8 /* FriendDTO.swift in Sources */,
@@ -1148,15 +1169,18 @@
 				BC6676BD2F7D6370009CBF8D /* DraggablePIP.swift in Sources */,
 				BCCAD6742F6B9F7500ED71E0 /* registerCompleteView.swift in Sources */,
 				BC8A28D72FB4168A00073FDE /* ShareCardViews.swift in Sources */,
+				BC8A2C0B2FBDB21C00073FDE /* BlockService.swift in Sources */,
 				BC706DFD2F87C1FA0093C0B8 /* AlbumCalendarView.swift in Sources */,
 				BC706F6C2F93E8E40093C0B8 /* StoryAPI.swift in Sources */,
 				BCAAFF0E2F98911100A6B597 /* CommentSheetView.swift in Sources */,
 				BCD8162B2F6936740028AE50 /* User.swift in Sources */,
 				BCCAD5FE2F6ABC3000ED71E0 /* SnapyTextField.swift in Sources */,
+				BC8A2C0D2FBDB22F00073FDE /* BlockDTO.swift in Sources */,
 				BC1DC2FC2F68CF730016A4CD /* Date+Extensions.swift in Sources */,
 				BCA00F072FA1000100CARD01 /* FeedCardView.swift in Sources */,
 				BC8A2C032FBD325600073FDE /* TermsContent.swift in Sources */,
 				BCA00F012FA0000100FEED01 /* FeedDTO.swift in Sources */,
+				BC8A2C0F2FBDFF2400073FDE /* BlockedUsersView.swift in Sources */,
 				BCA00F032FA0000100FEED02 /* FeedAPI.swift in Sources */,
 				BCA00F052FA0000100FEED03 /* FeedService.swift in Sources */,
 				BCA00F092FA2000100CMNT01 /* CommentDTO.swift in Sources */,

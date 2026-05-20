@@ -89,30 +89,57 @@ struct SettingsView: View {
                             .background(Color.customGray500)
                             .padding(.top, 24)
                             .padding(.horizontal, 20)
+
+                        // MARK: - 차단 관리
+                        sectionHeader("차단 관리")
+
+                        NavigationLink {
+                            BlockedUsersView()
+                        } label: {
+                            HStack {
+                                Text("차단된 사용자")
+                                    .font(.system(size: 17, weight: .bold))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.customGray300)
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 14)
+                        }
+                        // MARK: - 계정
+                        Divider()
+                            .background(Color.customGray500)
+                            .padding(.top, 24)
+                            .padding(.horizontal, 20)
+
+                        // 로그아웃
+                        Button {
+                            showLogoutAlert = true
+                        } label: {
+                            Text("로그아웃")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.actionRed)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 18)
+                        }
+
+                        // 회원탈퇴
+                        Button {
+                            showDeleteAlert = true
+                        } label: {
+                            Text("회원탈퇴")
+                                .font(.system(size: 14, weight: .regular))
+                                .foregroundColor(.customGray300)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 18)
+                        }
+                        .padding(.bottom, 80)
                     }
                 }
-
-                Spacer()
-
-                // 로그아웃
-                Button {
-                    showLogoutAlert = true
-                } label: {
-                    Text("로그아웃")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.actionRed)
-                }
-                .padding(.bottom, 50)
-
-                // 회원탈퇴
-                Button {
-                    showDeleteAlert = true
-                } label: {
-                    Text("회원탈퇴")
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundColor(.customGray300)
-                }
-                .padding(.bottom, 60)
             }
         }
         .navigationBarHidden(true)

@@ -17,6 +17,8 @@ struct ProfileData: Codable {
     let friendCount: Int?
     let currentStreak: Int?
     let maxStreak: Int?
+    let blocked: Bool?
+    let blockedBy: Bool?
 }
 
 typealias ProfileResponse = BaseResponse<ProfileData>
