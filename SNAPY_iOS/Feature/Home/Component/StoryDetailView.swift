@@ -128,6 +128,8 @@ struct StoryDetailView: View {
             .transition(.opacity.combined(with: .scale(scale: 0.85, anchor: .topTrailing)))
         }
         } // ZStack
+        .background(Color.black)
+        .persistentSystemOverlays(.hidden)
         .onAppear {
             guard !stories.isEmpty, initialIndex < stories.count else {
                 dismiss()
@@ -306,22 +308,49 @@ struct StoryDetailView: View {
 
                             Spacer()
 
-                            // 신고 버튼 (다른 사람 스토리만)
-                            if story.username != (UserDefaults.standard.string(forKey: "myHandle") ?? "") {
+                            HStack(spacing: 2) {
+                                // 신고 버튼 (다른 사람 스토리만)
+                                if story.username != (UserDefaults.standard.string(forKey: "myHandle") ?? "") {
+                                    Button {
+                                        isPaused = true
+                                        showStoryMenu = true
+                                    } label: {
+                                        Image(systemName: "ellipsis")
+                                            .font(.system(size: 18, weight: .bold))
+                                            .foregroundColor(.white)
+                                            .frame(width: 36, height: 36)
+                                            .contentShape(Rectangle())
+                                    }
+                                    .buttonStyle(.plain)
+                                    .highPriorityGesture(TapGesture().onEnded {
+                                        isPaused = true
+                                        showStoryMenu = true
+                                    })
+                                }
+
+                                // X 닫기 버튼
                                 Button {
-                                    isPaused = true
-                                    showStoryMenu = true
+                                    withAnimation(.easeOut(duration: 0.3)) {
+                                        dragY = 1000
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        dismiss()
+                                    }
                                 } label: {
-                                    Image(systemName: "ellipsis")
-                                        .font(.system(size: 16, weight: .bold))
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 20, weight: .medium))
                                         .foregroundColor(.white)
                                         .frame(width: 36, height: 36)
                                         .contentShape(Rectangle())
                                 }
                                 .buttonStyle(.plain)
                                 .highPriorityGesture(TapGesture().onEnded {
-                                    isPaused = true
-                                    showStoryMenu = true
+                                    withAnimation(.easeOut(duration: 0.3)) {
+                                        dragY = 1000
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        dismiss()
+                                    }
                                 })
                             }
                         }
