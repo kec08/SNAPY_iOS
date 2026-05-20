@@ -99,10 +99,16 @@ final class FriendProfileViewModel: ObservableObject {
                     isFriendRequested = true
                 } else if status == .friend {
                     currentFriend = true
+                    isFriendRequested = false
+                } else {
+                    isFriendRequested = false
                 }
             } catch {
+                isFriendRequested = false
                 print("[FriendProfileVM] 요청 상태 확인 실패: \(error)")
             }
+        } else {
+            isFriendRequested = false
         }
     }
 

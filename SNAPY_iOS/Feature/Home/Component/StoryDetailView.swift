@@ -402,7 +402,7 @@ struct StoryDetailView: View {
                     .frame(width: size.width, height: size.height)
             }
 
-            // PIP: front 이미지
+            // PIP: front 이미지 (고정)
             if let frontUrl = photo?.frontImageUrl, let url = URL(string: frontUrl) {
                 KFImage(url)
                     .resizable()
