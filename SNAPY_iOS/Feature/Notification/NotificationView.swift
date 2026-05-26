@@ -40,7 +40,7 @@ struct NotificationView: View {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(Color.textWhite)
-                            .frame(width: 46, height: 46)
+                            .frame(width: 44, height: 44)
                             .background(.ultraThinMaterial, in: Circle())
                     }
 
@@ -56,9 +56,9 @@ struct NotificationView: View {
                         showFriendRequest = true
                     } label: {
                         Image(systemName: "person.badge.plus")
-                            .font(.system(size: 18, weight: .semibold))
+                            .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(Color.textWhite)
-                            .frame(width: 46, height: 46)
+                            .frame(width: 44, height: 44)
                             .background(.ultraThinMaterial, in: Circle())
                     }
                 }
