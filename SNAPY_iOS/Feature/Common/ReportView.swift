@@ -225,7 +225,7 @@ struct ReportView: View {
                 if reportType == .USER {
                     try await ReportService.shared.report(
                         targetType: reportType.serverKey,
-                        targetHandle: targetId,
+                        userHandle: targetId,
                         reason: reason.serverKey
                     )
                     print("[Report] 신고 접수 성공 - type: \(reportType.serverKey), handle: \(targetId), reason: \(reason.serverKey)")

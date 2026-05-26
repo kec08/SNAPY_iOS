@@ -20,6 +20,7 @@ enum AppScreen {
     case registerComplete
     case contactSync
     case onboarding
+    case oauthTerms       // 구글/애플 로그인 후 약관 동의
     case oauthInfo        // 구글 로그인 후 핸들/이름 설정
     case oauthProfile     // 구글 로그인 후 프로필/배너 이미지
     case oauthPhone       // 구글 로그인 후 전화번호 등록
@@ -48,14 +49,14 @@ struct RootView: View {
                         screen = .termsAgreement
                     },
                     onGoogleLoginSuccess: {
-                        screen = .oauthPhone
+                        screen = .oauthTerms
                     },
                     onGoogleLoginExistingUser: {
                         authVM.isOAuthLogin = false
                         screen = .main
                     },
                     onAppleLoginSuccess: {
-                        screen = .oauthPhone
+                        screen = .oauthTerms
                     },
                     onAppleLoginExistingUser: {
                         authVM.isOAuthLogin = false
@@ -181,6 +182,16 @@ struct RootView: View {
                 )
                 .environmentObject(signUpVM)
                 
+            case .oauthTerms:
+                TermsAgreementView(
+                    onBack: {
+                        screen = .login
+                    },
+                    onAgreed: {
+                        screen = .oauthPhone
+                    }
+                )
+
             case .oauthPhone:
                 OAuthPhoneView(onNext: {
                     screen = .oauthInfo

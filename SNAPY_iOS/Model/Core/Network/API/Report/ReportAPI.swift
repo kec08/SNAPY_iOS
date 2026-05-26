@@ -10,7 +10,7 @@ import Moya
 internal import Alamofire
 
 enum ReportAPI {
-    case create(targetType: String, targetId: Int64?, targetHandle: String?, reason: String)  // POST /api/reports
+    case create(targetType: String, targetId: Int64?, userHandle: String?, reason: String)  // POST /api/reports
 }
 
 extension ReportAPI: TargetType {
@@ -35,13 +35,13 @@ extension ReportAPI: TargetType {
 
     var task: Moya.Task {
         switch self {
-        case .create(let targetType, let targetId, let targetHandle, let reason):
+        case .create(let targetType, let targetId, let userHandle, let reason):
             var body: [String: Any] = [
                 "targetType": targetType,
                 "reason": reason
             ]
             if let targetId { body["targetId"] = targetId }
-            if let targetHandle { body["targetHandle"] = targetHandle }
+            if let userHandle { body["userHandle"] = userHandle }
             return .requestParameters(parameters: body, encoding: JSONEncoding.default)
         }
     }

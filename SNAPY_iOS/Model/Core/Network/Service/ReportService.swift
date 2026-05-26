@@ -16,11 +16,11 @@ final class ReportService {
 
     // MARK: - 신고 접수
 
-    func report(targetType: String, targetId: Int64? = nil, targetHandle: String? = nil, reason: String) async throws {
+    func report(targetType: String, targetId: Int64? = nil, userHandle: String? = nil, reason: String) async throws {
         let response = try await requestWithRefresh(.create(
             targetType: targetType,
             targetId: targetId,
-            targetHandle: targetHandle,
+            userHandle: userHandle,
             reason: reason
         ))
         print("[ReportService] statusCode: \(response.statusCode)")
