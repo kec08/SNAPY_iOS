@@ -85,6 +85,14 @@ struct SuggestedFriendRow: View {
                         .padding(.vertical, 8)
                         .background(Color.customDarkGray, in: RoundedRectangle(cornerRadius: 30))
                 }
+
+            case .friend:
+                Text("친구")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.customGray300)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 8)
+                    .background(Color.customDarkGray, in: RoundedRectangle(cornerRadius: 30))
             }
         }
         .padding(.horizontal, 22)

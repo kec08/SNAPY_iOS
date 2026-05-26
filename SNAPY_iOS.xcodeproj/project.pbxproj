@@ -80,6 +80,9 @@
 		BC8A2C0B2FBDB21C00073FDE /* BlockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2C0A2FBDB21700073FDE /* BlockService.swift */; };
 		BC8A2C0D2FBDB22F00073FDE /* BlockDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2C0C2FBDB22B00073FDE /* BlockDTO.swift */; };
 		BC8A2C0F2FBDFF2400073FDE /* BlockedUsersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2C0E2FBDFF2300073FDE /* BlockedUsersView.swift */; };
+		BC8A2CCC2FC5622C00073FDE /* ReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2CCB2FC5622B00073FDE /* ReportService.swift */; };
+		BC8A2CCE2FC5623D00073FDE /* ReportDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2CCD2FC5623C00073FDE /* ReportDTO.swift */; };
+		BC8A2CD12FC5627100073FDE /* ReportAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8A2CD02FC5626F00073FDE /* ReportAPI.swift */; };
 		BCA00F012FA0000100FEED01 /* FeedDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F002FA0000100FEED01 /* FeedDTO.swift */; };
 		BCA00F032FA0000100FEED02 /* FeedAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F022FA0000100FEED02 /* FeedAPI.swift */; };
 		BCA00F052FA0000100FEED03 /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA00F042FA0000100FEED03 /* FeedService.swift */; };
@@ -239,6 +242,9 @@
 		BC8A2C0A2FBDB21700073FDE /* BlockService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockService.swift; sourceTree = "<group>"; };
 		BC8A2C0C2FBDB22B00073FDE /* BlockDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockDTO.swift; sourceTree = "<group>"; };
 		BC8A2C0E2FBDFF2300073FDE /* BlockedUsersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedUsersView.swift; sourceTree = "<group>"; };
+		BC8A2CCB2FC5622B00073FDE /* ReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportService.swift; sourceTree = "<group>"; };
+		BC8A2CCD2FC5623C00073FDE /* ReportDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportDTO.swift; sourceTree = "<group>"; };
+		BC8A2CD02FC5626F00073FDE /* ReportAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportAPI.swift; sourceTree = "<group>"; };
 		BCA00F002FA0000100FEED01 /* FeedDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDTO.swift; sourceTree = "<group>"; };
 		BCA00F022FA0000100FEED02 /* FeedAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedAPI.swift; sourceTree = "<group>"; };
 		BCA00F042FA0000100FEED03 /* FeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedService.swift; sourceTree = "<group>"; };
@@ -366,6 +372,7 @@
 		BC1DC2DA2F68CF730016A4CD /* DTO */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A2CCD2FC5623C00073FDE /* ReportDTO.swift */,
 				BC8A2C0C2FBDB22B00073FDE /* BlockDTO.swift */,
 				BCBCF4352FAC3D5A0058E92D /* NotificationDTO.swift */,
 				BCA00F082FA2000100CMNT01 /* CommentDTO.swift */,
@@ -392,6 +399,7 @@
 		BC1DC2E12F68CF730016A4CD /* API */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A2CCF2FC5626100073FDE /* Report */,
 				BC8A2C072FBDB1EB00073FDE /* Block */,
 				BC8A28D12FB3234700073FDE /* Push */,
 				BCBCF4422FAC3E010058E92D /* Notification */,
@@ -411,6 +419,7 @@
 		BC1DC2E82F68CF730016A4CD /* Service */ = {
 			isa = PBXGroup;
 			children = (
+				BC8A2CCB2FC5622B00073FDE /* ReportService.swift */,
 				BC8A2C0A2FBDB21700073FDE /* BlockService.swift */,
 				BC8A28CF2FB3231200073FDE /* PushService.swift */,
 				BCBCF4452FAC3E370058E92D /* NotificationService.swift */,
@@ -575,6 +584,14 @@
 				BC8A2C082FBDB1F100073FDE /* BlockAPI.swift */,
 			);
 			path = Block;
+			sourceTree = "<group>";
+		};
+		BC8A2CCF2FC5626100073FDE /* Report */ = {
+			isa = PBXGroup;
+			children = (
+				BC8A2CD02FC5626F00073FDE /* ReportAPI.swift */,
+			);
+			path = Report;
 			sourceTree = "<group>";
 		};
 		BCA00F062FA0000100FEED04 /* Feed */ = {
@@ -1068,6 +1085,7 @@
 				BC1DC2EE2F68CF730016A4CD /* TokenStorage.swift in Sources */,
 				BCD815A32F6929550028AE50 /* SplashView.swift in Sources */,
 				BC8A28DD2FB4C2D900073FDE /* UIImage+Extensions.swift in Sources */,
+				BC8A2CCC2FC5622C00073FDE /* ReportService.swift in Sources */,
 				BC6674E72F73A564009CBF8D /* AlbumStrick.swift in Sources */,
 				BC706F632F90A6CA0093C0B8 /* HomeFeedEndView.swift in Sources */,
 				BC8A28CE2FB322DB00073FDE /* AppDelegate.swift in Sources */,
@@ -1082,6 +1100,7 @@
 				BCD815AF2F69346D0028AE50 /* MainTabView.swift in Sources */,
 				BC706E5F2F8DC0E20093C0B8 /* FriendDTO.swift in Sources */,
 				BC706E682F8DFDD70093C0B8 /* ContactSyncView.swift in Sources */,
+				BC8A2CD12FC5627100073FDE /* ReportAPI.swift in Sources */,
 				BC64737A2F86ADDA00FA15EA /* AlbumAPI.swift in Sources */,
 				BCCAD6072F6B060300ED71E0 /* EmailView.swift in Sources */,
 				BC706DFF2F87FA0E0093C0B8 /* AlbumDateDetailView.swift in Sources */,
@@ -1185,6 +1204,7 @@
 				BCA00F052FA0000100FEED03 /* FeedService.swift in Sources */,
 				BCA00F092FA2000100CMNT01 /* CommentDTO.swift in Sources */,
 				BCA00F0B2FA2000100CMNT02 /* CommentAPI.swift in Sources */,
+				BC8A2CCE2FC5623D00073FDE /* ReportDTO.swift in Sources */,
 				BCA00F0D2FA2000100CMNT03 /* CommentService.swift in Sources */,
 				BC706F692F93E8B80093C0B8 /* StoryDTO.swift in Sources */,
 				BC1DC2FE2F68CF730016A4CD /* ImagePicker.swift in Sources */,
@@ -1374,7 +1394,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.3;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.messiofcoding.snapy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1418,7 +1438,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.3;
+				MARKETING_VERSION = 1.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.messiofcoding.snapy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

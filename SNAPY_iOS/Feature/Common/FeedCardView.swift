@@ -189,8 +189,10 @@ struct FeedCardView: View {
 
                 Spacer()
 
-                Button {
-                    showReport = true
+                Menu {
+                    Button("신고", role: .destructive) {
+                        showReport = true
+                    }
                 } label: {
                     Image(systemName: "ellipsis")
                         .font(.system(size: 20))

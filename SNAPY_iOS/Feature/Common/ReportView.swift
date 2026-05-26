@@ -14,6 +14,15 @@ enum ReportType: String, CaseIterable {
     case STORY
     case COMMENT
     case USER
+
+    var serverKey: String {
+        switch self {
+        case .FEED:    return "FEED"
+        case .STORY:   return "STORY"
+        case .COMMENT: return "FEED" // 댓글은 피드로 신고
+        case .USER:    return "PROFILE"
+        }
+    }
 }
 
 // MARK: - 신고 사유
@@ -29,6 +38,19 @@ enum ReportReason: String, CaseIterable, Identifiable {
     case other = "기타"
 
     var id: String { rawValue }
+
+    var serverKey: String {
+        switch self {
+        case .spam:         return "SPAM_OR_SCAM"
+        case .nudity:       return "NUDITY_OR_SEXUAL_CONTENT"
+        case .hateSpeech:   return "HATE_SPEECH_OR_SYMBOL"
+        case .violence:     return "VIOLENCE_OR_DANGEROUS_ORGANIZATION"
+        case .falseInfo:    return "FALSE_INFORMATION"
+        case .bullying:     return "BULLYING_OR_HARASSMENT"
+        case .intellectual: return "INTELLECTUAL_PROPERTY_INFRINGEMENT"
+        case .other:        return "OTHER"
+        }
+    }
 }
 
 // MARK: - ReportView
@@ -195,12 +217,38 @@ struct ReportView: View {
         .padding(.bottom, 34)
     }
 
-    // MARK: - 신고 제출 (placeholder)
+    // MARK: - 신고 제출
 
     private func submitReport(reason: ReportReason) {
-        print("[Report] 신고 접수 - type: \(reportType.rawValue), targetId: \(targetId), reason: \(reason.rawValue)")
-        withAnimation(.easeInOut(duration: 0.3)) {
-            isSubmitted = true
+        Task {
+            do {
+                if reportType == .USER {
+                    try await ReportService.shared.report(
+                        targetType: reportType.serverKey,
+                        userHandle: targetId,
+                        reason: reason.serverKey
+                    )
+                    print("[Report] 신고 접수 성공 - type: \(reportType.serverKey), handle: \(targetId), reason: \(reason.serverKey)")
+                } else {
+                    guard let id = Int64(targetId) else {
+                        print("[Report] targetId 변환 실패: \(targetId)")
+                        return
+                    }
+                    try await ReportService.shared.report(
+                        targetType: reportType.serverKey,
+                        targetId: id,
+                        reason: reason.serverKey
+                    )
+                    print("[Report] 신고 접수 성공 - type: \(reportType.serverKey), targetId: \(id), reason: \(reason.serverKey)")
+                }
+            } catch {
+                print("[Report] 신고 접수 실패: \(error)")
+            }
+            await MainActor.run {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    isSubmitted = true
+                }
+            }
         }
     }
 }

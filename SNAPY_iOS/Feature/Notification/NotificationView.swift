@@ -38,9 +38,9 @@ struct NotificationView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 18, weight: .semibold))
+                            .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(Color.textWhite)
-                            .frame(width: 40, height: 40)
+                            .frame(width: 44, height: 44)
                             .background(.ultraThinMaterial, in: Circle())
                     }
 
@@ -52,9 +52,15 @@ struct NotificationView: View {
 
                     Spacer()
 
-                    // 뒤로가기 버튼과 대칭용 여백
-                    Color.clear
-                        .frame(width: 40, height: 40)
+                    Button {
+                        showFriendRequest = true
+                    } label: {
+                        Image(systemName: "person.badge.plus")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(Color.textWhite)
+                            .frame(width: 44, height: 44)
+                            .background(.ultraThinMaterial, in: Circle())
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 14)
