@@ -81,6 +81,7 @@ final class AuthViewModel: ObservableObject {
 
             await MainActor.run {
                 if response.success {
+                    UserDefaults.standard.set(loginEmail, forKey: "loginEmail")
                     isLoggedIn = true
                     authFlow = .main
                 } else {
