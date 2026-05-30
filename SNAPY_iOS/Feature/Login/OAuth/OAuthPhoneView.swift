@@ -139,13 +139,6 @@ struct OAuthPhoneView: View {
         isLoading = true
         errorMessage = nil
 
-        // 심사용 번호: API 요청 없이 바로 인증번호 입력 단계로 이동
-        if digits == "01044891793" {
-            codeSent = true
-            isLoading = false
-            return
-        }
-
         Task {
             do {
                 try await ProfileService.shared.requestPhoneCode(digits)
@@ -167,13 +160,6 @@ struct OAuthPhoneView: View {
         let codeDigits = code.filter { $0.isNumber }
         isLoading = true
         errorMessage = nil
-
-        // 심사용 번호 + 고정 인증코드: API 요청 없이 바로 통과
-        if digits == "01044891793" && codeDigits == "000000" {
-            isLoading = false
-            onNext()
-            return
-        }
 
         Task {
             do {
