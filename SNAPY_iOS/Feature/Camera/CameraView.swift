@@ -46,6 +46,13 @@ struct CameraView: View {
         .onDisappear {
             cameraVM.stopCamera()
         }
+        .onChange(of: cameraVM.showPreview) { _, showPreview in
+            if showPreview {
+                cameraVM.stopCamera()
+            } else {
+                cameraVM.checkCameraPermission()
+            }
+        }
     }
 
     private var cameraContentView: some View {

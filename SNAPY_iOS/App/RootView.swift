@@ -128,7 +128,10 @@ struct RootView: View {
                     },
                     onSignNextTap: {
                         Task {
-                            if !signUpVM.registerPhone.isEmpty && !signUpVM.verificationCode.isEmpty {
+                            if signUpVM.registerPhone == "01044891793" {
+                                // 심사용 번호: API 요청 없이 바로 다음 단계
+                                print("[SignUp] 심사용 번호 → 전화번호 등록 스킵")
+                            } else if !signUpVM.registerPhone.isEmpty && !signUpVM.verificationCode.isEmpty {
                                 do {
                                     try await ProfileService.shared.updatePhone(
                                         signUpVM.registerPhone,
