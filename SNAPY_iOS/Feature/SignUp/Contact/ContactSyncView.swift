@@ -70,6 +70,14 @@ struct ContactSyncView: View {
 
             Spacer()
 
+            Text("연락처의 전화번호는 친구 추천 목적으로만 서버에 전송되며,\n제3자에게 공유되지 않습니다.")
+                .font(.system(size: 12))
+                .foregroundColor(.customGray300)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
+
             SnapyButton(title: isSyncing ? "동기화 중..." : "연락처 연동하기", isEnabled: !isSyncing) {
                 requestContactAccess()
             }
