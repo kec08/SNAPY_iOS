@@ -16,6 +16,23 @@
 
 ---
 
+## 스크린샷
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/7a6d80ab-8cb1-4e09-8ba4-6debb9caee77" width="22%"/>
+  <img src="https://github.com/user-attachments/assets/d375e85c-2a2d-4f77-8ee7-c45733c34bbd" width="22%"/>
+  <img src="https://github.com/user-attachments/assets/0a358e23-5444-4a0c-8f88-afadf8b79516" width="22%"/>
+  <img src="https://github.com/user-attachments/assets/5d9d83fa-8d45-4d07-aa71-26ca5f92e9f9" width="22%"/>
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/fdec046a-84a5-4dad-b372-f6a05a2cbe24" width="22%"/>
+  <img src="https://github.com/user-attachments/assets/478188cb-6613-49d1-83d5-a4aee424725b" width="22%"/>
+  <img src="https://github.com/user-attachments/assets/4fcb447a-59de-4d1e-ad53-27cc7bec715f" width="22%"/>
+  <img src="https://github.com/user-attachments/assets/2a155adc-1656-47b1-99b8-626966ab0ec2" width="22%"/>
+</p>
+
+---
+
 ## 소개
 
 **SNAPY**는 사진으로 소통하는 일상 공유 SNS입니다.
