@@ -90,6 +90,7 @@ final class SettingsViewModel: ObservableObject {
                 print("[Settings] 로그아웃 실패: \(error)")
             }
             TokenStorage.clear()
+            UserDefaults.standard.removeObject(forKey: "loginEmail")
             NotificationCenter.default.post(name: .didManualLogout, object: nil)
         }
     }

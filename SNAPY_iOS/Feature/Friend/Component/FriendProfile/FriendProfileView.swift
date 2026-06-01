@@ -380,7 +380,7 @@ struct FriendProfileView: View {
             Divider().background(Color.Gray500).padding(.horizontal, 22)
 
             if viewModel.isLoading {
-                ProfileFeedSkeletonGrid()
+                ProfileFeedSkeletonGrid(count: max(viewModel.postCount, 12))
             } else if viewModel.feedPosts.isEmpty {
                 Text("이번달에 올린 게시물이 없습니다")
                     .font(.system(size: 16))

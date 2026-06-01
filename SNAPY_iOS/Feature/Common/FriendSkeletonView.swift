@@ -84,7 +84,7 @@ struct FriendSkeletonList: View {
                 .padding(.horizontal, 22)
                 .padding(.bottom, 12)
 
-            ForEach(0..<6, id: \.self) { _ in
+            ForEach(0..<12, id: \.self) { _ in
                 FriendSkeletonRow()
             }
         }
@@ -95,6 +95,7 @@ struct FriendSkeletonList: View {
 // MARK: - 프로필 피드 스켈레톤
 
 struct ProfileFeedSkeletonGrid: View {
+    var count: Int = 12
     @State private var shimmer = false
 
     private let columns = [
@@ -105,7 +106,7 @@ struct ProfileFeedSkeletonGrid: View {
 
     var body: some View {
         LazyVGrid(columns: columns, spacing: 2) {
-            ForEach(0..<6, id: \.self) { _ in
+            ForEach(0..<count, id: \.self) { _ in
                 Color.white.opacity(0.08)
                     .aspectRatio(3.0/4.0, contentMode: .fit)
             }
@@ -114,7 +115,7 @@ struct ProfileFeedSkeletonGrid: View {
             shimmerOverlay
                 .mask(
                     LazyVGrid(columns: columns, spacing: 2) {
-                        ForEach(0..<6, id: \.self) { _ in
+                        ForEach(0..<count, id: \.self) { _ in
                             Color.white
                                 .aspectRatio(3.0/4.0, contentMode: .fit)
                         }

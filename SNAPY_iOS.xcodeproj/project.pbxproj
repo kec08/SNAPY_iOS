@@ -1381,8 +1381,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "SNAPY-iOS-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = SNAPY;
 				INFOPLIST_KEY_NSCameraUsageDescription = "앱에서 사진을 촬영하기 위해 카메라 사용 권한이 필요합니다.";
-				INFOPLIST_KEY_NSContactsUsageDescription = "친구를 찾기 위해 연락처에 접근합니다.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "연락처의 전화번호를 사용하여 SNAPY에 가입한 친구를 찾습니다. 연락처 정보는 친구 추천 목적으로만 서버에 전송되며, 제3자에게 공유되지 않습니다.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "음성 댓글을 녹음하기 위해 마이크 사용 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -1394,7 +1395,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.0;
+				MARKETING_VERSION = 1.5.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.messiofcoding.snapy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1425,8 +1426,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "SNAPY-iOS-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = SNAPY;
 				INFOPLIST_KEY_NSCameraUsageDescription = "앱에서 사진을 촬영하기 위해 카메라 사용 권한이 필요합니다.";
-				INFOPLIST_KEY_NSContactsUsageDescription = "친구를 찾기 위해 연락처에 접근합니다.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "연락처의 전화번호를 사용하여 SNAPY에 가입한 친구를 찾습니다. 연락처 정보는 친구 추천 목적으로만 서버에 전송되며, 제3자에게 공유되지 않습니다.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "음성 댓글을 녹음하기 위해 마이크 사용 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -1438,7 +1440,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.0;
+				MARKETING_VERSION = 1.5.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.messiofcoding.snapy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

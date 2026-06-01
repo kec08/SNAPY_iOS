@@ -20,10 +20,12 @@ struct ImageViewerView: View {
     @State private var lastScale: CGFloat = 1.0
     @State private var offset: CGSize = .zero
     @State private var lastOffset: CGSize = .zero
+    @State private var dragOffset: CGSize = .zero  // dismiss용 드래그
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color.black.opacity(1.0 - min(abs(dragOffset.height) / 300.0, 0.5))
+                .ignoresSafeArea()
 
             // 확대/축소 + 드래그 가능한 이미지
             Group {
@@ -51,7 +53,8 @@ struct ImageViewerView: View {
             .clipShape(isCircle ? AnyShape(Circle()) : AnyShape(RoundedRectangle(cornerRadius: 16)))
             .padding(.horizontal, horizontalPadding)
             .scaleEffect(scale)
-            .offset(offset)
+            .offset(x: offset.width, y: offset.height + dragOffset.height)
+            .opacity(1.0 - min(abs(dragOffset.height) / 300.0, 0.5))
             .gesture(
                 // 핀치 줌
                 MagnifyGesture()
@@ -72,7 +75,7 @@ struct ImageViewerView: View {
                     }
             )
             .simultaneousGesture(
-                // 드래그 (확대 시)
+                // 드래그 (확대 시 이동 / 1배율 시 dismiss)
                 DragGesture()
                     .onChanged { value in
                         if scale > 1.0 {
@@ -80,14 +83,20 @@ struct ImageViewerView: View {
                                 width: lastOffset.width + value.translation.width,
                                 height: lastOffset.height + value.translation.height
                             )
+                        } else {
+                            dragOffset = value.translation
                         }
                     }
-                    .onEnded { _ in
-                        lastOffset = offset
-                        if scale <= 1.0 {
-                            withAnimation(.spring()) {
-                                offset = .zero
-                                lastOffset = .zero
+                    .onEnded { value in
+                        if scale > 1.0 {
+                            lastOffset = offset
+                        } else {
+                            if abs(dragOffset.height) > 120 {
+                                dismiss()
+                            } else {
+                                withAnimation(.spring()) {
+                                    dragOffset = .zero
+                                }
                             }
                         }
                     }

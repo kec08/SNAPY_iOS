@@ -279,8 +279,19 @@ private extension RootView {
         screen = .login
     }
 
+    /// 심사용 데모 계정 여부 확인
+    private var isDemoAccount: Bool {
+        UserDefaults.standard.string(forKey: "loginEmail") == "kkk1234@naver.com"
+    }
+
     /// 프로필 완성도 확인 → 미완성 시 해당 단계로 이동
     func checkProfileCompletion() async -> AppScreen {
+        // 심사용 데모 계정은 전화번호 인증 없이 바로 메인
+        if isDemoAccount {
+            print("[AutoLogin] 심사용 데모 계정 → 메인")
+            return .main
+        }
+
         do {
             let profile = try await ProfileService.shared.fetchMyProfile()
             UserDefaults.standard.set(profile.handle, forKey: "myHandle")

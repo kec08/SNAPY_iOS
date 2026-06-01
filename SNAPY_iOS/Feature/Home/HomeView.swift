@@ -159,8 +159,10 @@ struct HomeView: View {
                 }
             }
             // 알림 화면
-            .navigationDestination(isPresented: $showNotification) {
-                NotificationView()
+            .fullScreenCover(isPresented: $showNotification) {
+                NavigationStack {
+                    NotificationView()
+                }
             }
             // 피드에서 탭한 유저의 스토리만 표시
             .fullScreenCover(item: $singleStoryItem) { story in

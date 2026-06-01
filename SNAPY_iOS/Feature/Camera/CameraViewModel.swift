@@ -174,7 +174,7 @@ final class CameraViewModel: ObservableObject {
         shouldDismiss = false
         latestBackImage = nil
         latestFrontImage = nil
-        setupCamera()
+        dualCamera.stopSession()
     }
 
     func stopCamera() {

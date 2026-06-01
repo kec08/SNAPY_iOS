@@ -24,7 +24,7 @@ struct ProfileFeedSection: View {
 
     var body: some View {
         if viewModel.isLoading {
-            ProfileFeedSkeletonGrid()
+            ProfileFeedSkeletonGrid(count: max(viewModel.postCount, 12))
         } else if viewModel.feedPosts.isEmpty && viewModel.pastMonths.isEmpty {
             Text("게시물이 아직 없습니다")
                 .font(.system(size: 14))
